@@ -59,38 +59,3 @@ pnpm run dev
 ```shell
 pnpm run build
 ```
-
-Available Test Accounts:
-
-Pet Owners:
-
-1. Sarah Johnson
-   • Email: sarah.johnson@email.com
-   • Password: password123
-   • User Type: Pet Owner
-2. Michael Chen
-   • Email: michael.chen@email.com
-   • Password: password123
-   • User Type: Pet Owner
-3. Emma Rodriguez
-   • Email: emma.rodriguez@email.com
-   • Password: password123
-   • User Type: Pet Owner
-
-Veterinarians:
-
-1. Dr. Maria Martinez
-   • Email: dr.martinez@petcare.com
-   • Password: vetpass123
-   • User Type: Veterinarian
-2. Dr. James Thompson
-   • Email: dr.thompson@petcare.com
-   • Password: vetpass123
-   • User Type: Veterinarian
-
-Administrator:
-
-1. System Administrator
-   • Email: admin@petcare.com
-   • Password: adminpass123
-   • User Type: Administrator
