@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import Footer from '@/components/ui/footer';
 import { Users, Calendar, FileText, TrendingUp, Bell, Search, Shield } from 'lucide-react';
 import { Appointment, User } from '../../types';
+import UserManagementDialogs from '../Admin/UserManagementDialogs';
+import { UserService } from '../../services/userService';
 
 interface AdminDashboardProps {
   user: User;
@@ -18,16 +20,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    // Load all users
-    const users: User[] = [];
-    const userKeys = Object.keys(localStorage).filter(key => key.startsWith('user_'));
-    userKeys.forEach(key => {
-      const userData = JSON.parse(localStorage.getItem(key) || '{}');
-      if (userData.email) {
-        users.push(userData);
-      }
-    });
+  const loadData = useCallback(() => {
+    // Load all users using UserService
+    const users = UserService.getAllUsers();
     setAllUsers(users);
 
     // Load all appointments
@@ -39,6 +34,10 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     });
     setAllAppointments(appointments);
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const totalUsers = allUsers.length;
   const petOwners = allUsers.filter(u => u.userType === 'pet_owner').length;
@@ -56,11 +55,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 10);
 
-  const filteredUsers = allUsers.filter(user =>
-    user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.userType.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = UserService.searchUsers(searchTerm);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -305,35 +300,12 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                 </div>
               </CardHeader>
               <CardContent>
-                {filteredUsers.length > 0 ? (
-                  <div className="space-y-4">
-                    {filteredUsers.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="flex-shrink-0">
-                            <Shield className="h-5 w-5 text-gray-500" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{user.fullName}</p>
-                            <p className="text-sm text-gray-600">{user.email}</p>
-                            <p className="text-sm text-gray-500">{user.phone}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge className={getUserTypeColor(user.userType)}>
-                            {user.userType.replace('_', ' ')}
-                          </Badge>
-                          <span className="text-sm text-gray-500">
-                            {new Date(user.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
+                <UserManagementDialogs 
+                  users={filteredUsers} 
+                  onUsersChange={loadData}
+                  currentUser={user}
+                />
+                {filteredUsers.length === 0 && (
                   <p className="text-gray-500 text-center py-8">No users found</p>
                 )}
               </CardContent>
