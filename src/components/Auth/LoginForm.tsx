@@ -11,9 +11,10 @@ import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 interface LoginFormProps {
   onLogin: (email: string, password: string, userType: string) => Promise<boolean>;
   onSwitchToRegister: () => void;
+  onForgotPassword: () => void;
 }
 
-export default function LoginForm({ onLogin, onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm({ onLogin, onSwitchToRegister, onForgotPassword }: LoginFormProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -216,26 +217,40 @@ export default function LoginForm({ onLogin, onSwitchToRegister }: LoginFormProp
             </Button>
           </form>
 
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setError('');
-                setEmail('');
-                setPassword('');
-                setConfirmPassword('');
-                setFullName('');
-                setPhone('');
-                setUserType('');
-              }}
-              className="text-petcare-primary hover:text-petcare-navy text-sm transition-colors"
-            >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : "Already have an account? Sign in"
-              }
-            </button>
+          <div className="mt-4 space-y-2">
+            {isLogin && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={onForgotPassword}
+                  className="text-petcare-primary hover:text-petcare-navy text-sm transition-colors"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
+            
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError('');
+                  setEmail('');
+                  setPassword('');
+                  setConfirmPassword('');
+                  setFullName('');
+                  setPhone('');
+                  setUserType('');
+                }}
+                className="text-petcare-primary hover:text-petcare-navy text-sm transition-colors"
+              >
+                {isLogin 
+                  ? "Don't have an account? Sign up" 
+                  : "Already have an account? Sign in"
+                }
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -83,3 +83,27 @@ export interface ClinicalRecord {
   followUpDate?: string;
   createdAt: string;
 }
+
+export interface PasswordResetToken {
+  id: string;
+  email: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+  used: boolean;
+  userType?: string;
+}
+
+export interface EmailLog {
+  to: string;
+  subject: string;
+  resetToken?: string;
+  resetLink?: string;
+  sentAt: string;
+  type: 'password-reset' | 'password-changed' | 'welcome' | 'notification';
+}
+
+export interface AuthState {
+  view: 'login' | 'register' | 'forgot-password' | 'reset-password';
+  resetToken?: string;
+}
