@@ -110,14 +110,22 @@ src/
 - **Email**: `admin@petcare.com`
 - **Password**: `adminpass123`
 - **Access Level**: Super Admin
+- **Additional Admins**:
+  - `admin.elevated@petcare.com` / `adminpass123` (Elevated Admin)
+  - `admin.standard@petcare.com` / `adminpass123` (Standard Admin)
 
 ### Veterinarian
-- **Email**: `vet@petcare.com`
-- **Password**: `vet123`
+- **Primary**: `vet@petcare.com` / `vet123`
+- **Additional**: 
+  - `dr.martinez@petcare.com` / `vetpass123`
+  - `dr.thompson@petcare.com` / `vetpass123`
 
 ### Pet Owner
-- **Email**: `owner@petcare.com`
-- **Password**: `owner123`
+- **Primary**: `owner@petcare.com` / `owner123`
+- **Additional**:
+  - `sarah.johnson@email.com` / `password123`
+  - `michael.chen@email.com` / `password123`
+  - `emma.rodriguez@email.com` / `password123`
 
 ## 👥 User Roles & Permissions
 
