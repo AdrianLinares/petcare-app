@@ -21,36 +21,25 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
 
   useEffect(() => {
     // Load user's pets and appointments with debugging
-    console.log('🔍 Loading data for user:', user.email);
     
     const savedPets = localStorage.getItem(`pets_${user.email}`);
-    console.log('🐾 Saved pets data:', savedPets);
     if (savedPets) {
       try {
         const parsedPets = JSON.parse(savedPets);
-        console.log('✅ Parsed pets:', parsedPets);
         setPets(parsedPets);
       } catch (error) {
         console.error('❌ Error parsing pets data:', error);
       }
-    } else {
-      console.log('⚠️ No pets data found for key:', `pets_${user.email}`);
-      // List all localStorage keys for debugging
-      console.log('📋 All localStorage keys:', Object.keys(localStorage));
     }
 
     const savedAppointments = localStorage.getItem(`appointments_${user.email}`);
-    console.log('📅 Saved appointments data:', savedAppointments);
     if (savedAppointments) {
       try {
         const parsedAppointments = JSON.parse(savedAppointments);
-        console.log('✅ Parsed appointments:', parsedAppointments);
         setAppointments(parsedAppointments);
       } catch (error) {
         console.error('❌ Error parsing appointments data:', error);
       }
-    } else {
-      console.log('⚠️ No appointments data found for key:', `appointments_${user.email}`);
     }
   }, [user.email]);
 

@@ -99,6 +99,16 @@ export default function LoginForm({ onLogin, onSwitchToRegister, onForgotPasswor
               : 'Create your account to get started'
             }
           </CardDescription>
+          {isLogin && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
+              <p className="font-medium text-blue-900 mb-2">Demo Credentials:</p>
+              <div className="space-y-1 text-blue-800">
+                <p><strong>Pet Owner:</strong> owner@petcare.com / owner123</p>
+                <p><strong>Veterinarian:</strong> vet@petcare.com / vet123</p>
+                <p><strong>Administrator:</strong> admin@petcare.com / adminpass123</p>
+              </div>
+            </div>
+          )}
         </CardHeader>
         
         <CardContent>
