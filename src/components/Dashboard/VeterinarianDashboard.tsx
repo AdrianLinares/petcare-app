@@ -20,15 +20,23 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     // Load all appointments for the veterinarian
     const allAppointments: Appointment[] = [];
     
-    // Get all users' appointments and filter for this veterinarian
-    const users = Object.keys(localStorage).filter(key => key.startsWith('appointments_'));
-    users.forEach(userKey => {
-      const userAppointments = JSON.parse(localStorage.getItem(userKey) || '[]');
-      const vetAppointments = userAppointments.filter((apt: Appointment) => 
-        apt.veterinarian === user.fullName
-      );
-      allAppointments.push(...vetAppointments);
-    });
+    try {
+      // Get all users' appointments and filter for this veterinarian
+      const appointmentKeys = Object.keys(localStorage).filter(key => key.startsWith('appointments_'));
+      appointmentKeys.forEach(userKey => {
+        try {
+          const userAppointments = JSON.parse(localStorage.getItem(userKey) || '[]');
+          const vetAppointments = userAppointments.filter((apt: Appointment) => 
+            apt.veterinarian === user.fullName || apt.veterinarian.includes(user.fullName.split(' ')[1])
+          );
+          allAppointments.push(...vetAppointments);
+        } catch (error) {
+          console.error(`Error parsing appointments from ${userKey}:`, error);
+        }
+      });
+    } catch (error) {
+      console.error('Error loading veterinarian appointments:', error);
+    }
 
     setAppointments(allAppointments);
   }, [user.fullName]);
