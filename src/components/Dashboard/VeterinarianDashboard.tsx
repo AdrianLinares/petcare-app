@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Footer from '@/components/ui/footer';
-import { Calendar, Clock, Users, FileText, Bell, User as UserIcon } from 'lucide-react';
+import { Calendar, Clock, Users, FileText, Bell, User as UserIcon, Edit, Save, X } from 'lucide-react';
 import { Appointment, User } from '../../types';
+import { toast } from 'sonner';
 
 interface VeterinarianDashboardProps {
   user: User;
@@ -15,6 +20,13 @@ interface VeterinarianDashboardProps {
 export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDashboardProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [activeTab, setActiveTab] = useState('today');
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [medicalForm, setMedicalForm] = useState({
+    diagnosis: '',
+    treatment: '',
+    notes: '',
+    followUpDate: ''
+  });
 
   useEffect(() => {
     // Load all appointments for the veterinarian
@@ -72,6 +84,48 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
         apt.id === appointmentId ? updatedAppointment : apt
       ));
     }
+  };
+
+  const handleEditMedicalHistory = (appointment: Appointment) => {
+    setEditingAppointment(appointment);
+    setMedicalForm({
+      diagnosis: appointment.diagnosis || '',
+      treatment: appointment.treatment || '',
+      notes: appointment.notes || '',
+      followUpDate: appointment.followUpDate || ''
+    });
+  };
+
+  const handleSaveMedicalHistory = () => {
+    if (!editingAppointment) return;
+
+    const updatedAppointment = {
+      ...editingAppointment,
+      diagnosis: medicalForm.diagnosis,
+      treatment: medicalForm.treatment,
+      notes: medicalForm.notes,
+      followUpDate: medicalForm.followUpDate
+    };
+
+    // Update in the owner's localStorage
+    const ownerAppointments = JSON.parse(localStorage.getItem(`appointments_${editingAppointment.ownerId}`) || '[]');
+    const updatedOwnerAppointments = ownerAppointments.map((apt: Appointment) =>
+      apt.id === editingAppointment.id ? updatedAppointment : apt
+    );
+    localStorage.setItem(`appointments_${editingAppointment.ownerId}`, JSON.stringify(updatedOwnerAppointments));
+
+    // Update local state
+    setAppointments(appointments.map(apt => 
+      apt.id === editingAppointment.id ? updatedAppointment : apt
+    ));
+
+    setEditingAppointment(null);
+    toast.success('Medical History Correctly Updated ');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingAppointment(null);
+    setMedicalForm({ diagnosis: '', treatment: '', notes: '', followUpDate: '' });
   };
 
   const getStatusColor = (status: string) => {
@@ -267,7 +321,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
           <TabsContent value="patients" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Patients</CardTitle>
+                <CardTitle>Patients Medical History</CardTitle>
               </CardHeader>
               <CardContent>
                 {appointments.length > 0 ? (
@@ -294,9 +348,21 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                               {appointment.diagnosis && (
                                 <p className="text-sm text-gray-500">Diagnosis: {appointment.diagnosis}</p>
                               )}
+                              {appointment.treatment && (
+                                <p className="text-sm text-gray-500">Treatment: {appointment.treatment}</p>
+                              )}
                             </div>
                           </div>
-                          <Badge variant="secondary">Completed</Badge>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="secondary">Completed</Badge>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditMedicalHistory(appointment)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                   </div>
@@ -308,6 +374,81 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Medical History Edit Dialog */}
+      <Dialog open={!!editingAppointment} onOpenChange={(open) => !open && handleCancelEdit()}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Medical History</DialogTitle>
+            <DialogDescription>
+              {editingAppointment && (
+                <>
+                  Patient: <strong>{editingAppointment.petName}</strong> - 
+                  Date: <strong>{new Date(editingAppointment.date).toLocaleDateString()}</strong>
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingAppointment && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Type of Appointment</Label>
+                  <Input value={editingAppointment.type} disabled />
+                </div>
+                <div className="space-y-2">
+                  <Label>Reason for Visit</Label>
+                  <Input value={editingAppointment.reason || ''} disabled />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="diagnosis">Diagnosis</Label>
+                <Textarea
+                  id="diagnosis"
+                  value={medicalForm.diagnosis}
+                  onChange={(e) => setMedicalForm({ ...medicalForm, diagnosis: e.target.value })}
+                  placeholder="Ingrese el diagnóstico del paciente"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="treatment">Treatment</Label>
+                <Textarea
+                  id="treatment"
+                  value={medicalForm.treatment}
+                  onChange={(e) => setMedicalForm({ ...medicalForm, treatment: e.target.value })}
+                  placeholder="Describa el tratamiento aplicado o recomendado"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Additional Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={medicalForm.notes}
+                  onChange={(e) => setMedicalForm({ ...medicalForm, notes: e.target.value })}
+                  placeholder="Observaciones, recomendaciones o notas importantes"
+                  rows={2}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={handleCancelEdit}>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveMedicalHistory}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Medical History
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>

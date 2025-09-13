@@ -51,6 +51,7 @@ export interface Appointment {
   status: 'scheduled' | 'completed' | 'cancelled';
   diagnosis?: string;
   treatment?: string;
+  followUpDate?: string;
   createdAt: string;
 }
 
