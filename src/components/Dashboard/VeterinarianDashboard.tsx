@@ -7,10 +7,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Footer from '@/components/ui/footer';
-import { Calendar, Clock, Users, FileText, Bell, User as UserIcon, Edit, Save, X } from 'lucide-react';
-import { Appointment, User } from '../../types';
+import { Calendar, Clock, Users, FileText, Bell, User as UserIcon, Edit, Save, X, Search, Filter, Trash2 } from 'lucide-react';
+import { Appointment, User, Pet } from '../../types';
+import { AppointmentService } from '../../services/appointmentService';
+import { PetService } from '../../services/petService';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
 
 interface VeterinarianDashboardProps {
   user: User;
@@ -21,36 +28,36 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [activeTab, setActiveTab] = useState('today');
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
   const [medicalForm, setMedicalForm] = useState({
     diagnosis: '',
     treatment: '',
     notes: '',
     followUpDate: ''
   });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [rescheduleForm, setRescheduleForm] = useState({
+    date: new Date(),
+    time: ''
+  });
+  const [allPets, setAllPets] = useState<Pet[]>([]);
+  const [petSearchTerm, setPetSearchTerm] = useState('');
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+
+  const loadAppointments = () => {
+    const vetAppointments = AppointmentService.getAppointmentsByVeterinarian(user.fullName);
+    setAppointments(vetAppointments);
+  };
+
+  const loadPets = () => {
+    const pets = PetService.getAllPets();
+    setAllPets(pets);
+  };
 
   useEffect(() => {
-    // Load all appointments for the veterinarian
-    const allAppointments: Appointment[] = [];
-    
-    try {
-      // Get all users' appointments and filter for this veterinarian
-      const appointmentKeys = Object.keys(localStorage).filter(key => key.startsWith('appointments_'));
-      appointmentKeys.forEach(userKey => {
-        try {
-          const userAppointments = JSON.parse(localStorage.getItem(userKey) || '[]');
-          const vetAppointments = userAppointments.filter((apt: Appointment) => 
-            apt.veterinarian === user.fullName || apt.veterinarian.includes(user.fullName.split(' ')[1])
-          );
-          allAppointments.push(...vetAppointments);
-        } catch (error) {
-          console.error(`Error parsing appointments from ${userKey}:`, error);
-        }
-      });
-    } catch (error) {
-      console.error('Error loading veterinarian appointments:', error);
-    }
-
-    setAppointments(allAppointments);
+    loadAppointments();
+    loadPets();
   }, [user.fullName]);
 
   const today = new Date().toDateString();
@@ -67,22 +74,41 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
   ).length;
 
   const handleCompleteAppointment = (appointmentId: string) => {
-    // Find the appointment and update it
     const appointment = appointments.find(apt => apt.id === appointmentId);
     if (appointment) {
-      const updatedAppointment = { ...appointment, status: 'completed' as const };
-      
-      // Update in the owner's localStorage
-      const ownerAppointments = JSON.parse(localStorage.getItem(`appointments_${appointment.ownerId}`) || '[]');
-      const updatedOwnerAppointments = ownerAppointments.map((apt: Appointment) =>
-        apt.id === appointmentId ? updatedAppointment : apt
-      );
-      localStorage.setItem(`appointments_${appointment.ownerId}`, JSON.stringify(updatedOwnerAppointments));
-      
-      // Update local state
-      setAppointments(appointments.map(apt => 
-        apt.id === appointmentId ? updatedAppointment : apt
-      ));
+      try {
+        AppointmentService.updateAppointmentStatus(appointmentId, appointment.ownerId, 'completed');
+        loadAppointments();
+        toast.success('Appointment marked as completed');
+      } catch (error) {
+        toast.error('Failed to update appointment');
+      }
+    }
+  };
+
+  const handleCancelAppointment = (appointmentId: string) => {
+    const appointment = appointments.find(apt => apt.id === appointmentId);
+    if (appointment && confirm('Are you sure you want to cancel this appointment?')) {
+      try {
+        AppointmentService.updateAppointmentStatus(appointmentId, appointment.ownerId, 'cancelled');
+        loadAppointments();
+        toast.success('Appointment cancelled');
+      } catch (error) {
+        toast.error('Failed to cancel appointment');
+      }
+    }
+  };
+
+  const handleDeleteAppointment = (appointmentId: string) => {
+    const appointment = appointments.find(apt => apt.id === appointmentId);
+    if (appointment && confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+      try {
+        AppointmentService.deleteAppointment(appointmentId, appointment.ownerId);
+        loadAppointments();
+        toast.success('Appointment deleted');
+      } catch (error) {
+        toast.error('Failed to delete appointment');
+      }
     }
   };
 
@@ -107,20 +133,45 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       followUpDate: medicalForm.followUpDate
     };
 
-    // Update in the owner's localStorage
-    const ownerAppointments = JSON.parse(localStorage.getItem(`appointments_${editingAppointment.ownerId}`) || '[]');
-    const updatedOwnerAppointments = ownerAppointments.map((apt: Appointment) =>
-      apt.id === editingAppointment.id ? updatedAppointment : apt
-    );
-    localStorage.setItem(`appointments_${editingAppointment.ownerId}`, JSON.stringify(updatedOwnerAppointments));
+    try {
+      AppointmentService.updateAppointment(updatedAppointment);
+      loadAppointments();
+      setEditingAppointment(null);
+      toast.success('Medical History Correctly Updated');
+    } catch (error) {
+      toast.error('Failed to update medical history');
+    }
+  };
 
-    // Update local state
-    setAppointments(appointments.map(apt => 
-      apt.id === editingAppointment.id ? updatedAppointment : apt
-    ));
+  const handleRescheduleAppointment = (appointment: Appointment) => {
+    setReschedulingAppointment(appointment);
+    setRescheduleForm({
+      date: new Date(appointment.date),
+      time: appointment.time
+    });
+  };
 
-    setEditingAppointment(null);
-    toast.success('Medical History Correctly Updated ');
+  const handleSaveReschedule = () => {
+    if (!reschedulingAppointment) return;
+
+    try {
+      AppointmentService.rescheduleAppointment(
+        reschedulingAppointment.id,
+        reschedulingAppointment.ownerId,
+        rescheduleForm.date.toISOString(),
+        rescheduleForm.time
+      );
+      loadAppointments();
+      setReschedulingAppointment(null);
+      toast.success('Appointment rescheduled successfully');
+    } catch (error) {
+      toast.error('Failed to reschedule appointment');
+    }
+  };
+
+  const handleCancelReschedule = () => {
+    setReschedulingAppointment(null);
+    setRescheduleForm({ date: new Date(), time: '' });
   };
 
   const handleCancelEdit = () => {
@@ -172,10 +223,11 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="today">Today's Schedule</TabsTrigger>
             <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="patients">Patients</TabsTrigger>
+            <TabsTrigger value="manage">Manage Appointments</TabsTrigger>
+            <TabsTrigger value="medical">Medical History</TabsTrigger>
           </TabsList>
 
           <TabsContent value="today" className="space-y-6">
@@ -318,62 +370,308 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
             </Card>
           </TabsContent>
 
-          <TabsContent value="patients" className="space-y-6">
+          <TabsContent value="manage" className="space-y-6">
+            {/* Search and Filter Bar */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search by pet name, owner, or appointment type..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full md:w-48">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger>
+                        <Filter className="h-4 w-4 mr-2" />
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Appointments</SelectItem>
+                        <SelectItem value="scheduled">Scheduled</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* All Appointments Management */}
             <Card>
               <CardHeader>
-                <CardTitle>Patients Medical History</CardTitle>
+                <CardTitle>All Appointments</CardTitle>
               </CardHeader>
               <CardContent>
-                {appointments.length > 0 ? (
-                  <div className="space-y-4">
-                    {appointments
-                      .filter(apt => apt.status === 'completed')
-                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                      .slice(0, 10)
-                      .map((appointment) => (
+                {(() => {
+                  const filteredAppointments = appointments
+                    .filter(apt => {
+                      const matchesSearch = searchTerm === '' || 
+                        apt.petName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        apt.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (apt.reason && apt.reason.toLowerCase().includes(searchTerm.toLowerCase()));
+                      
+                      const matchesStatus = statusFilter === 'all' || apt.status === statusFilter;
+                      
+                      return matchesSearch && matchesStatus;
+                    })
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                  return filteredAppointments.length > 0 ? (
+                    <div className="space-y-4">
+                      {filteredAppointments.map((appointment) => (
                         <div
                           key={appointment.id}
-                          className="flex items-center justify-between p-4 border rounded-lg"
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                         >
-                          <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-4 flex-1">
                             <div className="flex-shrink-0">
-                              <UserIcon className="h-5 w-5 text-gray-500" />
+                              <Calendar className="h-5 w-5 text-blue-500" />
                             </div>
-                            <div>
-                              <p className="font-medium">{appointment.petName}</p>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{appointment.petName}</p>
+                                <Badge className={getStatusColor(appointment.status)}>
+                                  {appointment.status}
+                                </Badge>
+                              </div>
                               <p className="text-sm text-gray-600">
-                                Last visit: {new Date(appointment.date).toLocaleDateString()}
+                                {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                               </p>
                               <p className="text-sm text-gray-600">{appointment.type}</p>
-                              {appointment.diagnosis && (
-                                <p className="text-sm text-gray-500">Diagnosis: {appointment.diagnosis}</p>
-                              )}
-                              {appointment.treatment && (
-                                <p className="text-sm text-gray-500">Treatment: {appointment.treatment}</p>
+                              {appointment.reason && (
+                                <p className="text-sm text-gray-500">{appointment.reason}</p>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge variant="secondary">Completed</Badge>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditMedicalHistory(appointment)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
+                            {appointment.status === 'scheduled' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleRescheduleAppointment(appointment)}
+                                >
+                                  <Clock className="h-4 w-4 mr-1" />
+                                  Reschedule
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleCompleteAppointment(appointment.id)}
+                                >
+                                  Complete
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleCancelAppointment(appointment.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                            {appointment.status === 'completed' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditMedicalHistory(appointment)}
+                              >
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit History
+                              </Button>
+                            )}
+                            {(appointment.status === 'cancelled' || appointment.status === 'completed') && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDeleteAppointment(appointment.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-8">No patient records available</p>
-                )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-center py-8">
+                      {searchTerm || statusFilter !== 'all' 
+                        ? 'No appointments match your filters' 
+                        : 'No appointments available'}
+                    </p>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="medical" className="space-y-6">
+            {selectedPet ? (
+              <div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedPet(null)}
+                  className="mb-4"
+                >
+                  ← Back to Patient List
+                </Button>
+                <MedicalHistoryManagement 
+                  pet={selectedPet} 
+                  onUpdate={loadPets}
+                  canEdit={true}
+                />
+              </div>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Patient Medical History</CardTitle>
+                    <div className="flex items-center space-x-2">
+                      <Search className="h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search patients..."
+                        value={petSearchTerm}
+                        onChange={(e) => setPetSearchTerm(e.target.value)}
+                        className="w-64"
+                      />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {(() => {
+                    const filteredPets = allPets.filter(pet =>
+                      pet.name.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
+                      pet.species.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
+                      pet.breed.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
+                      pet.ownerId.toLowerCase().includes(petSearchTerm.toLowerCase())
+                    );
+
+                    return filteredPets.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredPets.map((pet) => (
+                          <Card 
+                            key={pet.id} 
+                            className="cursor-pointer hover:shadow-lg transition-shadow"
+                            onClick={() => setSelectedPet(pet)}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-bold text-lg">{pet.name}</h3>
+                                <Badge variant="secondary">{pet.species}</Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">Breed: {pet.breed}</p>
+                              <p className="text-sm text-gray-600">Age: {pet.age} years</p>
+                              <p className="text-sm text-gray-600">Weight: {pet.weight} kg</p>
+                              <p className="text-xs text-gray-500 mt-2">Owner: {pet.ownerId}</p>
+                              <div className="mt-3 flex gap-2">
+                                {pet.medicalHistory && pet.medicalHistory.length > 0 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {pet.medicalHistory.length} Records
+                                  </Badge>
+                                )}
+                                {pet.allergies && pet.allergies.length > 0 && (
+                                  <Badge variant="destructive" className="text-xs">
+                                    {pet.allergies.length} Allergies
+                                  </Badge>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-center text-gray-500 py-8">
+                        {petSearchTerm ? 'No patients match your search' : 'No patients available'}
+                      </p>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Reschedule Dialog */}
+      <Dialog open={!!reschedulingAppointment} onOpenChange={(open) => !open && handleCancelReschedule()}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reschedule Appointment</DialogTitle>
+            <DialogDescription>
+              {reschedulingAppointment && (
+                <>
+                  Patient: <strong>{reschedulingAppointment.petName}</strong> - 
+                  Type: <strong>{reschedulingAppointment.type}</strong>
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {reschedulingAppointment && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>New Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {format(rescheduleForm.date, 'PPP')}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={rescheduleForm.date}
+                      onSelect={(date) => date && setRescheduleForm({ ...rescheduleForm, date })}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="reschedule-time">New Time</Label>
+                <Select
+                  value={rescheduleForm.time}
+                  onValueChange={(value) => setRescheduleForm({ ...rescheduleForm, time: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'].map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={handleCancelReschedule}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveReschedule}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Medical History Edit Dialog */}
       <Dialog open={!!editingAppointment} onOpenChange={(open) => !open && handleCancelEdit()}>

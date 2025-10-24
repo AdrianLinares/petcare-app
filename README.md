@@ -8,38 +8,150 @@ A comprehensive pet care management system built with modern web technologies, o
 ![Vite](https://img.shields.io/badge/Vite-5.4.1-purple)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.11-cyan)
 
+## ⚡ Key Highlights
+
+- ✅ **Complete Pet Management** with medical history, vaccinations, and medications
+- ✅ **Comprehensive Appointment System** with scheduling, rescheduling, and status tracking
+- ✅ **Role-Based Access Control** with three distinct user roles and hierarchical admin levels
+- ✅ **Password Recovery System** with secure token generation and email notifications
+- ✅ **Medical Records Management** for veterinarians with clinical notes and treatment plans
+- ✅ **Advanced Search & Filtering** across users, pets, and appointments
+- ✅ **Real-Time Dashboard Analytics** for all user types
+- ✅ **Full CRUD Operations** on users, pets, appointments, and medical records
+- ✅ **Service Layer Architecture** with dedicated services for data management
+- ✅ **Type-Safe Development** with TypeScript and Zod validation
+
 ## ✨ Features
 
 ### 🏠 **Pet Owner Dashboard**
-- Pet profile management with complete medical history
-- Vaccination tracking and reminders
-- Medication management
-- Appointment scheduling and management
-- Medical record viewing
-- Pet photo and document storage
+- **Pet Management**:
+  - Complete pet profile management with detailed information
+  - Support for multiple pets per owner
+  - Pet species, breed, age, weight, and color tracking
+  - Microchip ID storage
+  - Gender tracking
+- **Medical History Management**:
+  - Comprehensive medical history records
+  - Add, edit, and delete medical records
+  - Track diagnoses, treatments, and veterinarian notes
+  - View complete medical history timeline
+- **Vaccination Tracking**:
+  - Complete vaccination records management
+  - Add, update, and delete vaccination entries
+  - Track next due dates for vaccinations
+  - Visual indicators for overdue vaccinations
+  - Vaccination reminders
+- **Medication Management**:
+  - Active and past medication tracking
+  - Add, update, and delete medication records
+  - Dosage and administration schedule tracking
+  - Start and end date management
+- **Appointment Management**:
+  - Schedule new appointments with veterinarians
+  - View upcoming and past appointments
+  - Appointment status tracking (scheduled, completed, cancelled)
+  - Appointment details including date, time, type, and reason
+- **Pet Health Overview**:
+  - Allergy tracking and management
+  - Custom notes for special care instructions
+  - Quick stats dashboard with pet count, upcoming appointments, and overdue vaccines
 
 ### 👨‍⚕️ **Veterinarian Dashboard**
-- Patient (pet) management
-- Appointment scheduling and tracking
-- Clinical record creation and management
-- Medical history access
-- Treatment plan management
-- Practice analytics and reports
+- **Patient Management**:
+  - View all patient (pet) records
+  - Search pets by name, species, or breed
+  - Access complete pet medical history
+  - Pet owner contact information
+- **Appointment Management**:
+  - Today's appointments view with real-time updates
+  - Upcoming appointments calendar
+  - Appointment status management (scheduled, completed, cancelled)
+  - Reschedule appointments with date picker
+  - Delete appointments
+  - Time-based appointment sorting
+- **Clinical Records**:
+  - Create and edit clinical records
+  - Add diagnosis and treatment information
+  - Record symptoms and medical findings
+  - Medication prescriptions
+  - Follow-up date scheduling
+  - Clinical notes management
+- **Medical History Management**:
+  - View complete pet medical history
+  - Edit existing medical records
+  - Add new medical entries
+  - Update vaccination records
+  - Manage medication prescriptions
+- **Practice Analytics**:
+  - Daily appointment statistics
+  - Completed appointments tracking
+  - Patient load overview
+  - Upcoming schedule visibility
+- **Search and Filter**:
+  - Search appointments by pet name, owner, or type
+  - Filter by appointment status
+  - Advanced filtering options
 
 ### 🛡️ **Administrator Dashboard**
 - **Complete User Management System**:
-  - Create, edit, and delete users of all types
+  - Create, edit, and delete users of all types (Pet Owners, Veterinarians, Administrators)
   - Role-based access control (RBAC)
-  - User search and filtering
+  - User search and filtering by email, name, or user type
   - Bulk operations support
+  - View detailed user information
+  - User type management (Pet Owner, Veterinarian, Administrator)
+  - Administrator access level management (Standard, Elevated, Super Admin)
+- **Appointment Management**:
+  - View all appointments across the system
+  - Search appointments by pet name, owner, veterinarian, or type
+  - Filter appointments by status (all, scheduled, completed, cancelled)
+  - Update appointment status
+  - Delete appointments
+  - View detailed appointment information
+  - Track appointment creation dates
+- **Pet Management**:
+  - View all pets in the system
+  - Search pets by name, species, or breed
+  - Access complete pet profiles and medical history
+  - View pet owner information
+- **Medical History Access**:
+  - View and manage medical records for all pets
+  - Edit vaccination records
+  - Update medication information
+  - Add clinical notes
 - **System Analytics**:
-  - User statistics and demographics
-  - Appointment analytics
-  - System performance metrics
+  - Total user statistics (Pet Owners, Veterinarians, Administrators)
+  - Appointment analytics (Total, Completed, Cancelled, Today's appointments)
+  - Total pets in system
+  - Real-time dashboard metrics
+  - User demographics and distribution
 - **Access Control**:
   - Hierarchical admin permissions
-  - Super Admin, Elevated Admin, Standard Admin levels
-  - Permission-based UI elements
+  - Super Admin: Full system access and administrator management
+  - Elevated Admin: Advanced features and settings access
+  - Standard Admin: Basic user and appointment management
+  - Permission-based UI elements and feature visibility
+
+### 🔐 **Authentication & Security**
+- **User Authentication**:
+  - Secure login system with email and password
+  - Role-based authentication (Pet Owner, Veterinarian, Administrator)
+  - Session management with localStorage
+  - Automatic logout functionality
+- **Password Recovery**:
+  - "Forgot Password" functionality
+  - Secure password reset token generation (64-character cryptographic tokens)
+  - Email-based password reset links
+  - Token expiration (1 hour validity)
+  - One-time use tokens
+  - Password reset confirmation emails
+  - Demo email logging for development
+- **Security Features**:
+  - Password validation (minimum 8 characters)
+  - Email enumeration protection
+  - Expired token cleanup
+  - Used token tracking
+  - Secure token validation
 
 ## 🏗️ Architecture
 
@@ -58,17 +170,50 @@ A comprehensive pet care management system built with modern web technologies, o
 ```
 src/
 ├── components/
-│   ├── ui/                    # shadcn/ui components
+│   ├── ui/                    # shadcn/ui components (40+ components)
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── dialog.tsx
+│   │   ├── form.tsx
+│   │   ├── table.tsx
+│   │   └── ... (and more)
 │   ├── Auth/                  # Authentication components
+│   │   ├── LoginForm.tsx
+│   │   ├── ForgotPasswordForm.tsx
+│   │   ├── ResetPasswordForm.tsx
+│   │   └── PasswordRecoveryDemo.tsx
 │   ├── Dashboard/             # Role-based dashboards
-│   └── Admin/                 # Admin-specific components
+│   │   ├── PetOwnerDashboard.tsx
+│   │   ├── VeterinarianDashboard.tsx
+│   │   └── AdminDashboard.tsx
+│   ├── Admin/                 # Admin-specific components
+│   │   ├── UserForm.tsx
+│   │   └── UserManagementDialogs.tsx
+│   ├── Pet/                   # Pet management components
+│   │   └── PetManagement.tsx
+│   ├── Appointment/           # Appointment components
+│   │   └── AppointmentScheduling.tsx
+│   └── Medical/               # Medical history components
+│       └── MedicalHistoryManagement.tsx
 ├── services/                  # Business logic and data services
-│   └── userService.ts         # User management operations
+│   ├── userService.ts         # User management operations
+│   ├── petService.ts          # Pet CRUD operations
+│   └── appointmentService.ts  # Appointment management
 ├── schemas/                   # Zod validation schemas
 │   └── userSchema.ts          # User form validation
 ├── utils/                     # Utility functions
 │   ├── roleManagement.ts      # RBAC and permissions
+│   ├── passwordRecovery.ts    # Password reset utilities
 │   └── testData.ts           # Demo data initialization
+├── lib/                       # External integrations
+│   ├── supabase.ts            # Supabase client & email service
+│   └── utils.ts               # General utilities
+├── hooks/                     # Custom React hooks
+│   ├── use-toast.ts
+│   └── use-mobile.tsx
+├── pages/                     # Page components
+│   ├── Index.tsx
+│   └── NotFound.tsx
 ├── types.ts                   # TypeScript type definitions
 └── App.tsx                    # Main application component
 ```
@@ -106,26 +251,25 @@ src/
 
 ## 🔑 Demo Credentials
 
+These accounts are preloaded via demo data and can be used to explore each dashboard:
+
 ### Administrator
-- **Email**: `admin@petcare.com`
-- **Password**: `adminpass123`
-- **Access Level**: Super Admin
-- **Additional Admins**:
-  - `admin.elevated@petcare.com` / `adminpass123` (Elevated Admin)
-  - `admin.standard@petcare.com` / `adminpass123` (Standard Admin)
+- Super Admin: `admin@petcare.com` / `adminpass123`
+- Elevated Admin: `admin.elevated@petcare.com` / `adminpass123`
+- Standard Admin: `admin.standard@petcare.com` / `adminpass123`
 
 ### Veterinarian
-- **Primary**: `vet@petcare.com` / `vet123`
-- **Additional**: 
-  - `dr.martinez@petcare.com` / `vetpass123`
-  - `dr.thompson@petcare.com` / `vetpass123`
+- Primary: `vet@petcare.com` / `vet123`
+- Dr. Martinez: `dr.martinez@petcare.com` / `vetpass123`
+- Dr. Thompson: `dr.thompson@petcare.com` / `vetpass123`
 
 ### Pet Owner
-- **Primary**: `owner@petcare.com` / `owner123`
-- **Additional**:
-  - `sarah.johnson@email.com` / `password123`
-  - `michael.chen@email.com` / `password123`
-  - `emma.rodriguez@email.com` / `password123`
+- Primary: `owner@petcare.com` / `owner123`
+- Sarah Johnson: `sarah.johnson@email.com` / `password123`
+- Michael Chen: `michael.chen@email.com` / `password123`
+- Emma Rodriguez: `emma.rodriguez@email.com` / `password123`
+
+Note: Password reset demo emails are logged in localStorage and visible in the console.
 
 ## 👥 User Roles & Permissions
 
@@ -185,6 +329,39 @@ pnpm run lint
 5. **Data Management**: Service layer pattern for business logic
 6. **Type Safety**: Comprehensive TypeScript types and interfaces
 
+### **Service Layer Architecture**
+
+The application uses a service layer pattern for data management:
+
+**UserService** (`userService.ts`)
+- Create, read, update, delete user operations
+- User search and filtering
+- Administrator privilege management
+- Role-based user queries
+
+**PetService** (`petService.ts`)
+- Pet CRUD operations
+- Medical record management (add, update, delete)
+- Vaccination record management (add, update, delete)
+- Medication record management (add, update, delete)
+- Allergy and notes management
+- Pet search functionality
+- Owner-based and system-wide pet queries
+
+**AppointmentService** (`appointmentService.ts`)
+- Appointment CRUD operations
+- Status management (scheduled, completed, cancelled)
+- Appointment rescheduling
+- Veterinarian-based appointment queries
+- Date range filtering
+- Status-based filtering
+
+**Email Service** (`supabase.ts`)
+- Password reset email generation
+- Password change confirmation emails
+- Demo email logging for development
+- Email history tracking
+
 ### **Adding New Features**
 
 1. **Create Types**: Add TypeScript interfaces in `src/types.ts`
@@ -193,14 +370,85 @@ pnpm run lint
 4. **Components**: Build UI components with shadcn/ui
 5. **Permissions**: Update role management in `src/utils/roleManagement.ts`
 
+## 📊 Data Models
+
+The application uses comprehensive TypeScript interfaces for type safety:
+
+### **Core Entities**
+
+**Pet**
+- Complete pet profile (name, species, breed, age, weight, color, gender)
+- Microchip ID tracking
+- Medical history array
+- Vaccination records array
+- Medication records array
+- Allergy list
+- Custom notes
+
+**User**
+- Email, password, full name, phone
+- User type (pet_owner, veterinarian, administrator)
+- Address, specialization, license number (role-specific)
+- Administrator access levels
+- Admin tokens for elevated permissions
+
+**Appointment**
+- Pet and owner references
+- Veterinarian assignment
+- Date, time, and appointment type
+- Status tracking (scheduled, completed, cancelled)
+- Reason and notes
+- Clinical information (diagnosis, treatment, follow-up)
+
+**Medical Record**
+- Date and type of medical event
+- Description and diagnosis
+- Attending veterinarian
+- Treatment details
+
+**Vaccination Record**
+- Vaccine name and type
+- Administration date
+- Next due date for reminders
+
+**Medication Record**
+- Medication name and dosage
+- Start and end dates
+- Administration schedule
+
+**Password Reset Token**
+- Secure token generation
+- Email reference
+- Expiration timestamp
+- Used status tracking
+- User type association
+
 ## 🔒 Security Features
 
 - **Role-Based Access Control (RBAC)**
-- **Input validation and sanitization**
-- **Permission-based UI rendering**
-- **Secure user management operations**
-- **Form validation with error handling**
-- **Access level hierarchy enforcement**
+  - Three distinct user roles with specific permissions
+  - Hierarchical administrator access levels
+  - Permission-based feature visibility
+- **Authentication Security**
+  - Secure password storage (development mode)
+  - Session management with localStorage
+  - Role-based login verification
+- **Password Recovery Security**
+  - Cryptographically secure token generation (64-character tokens)
+  - Token expiration after 1 hour
+  - One-time use tokens with usage tracking
+  - Email enumeration protection
+  - Automatic cleanup of expired tokens
+- **Input Validation**
+  - Zod schema validation for all forms
+  - React Hook Form integration
+  - Server-side validation simulation
+  - Type-safe data handling
+- **Access Control**
+  - Permission-based UI rendering
+  - Access level hierarchy enforcement
+  - Protected routes and features
+  - Secure user management operations
 
 ## 📱 Responsive Design
 
@@ -212,32 +460,44 @@ pnpm run lint
 
 ## 🧪 Testing
 
-The application includes demo data for testing:
-- Pre-loaded user accounts for each role
-- Sample pet profiles with medical history
-- Example appointments and clinical records
-- Test data initialization on first launch
+The application includes comprehensive demo data for testing:
+- **Pre-loaded User Accounts**: 9 demo users across all three roles
+- **Sample Pet Profiles**: Multiple pets with complete medical histories
+- **Example Appointments**: Scheduled, completed, and cancelled appointments
+- **Medical Records**: Vaccinations, medications, and clinical notes
+- **Test Data Initialization**: Automatic demo data setup on first launch
+- **Password Reset Testing**: Email logs stored in localStorage for verification
+- **Console Logging**: Password reset emails logged to browser console
 
 ## 🔮 Future Enhancements
 
 ### **Planned Features**
-- Real-time notifications and alerts
-- Advanced reporting and analytics
-- Multi-clinic support
-- API integration for external services
-- Mobile application
-- File upload and document management
-- Appointment reminders and notifications
+- Real-time notifications and alerts system
+- Advanced reporting and analytics dashboards
+- Multi-clinic support with clinic management
+- External API integrations (labs, pharmacies)
+- Mobile application (React Native)
+- File upload and document management (medical records, x-rays)
+- SMS and email appointment reminders
 - Payment processing integration
+- Prescription management system
+- Inventory management for clinics
+- Client portal with direct messaging
+- Video consultation integration
 
 ### **Technical Improvements**
-- Database integration (PostgreSQL/MongoDB)
-- Real-time updates with WebSockets
-- Advanced caching strategies
-- Performance optimizations
-- Comprehensive test coverage
-- Docker containerization
-- CI/CD pipeline setup
+- Database integration (PostgreSQL/MongoDB/Supabase)
+- Real-time updates with WebSockets or Supabase Realtime
+- Advanced caching strategies (Redis)
+- Performance optimizations (lazy loading, code splitting)
+- Comprehensive test coverage (Jest, React Testing Library, Playwright)
+- Docker containerization for development and deployment
+- CI/CD pipeline setup (GitHub Actions)
+- Production-ready authentication (Supabase Auth, Auth0)
+- Email service integration (SendGrid, AWS SES)
+- Cloud storage for documents (AWS S3, Cloudinary)
+- Monitoring and error tracking (Sentry, LogRocket)
+- SEO optimization and meta tags
 
 ## 🤝 Contributing
 

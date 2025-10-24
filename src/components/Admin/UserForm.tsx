@@ -27,6 +27,7 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
     formState: { errors, isValid }
   } = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
+    mode: 'onChange',
     defaultValues: {
       fullName: user?.fullName || '',
       email: user?.email || '',
@@ -41,6 +42,15 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
   });
 
   const watchUserType = watch('userType');
+  const watchAccessLevel = watch('accessLevel');
+
+  // Initialize form values when user changes
+  React.useEffect(() => {
+    if (user) {
+      setValue('userType', user.userType);
+      setValue('accessLevel', user.accessLevel || '');
+    }
+  }, [user, setValue]);
 
   // Get available user types and access levels based on current user permissions
   const creatableUserTypes = RoleManager.getCreatableUserTypes(currentUser);
@@ -114,8 +124,8 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
       <div className="space-y-2">
         <Label htmlFor="userType">User Type *</Label>
         <Select
-          onValueChange={(value) => setValue('userType', value as 'pet_owner' | 'veterinarian' | 'administrator')}
-          defaultValue={user?.userType || 'pet_owner'}
+          onValueChange={(value) => setValue('userType', value as 'pet_owner' | 'veterinarian' | 'administrator', { shouldValidate: true })}
+          value={watchUserType}
         >
           <SelectTrigger className={errors.userType ? 'border-red-500' : ''}>
             <SelectValue placeholder="Select user type" />
@@ -187,8 +197,8 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
         <div className="space-y-2">
           <Label htmlFor="accessLevel">Access Level</Label>
           <Select
-            onValueChange={(value) => setValue('accessLevel', value)}
-            defaultValue={user?.accessLevel || 'standard'}
+            onValueChange={(value) => setValue('accessLevel', value, { shouldValidate: true })}
+            value={watchAccessLevel || 'standard'}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select access level" />
