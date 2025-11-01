@@ -218,6 +218,53 @@ src/
 └── App.tsx                    # Main application component
 ```
 
+## 📚 Documentation for Beginners
+
+**New to programming or React? We've got comprehensive guides for you!**
+
+### 🎯 Start Here: [DOCUMENTATION_INDEX.md](./DOCUMENTATION_INDEX.md)
+
+This index helps you navigate all available documentation based on your experience level.
+
+### 📝 Available Guides
+
+- **[BEGINNER_GUIDE.md](./BEGINNER_GUIDE.md)** - Step-by-step guide to understanding the codebase
+  - Explains React, TypeScript, and all core concepts
+  - Includes code examples and practice exercises
+  - ~60 minutes reading time
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Overview of how the application is structured  
+  - Big-picture view of the system
+  - Technology explanations
+  - Common patterns used throughout
+  - ~30 minutes reading time
+
+- **[CODE_COMMENTS_GUIDE.md](./CODE_COMMENTS_GUIDE.md)** - How to read code comments
+  - Explains comment types and styles
+  - Navigation strategies
+  - Tips for learning from comments
+  - ~20 minutes reading time
+
+### ✨ What You'll Learn
+
+- What React, TypeScript, and Tailwind CSS are and how they work
+- How components, props, and state work
+- How data flows through the application
+- Common React patterns used in the code
+- Step-by-step explanations of key features (login, pet management, appointments)
+- How to read and navigate code comments
+- Debugging tips and best practices
+
+### 📝 Code Comments
+
+All major code files include detailed inline comments explaining:
+- What each section does
+- Why it's written that way
+- Step-by-step breakdowns of complex logic
+- Beginner-friendly explanations of programming concepts
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
