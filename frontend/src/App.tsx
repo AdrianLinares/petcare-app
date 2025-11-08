@@ -44,9 +44,9 @@ import AdminDashboard from './components/Dashboard/AdminDashboard';           //
 import { User, AuthState } from './types';
 
 // Utility imports - Helper functions
-import { initializeTestData } from './utils/testData';              // Creates demo data
 import { getResetTokenFromURL } from './utils/passwordRecovery';    // Gets password reset token from URL
 import { toast } from 'sonner';                                      // Function to show popup messages
+import { authAPI, userAPI } from './lib/api';                        // Backend API service
 
 // ==================== MAIN APP COMPONENT ====================
 /**
@@ -92,24 +92,24 @@ const App = () => {
    * when the app first opens.
    */
   useEffect(() => {
+    // STEP 1: Check if user has valid token and restore session
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Verify token is still valid by fetching current user
+          const user = await userAPI.getCurrentUser();
+          setCurrentUser(user);
+        } catch (error) {
+          // Token is invalid or expired, clear it
+          console.log('Session expired, please login again');
+          localStorage.removeItem('token');
+          localStorage.removeItem('currentUser');
+        }
+      }
+    };
     
-    // STEP 1: Load demo data
-    // This creates sample users, pets, and appointments for testing
-    try {
-      initializeTestData();
-    } catch (error) {
-      // If something goes wrong, log it and show an error message
-      console.error('Error initializing test data:', error);
-      toast.error('Error loading test data');
-    }
-
-    // STEP 2: Check if someone was already logged in before
-    // When you log in, we save your info. When you come back, we check if it's still there.
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      // Found saved user! Convert from text to JavaScript object and log them in
-      setCurrentUser(JSON.parse(savedUser));
-    }
+    checkAuth();
     
     // STEP 3: Check if URL has a password reset token
     // Example URL: http://localhost:5173/#reset-password?token=abc123
@@ -134,61 +134,19 @@ const App = () => {
   // These functions respond to user actions (clicking, typing, etc.)
   
   /**
-   * handleLogin: Attempts to log a user in
+   * handleLoginSuccess: Called after successful login from backend
    * 
    * HOW IT WORKS:
-   * 1. User enters email and password in the login form
-   * 2. This function checks localStorage to see if that user exists
-   * 3. If found, checks if password matches
-   * 4. If everything is correct, logs them in
+   * 1. Receives user data from backend API
+   * 2. Sets current user in state
+   * 3. Token is already stored by API service
    * 
    * PARAMETERS:
-   * @param email - The user's email address
-   * @param password - The user's password
-   * @param userType - What type of user (pet_owner, veterinarian, administrator)
-   * 
-   * RETURNS:
-   * @returns true if login successful, false if login failed
-   * 
-   * BEGINNER NOTE:
-   * "async" means this function can wait for things (like checking storage)
-   * "Promise<boolean>" means it will eventually return true or false
+   * @param user - The authenticated user object from backend
    */
-  const handleLogin = async (email: string, password: string, userType: string): Promise<boolean> => {
-    try {
-      // STEP 1: Look for this user in localStorage
-      // Each user is saved with key "user_" + their email
-      // Example: "user_owner@petcare.com"
-      const savedUser = localStorage.getItem('user_' + email);
-      
-      if (savedUser) {
-        // STEP 2: User exists! Convert their data from text to JavaScript object
-        const userData = JSON.parse(savedUser);
-        
-        // STEP 3: Check if password AND user type match
-        // Both must be correct to log in
-        if (userData.password === password && userData.userType === userType) {
-          // SUCCESS! Log them in
-          setCurrentUser(userData);  // Update state with user info
-          localStorage.setItem('currentUser', JSON.stringify(userData)); // Save for next visit
-          toast.success(`Welcome back, ${userData.fullName}!`); // Show success message
-          return true; // Tell the form: login worked!
-        } else {
-          // Password or user type doesn't match
-          toast.error('Invalid credentials or user type');
-          return false; // Tell the form: login failed
-        }
-      } else {
-        // No user found with this email
-        toast.error('User not found');
-        return false;
-      }
-    } catch (error) {
-      // Something went wrong (maybe localStorage is broken?)
-      console.error('Login error:', error);
-      toast.error('An error occurred during login');
-      return false;
-    }
+  const handleLoginSuccess = (user: User) => {
+    setCurrentUser(user);
+    // Token is already stored in localStorage by authAPI.login()
   };
 
   /**
@@ -196,13 +154,13 @@ const App = () => {
    * 
    * HOW IT WORKS:
    * 1. Clear the currentUser from state (app forgets who's logged in)
-   * 2. Remove the saved user from localStorage (won't auto-login next time)
+   * 2. Remove JWT token and user data from localStorage
    * 3. Show a success message
    * 4. React will re-render and show the login form again
    */
   const handleLogout = () => {
+    authAPI.logout();                          // Clear token and saved data
     setCurrentUser(null);                      // Clear state: no one is logged in
-    localStorage.removeItem('currentUser');    // Clear saved data
     toast.success('Logged out successfully');  // Show goodbye message
   };
 
@@ -278,8 +236,8 @@ const App = () => {
         {/* Show LOGIN FORM if authState.view === 'login' */}
         {authState.view === 'login' && (
           <LoginForm 
-            onLogin={handleLogin}              // Pass login function
-            onSwitchToRegister={() => { }}     // Register not implemented yet
+            onLoginSuccess={handleLoginSuccess}      // Pass login success handler
+            onSwitchToRegister={() => { }}           // Register handled in LoginForm
             onForgotPassword={handleForgotPassword}  // Pass forgot password function
           />
         )}

@@ -18,23 +18,41 @@ export interface Pet {
 }
 
 export interface MedicalRecord {
+  id: string;
+  petId: string;
   date: string;
-  type: string;
+  recordType: string;
   description: string;
-  veterinarian: string;
+  veterinarianId?: string;
+  veterinarianName: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface VaccinationRecord {
+  id: string;
+  petId: string;
   vaccine: string;
   date: string;
-  nextDue: string;
+  nextDue?: string;
+  administeredBy?: string;
+  administeredByName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface MedicationRecord {
+  id: string;
+  petId: string;
   name: string;
   dosage: string;
   startDate: string;
   endDate?: string;
+  prescribedBy?: string;
+  prescribedByName?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Appointment {
@@ -73,8 +91,10 @@ export interface User {
 export interface ClinicalRecord {
   id: string;
   petId: string;
-  appointmentId: string;
-  veterinarian: string;
+  appointmentId?: string;
+  appointmentType?: string;
+  veterinarianId: string;
+  veterinarianName: string;
   date: string;
   symptoms: string;
   diagnosis: string;
@@ -83,6 +103,7 @@ export interface ClinicalRecord {
   notes?: string;
   followUpDate?: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface PasswordResetToken {
@@ -102,6 +123,25 @@ export interface EmailLog {
   resetLink?: string;
   sentAt: string;
   type: 'password-reset' | 'password-changed' | 'welcome' | 'notification';
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: 'appointment_reminder' | 'appointment_cancelled' | 'appointment_rescheduled' | 
+        'vaccination_due' | 'medication_reminder' | 'medical_update' | 
+        'system_alert' | 'welcome' | 'password_changed';
+  title: string;
+  message: string;
+  relatedEntityType?: 'appointment' | 'pet' | 'medication' | 'vaccination';
+  relatedEntityId?: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  read: boolean;
+  readAt?: string;
+  scheduledFor?: string;
+  sent: boolean;
+  sentAt?: string;
+  createdAt: string;
 }
 
 export interface AuthState {

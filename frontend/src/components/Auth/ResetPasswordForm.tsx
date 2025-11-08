@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Lock, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
-import { resetUserPassword, validateResetToken, getResetTokenFromURL } from '../../utils/passwordRecovery';
-import { PasswordResetToken } from '../../types';
+import { getResetTokenFromURL } from '../../utils/passwordRecovery';
+import { authAPI } from '@/lib/api';
 
 interface ResetPasswordFormProps {
   resetToken?: string;
@@ -22,49 +22,17 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [tokenData, setTokenData] = useState<PasswordResetToken | null>(null);
-  const [tokenValidated, setTokenValidated] = useState(false);
+  const [tokenValidated, setTokenValidated] = useState(true);
 
   // Get token from props or URL
   const token = propToken || getResetTokenFromURL();
 
   useEffect(() => {
-    if (token) {
-      // Validate token on component mount
-      const validation = validateResetToken(token);
-      setTokenData(validation);
-      setTokenValidated(true);
-      
-      if (!validation) {
-        setError('This password reset link is invalid or has expired.');
-      }
-    } else {
+    if (!token) {
       setError('No reset token provided.');
-      setTokenValidated(true);
     }
   }, [token]);
 
-  const validatePassword = (password: string): string[] => {
-    const errors: string[] = [];
-    
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
-    }
-    
-    if (!/(?=.*[a-z])/.test(password)) {
-      errors.push('Password must contain at least one lowercase letter');
-    }
-    
-    if (!/(?=.*[A-Z])/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
-    }
-    
-    if (!/(?=.*\d)/.test(password)) {
-      errors.push('Password must contain at least one number');
-    }
-    
-    return errors;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,42 +43,34 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
     try {
       if (!token) {
         setError('No reset token available.');
-        return;
-      }
-
-      if (!tokenData) {
-        setError('Invalid or expired reset token.');
+        setLoading(false);
         return;
       }
 
       if (!password.trim()) {
         setError('Please enter a new password.');
+        setLoading(false);
         return;
       }
 
       if (password !== confirmPassword) {
         setError('Passwords do not match.');
+        setLoading(false);
         return;
       }
 
-      // Validate password strength
-      const passwordErrors = validatePassword(password);
-      if (passwordErrors.length > 0) {
-        setError(passwordErrors.join('. '));
+      if (password.length < 8) {
+        setError('Password must be at least 8 characters long.');
+        setLoading(false);
         return;
       }
 
-      const result = await resetUserPassword(token, password);
-      
-      if (result.success) {
-        setSuccess(result.message);
-        // Auto-redirect after a short delay
-        setTimeout(() => {
-          onSuccess();
-        }, 2000);
-      } else {
-        setError(result.message);
-      }
+      const result = await authAPI.resetPassword(token, password);
+      setSuccess(result.message || 'Password reset successful!');
+      // Auto-redirect after a short delay
+      setTimeout(() => {
+        onSuccess();
+      }, 2000);
     } catch (err) {
       console.error('Password reset error:', err);
       setError('An unexpected error occurred. Please try again.');
@@ -136,7 +96,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
   }
 
   // Show error if token is invalid
-  if (!tokenData || error.includes('invalid') || error.includes('expired')) {
+  if (error.includes('invalid') || error.includes('expired') || error.includes('No reset token')) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-petcare-beige to-petcare-golden/20">
         <div className="flex-1 flex items-center justify-center p-4">
@@ -247,9 +207,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
               Set New Password
             </CardTitle>
             <CardDescription>
-              {tokenData?.email && (
-                <>Enter a new password for <strong>{tokenData.email}</strong></>
-              )}
+              Enter a new password to secure your account
             </CardDescription>
           </CardHeader>
           

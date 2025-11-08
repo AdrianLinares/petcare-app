@@ -7,6 +7,7 @@ import Footer from '@/components/ui/footer';
 import { Calendar, Clock, Plus, Heart, Bell, FileText, User as UserIcon } from 'lucide-react';
 import PetManagement from '../Pet/PetManagement';
 import AppointmentScheduling from '../Appointment/AppointmentScheduling';
+import PetMedicalRecords from '../Medical/PetMedicalRecords';
 import { Pet, Appointment, User } from '../../types';
 
 interface PetOwnerDashboardProps {
@@ -18,6 +19,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
   const [pets, setPets] = useState<Pet[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
 
   useEffect(() => {
     // Load user's pets and appointments with debugging
@@ -88,7 +90,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="pets">My Pets</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
-            <TabsTrigger value="history">Medical History</TabsTrigger>
+            <TabsTrigger value="medical">Medical Records</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -243,62 +245,60 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
             />
           </TabsContent>
 
-          <TabsContent value="history">
-            <Card>
-              <CardHeader>
-                <CardTitle>Medical History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {appointments.filter(apt => apt.status === 'completed').length > 0 ? (
-                  <div className="space-y-6">
-                    {pets.map((pet) => {
-                      const petAppointments = appointments.filter(
-                        apt => apt.petId === pet.id && apt.status === 'completed'
-                      );
-                      
-                      if (petAppointments.length === 0) return null;
-                      
-                      return (
-                        <div key={pet.id} className="border rounded-lg p-4">
-                          <h3 className="font-semibold text-lg mb-4">{pet.name}</h3>
-                          <div className="space-y-3">
-                            {petAppointments.map((appointment) => (
-                              <div key={appointment.id} className="bg-gray-50 p-3 rounded">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="font-medium">{appointment.type}</p>
-                                    <p className="text-sm text-gray-600">
-                                      {new Date(appointment.date).toLocaleDateString()} - Dr. {appointment.veterinarian}
-                                    </p>
-                                    {appointment.diagnosis && (
-                                      <p className="text-sm mt-1">
-                                        <strong>Diagnosis:</strong> {appointment.diagnosis}
-                                      </p>
-                                    )}
-                                    {appointment.treatment && (
-                                      <p className="text-sm">
-                                        <strong>Treatment:</strong> {appointment.treatment}
-                                      </p>
-                                    )}
-                                    {appointment.notes && (
-                                      <p className="text-sm">
-                                        <strong>Notes:</strong> {appointment.notes}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
+          <TabsContent value="medical" className="space-y-4">
+            {pets.length === 0 ? (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-center text-muted-foreground">
+                    No pets added yet. Add a pet to view medical records.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : selectedPetId ? (
+              <div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedPetId(null)}
+                  className="mb-4"
+                >
+                  ← Back to Pet Selection
+                </Button>
+                <PetMedicalRecords
+                  petId={selectedPetId}
+                  petName={pets.find(p => p.id === selectedPetId)?.name || 'Pet'}
+                  currentUser={user}
+                />
+              </div>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Select a Pet to View Medical Records</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {pets.map((pet) => (
+                      <Card
+                        key={pet.id}
+                        className="cursor-pointer hover:border-primary transition-colors"
+                        onClick={() => setSelectedPetId(pet.id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center space-x-3">
+                            <Heart className="h-8 w-8 text-red-500" />
+                            <div>
+                              <p className="font-semibold">{pet.name}</p>
+                              <p className="text-sm text-gray-600">
+                                {pet.species} • {pet.breed}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-8">No medical history available</p>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>

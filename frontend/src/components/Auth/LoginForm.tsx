@@ -7,14 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Footer from '@/components/ui/footer';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import { authAPI } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface LoginFormProps {
-  onLogin: (email: string, password: string, userType: string) => Promise<boolean>;
+  onLoginSuccess: (user: any) => void;
   onSwitchToRegister: () => void;
   onForgotPassword: () => void;
 }
 
-export default function LoginForm({ onLogin, onSwitchToRegister, onForgotPassword }: LoginFormProps) {
+export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgotPassword }: LoginFormProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,46 +35,44 @@ export default function LoginForm({ onLogin, onSwitchToRegister, onForgotPasswor
 
     try {
       if (isLogin) {
-        const success = await onLogin(email, password, userType);
-        if (!success) {
-          setError('Invalid credentials or user type');
-        }
+        // Login with backend API
+        const { user } = await authAPI.login(email, password);
+        toast.success(`Welcome back, ${user.fullName}!`);
+        onLoginSuccess(user);
       } else {
         // Registration logic
         if (password !== confirmPassword) {
           setError('Passwords do not match');
+          setLoading(false);
           return;
         }
         if (!userType) {
           setError('Please select a user type');
+          setLoading(false);
           return;
         }
         if (password.length < 8) {
           setError('Password must be at least 8 characters long');
+          setLoading(false);
           return;
         }
         
-        // Simulate registration
-        const userData = {
+        // Register with backend API
+        const { user } = await authAPI.register({
           email,
           password,
           fullName,
           phone,
           userType,
-          id: Date.now().toString()
-        };
+        });
         
-        localStorage.setItem('user_' + email, JSON.stringify(userData));
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        // Auto login after registration
-        const success = await onLogin(email, password, userType);
-        if (!success) {
-          setError('Registration successful but login failed');
-        }
+        toast.success(`Welcome to PetCare, ${user.fullName}!`);
+        onLoginSuccess(user);
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'An error occurred. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -103,9 +103,9 @@ export default function LoginForm({ onLogin, onSwitchToRegister, onForgotPasswor
             <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
               <p className="font-medium text-blue-900 mb-2">Demo Credentials:</p>
               <div className="space-y-1 text-blue-800">
-                <p><strong>Pet Owner:</strong> owner@petcare.com / owner123</p>
-                <p><strong>Veterinarian:</strong> vet@petcare.com / vet123</p>
-                <p><strong>Administrator:</strong> admin@petcare.com / adminpass123</p>
+                <p><strong>Pet Owner:</strong> owner@petcare.com / password123</p>
+                <p><strong>Veterinarian:</strong> vet@petcare.com / password123</p>
+                <p><strong>Administrator:</strong> admin@petcare.com / password123</p>
               </div>
             </div>
           )}

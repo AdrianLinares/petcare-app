@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Mail, Send, CheckCircle, AlertCircle } from 'lucide-react';
-import { sendPasswordResetEmail } from '../../utils/passwordRecovery';
+import { authAPI } from '@/lib/api';
 
 interface ForgotPasswordFormProps {
   onBack: () => void;
@@ -37,14 +37,9 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
         return;
       }
 
-      const result = await sendPasswordResetEmail(email.trim());
-      
-      if (result.success) {
-        setSuccess(result.message);
-        setSubmitted(true);
-      } else {
-        setError(result.message);
-      }
+      const response = await authAPI.forgotPassword(email.trim());
+      setSuccess(response.message || 'If that email exists, a password reset link has been sent.');
+      setSubmitted(true);
     } catch (err) {
       console.error('Password reset error:', err);
       setError('An unexpected error occurred. Please try again.');
