@@ -24,29 +24,30 @@ pnpm run lint
 ```
 
 ### Testing Access
-This project uses localStorage-based demo data. No separate test command exists. Use the pre-configured demo accounts listed below to test functionality.
+This project uses a PostgreSQL database with seeded demo data. Use the pre-configured demo accounts listed below to test functionality.
 
 **Demo Credentials:**
-- Super Admin: `admin@petcare.com` / `adminpass123`
-- Veterinarian: `vet@petcare.com` / `vet123`
-- Pet Owner: `owner@petcare.com` / `owner123`
+- Super Admin: `admin@petcare.com` / `password123`
+- Veterinarian: `vet@petcare.com` / `password123`
+- Pet Owner: `owner@petcare.com` / `password123`
 
 ## Core Architecture
 
 ### Data Storage Pattern
-This application uses **localStorage** as the data persistence layer (development/demo mode). All CRUD operations go through service classes:
+This application uses a **PostgreSQL database** as the data persistence layer. All CRUD operations go through the backend REST API:
 
-- **UserService** (`src/services/userService.ts`): User management, authentication
-- **PetService** (`src/services/petService.ts`): Pet records, medical history, vaccinations, medications
-- **AppointmentService** (`src/services/appointmentService.ts`): Appointment scheduling and status management
+- **Backend API** (`backend/src/routes/`): RESTful API with Express.js
+- **Frontend API Client** (`frontend/src/lib/api.ts`): Axios-based HTTP client with JWT authentication
 
-Data keys follow these patterns:
-- Users: `user_${email}`
-- Pets: `pets_${ownerId}`
-- Appointments: `appointments_${userId}` or `appointments_vet_${vetId}`
-- Clinical Records: `clinicalRecords_${petId}`
-- Password Reset Tokens: `passwordResetTokens`
-- Email Logs: `emailLogs`
+**API Modules:**
+- `authAPI`: Authentication, login, registration, password reset
+- `userAPI`: User management (create, update, delete, list)
+- `petAPI`: Pet CRUD operations
+- `appointmentAPI`: Appointment scheduling and management
+- `medicalRecordAPI`: Medical history records
+- `vaccinationAPI`: Vaccination tracking
+- `medicationAPI`: Medication management
+- `notificationAPI`: System notifications
 
 ### State Management
 The app uses React hooks for state management:
@@ -92,10 +93,11 @@ All core types are defined in `src/types.ts`:
 - `EmailLog`: Demo email tracking
 
 ### Authentication Flow
-1. Login credentials checked against localStorage (`user_${email}`)
-2. On success, user object saved to both state and localStorage (`currentUser`)
-3. `App.tsx` renders appropriate dashboard based on `user.userType`
-4. Logout clears `currentUser` from state and localStorage
+1. Login credentials sent to backend API (`/api/auth/login`)
+2. Backend validates and returns JWT token + user object
+3. Token stored in localStorage, attached to all subsequent API requests
+4. `App.tsx` renders appropriate dashboard based on `user.userType`
+5. Logout clears token and user data from localStorage
 
 ### Password Recovery System
 - Token generation: 64-character cryptographic tokens (`src/utils/passwordRecovery.ts`)
@@ -111,16 +113,26 @@ All core types are defined in `src/types.ts`:
 ## Important Development Notes
 
 ### Adding New Features
-1. **Define types** in `src/types.ts`
-2. **Create/update service** in `src/services/` for business logic
-3. **Add validation** schema in `src/schemas/` if needed
+
+**Backend:**
+1. **Define database model** in `backend/src/models/`
+2. **Create API routes** in `backend/src/routes/`
+3. **Add validation** in route handlers
+4. **Test with API client** (Postman, Insomnia)
+
+**Frontend:**
+1. **Define types** in `frontend/src/types.ts`
+2. **Update API client** in `frontend/src/lib/api.ts`
+3. **Add validation schema** in `frontend/src/schemas/` if needed
 4. **Build UI** using shadcn/ui components from `components/ui/`
 5. **Check permissions** using `RoleManager` for role-restricted features
 
-### Working with localStorage
-- Always use service classes (UserService, PetService, AppointmentService)
-- Never directly access localStorage in components
-- Service methods return `{ success: boolean, data?: T, error?: string }`
+### Working with the API
+- Always use the API client from `frontend/src/lib/api.ts`
+- Never make direct axios calls in components
+- API methods are async and return promises
+- JWT token is automatically attached to requests
+- Error handling is centralized in interceptors
 
 ### Styling Approach
 - **Tailwind CSS** utility classes for all styling
@@ -140,17 +152,24 @@ All core types are defined in `src/types.ts`:
 
 ## Key Patterns to Follow
 
-### Service Layer Pattern
-All data operations must go through service classes:
+### API Client Pattern
+All data operations must go through the API client:
 ```typescript
 // Good
-const result = UserService.createUser(userData);
-if (result.success) {
-  // Handle success
-}
+import { userAPI } from '@/lib/api';
 
-// Bad
-localStorage.setItem('user_' + email, JSON.stringify(user));
+const handleCreateUser = async (userData) => {
+  try {
+    const user = await userAPI.createUser(userData);
+    // Handle success
+  } catch (error) {
+    // Handle error
+  }
+};
+
+// Bad - Never make direct API calls
+import axios from 'axios';
+const response = await axios.post('http://localhost:3001/users', userData);
 ```
 
 ### Permission-Based Rendering
@@ -160,22 +179,45 @@ const canManage = RoleManager.hasPermission(currentUser, 'canEditUsers');
 {canManage && <EditButton />}
 ```
 
-### Array Updates in Pet Records
-When updating nested arrays (medical history, vaccinations, medications):
+### Medical Records Management
+When working with medical records, use the appropriate API:
 ```typescript
-// Use PetService methods
-PetService.addVaccinationRecord(petId, vaccinationData);
-PetService.updateMedicalRecord(petId, index, updatedRecord);
-PetService.deleteVaccinationRecord(petId, index);
+// Medical records
+import { medicalRecordAPI } from '@/lib/api';
+await medicalRecordAPI.create({ petId, date, recordType, description });
+await medicalRecordAPI.update(recordId, updates);
+await medicalRecordAPI.delete(recordId);
+
+// Vaccinations
+import { vaccinationAPI } from '@/lib/api';
+await vaccinationAPI.create({ petId, vaccine, date, nextDue });
+await vaccinationAPI.update(vaccinationId, updates);
+await vaccinationAPI.delete(vaccinationId);
+
+// Medications
+import { medicationAPI } from '@/lib/api';
+await medicationAPI.create({ petId, name, dosage, startDate, endDate });
+await medicationAPI.update(medicationId, updates);
+await medicationAPI.delete(medicationId);
 ```
 
-## Future Architecture Plans (from README)
-- Database integration (PostgreSQL/MongoDB/Supabase)
-- Real authentication (Supabase Auth, Auth0)
+## Migration Status
+
+### ✅ Completed
+- Database integration (PostgreSQL)
+- JWT authentication
+- RESTful API backend
+- Full frontend-backend integration
+- Medical records API
+- User management API
+
+### 🔄 Future Plans
 - Real email service (SendGrid, AWS SES)
 - File uploads (AWS S3, Cloudinary)
 - WebSockets for real-time updates
 - Test coverage (Jest, React Testing Library, Playwright)
+- Docker containerization
+- CI/CD pipeline
 
 ## Documentation
 For detailed explanations aimed at beginners, see:

@@ -18,7 +18,7 @@ A comprehensive pet care management system built with modern web technologies, o
 - ✅ **Advanced Search & Filtering** across users, pets, and appointments
 - ✅ **Real-Time Dashboard Analytics** for all user types
 - ✅ **Full CRUD Operations** on users, pets, appointments, and medical records
-- ✅ **Service Layer Architecture** with dedicated services for data management
+- ✅ **Backend API Integration** with PostgreSQL database and JWT authentication
 - ✅ **Type-Safe Development** with TypeScript and Zod validation
 
 ## ✨ Features
@@ -156,7 +156,9 @@ A comprehensive pet care management system built with modern web technologies, o
 ## 🏗️ Architecture
 
 ### **Technology Stack**
-- **Frontend**: React 18.3.1 with TypeScript
+
+#### Frontend
+- **Framework**: React 18.3.1 with TypeScript
 - **Build Tool**: Vite 5.4.1
 - **Styling**: Tailwind CSS 3.4.11
 - **UI Components**: shadcn/ui with Radix UI primitives
@@ -164,7 +166,14 @@ A comprehensive pet care management system built with modern web technologies, o
 - **Forms**: React Hook Form with Zod validation
 - **Icons**: Lucide React
 - **Notifications**: Sonner
-- **Data Storage**: localStorage (demo/development)
+- **HTTP Client**: Axios
+
+#### Backend
+- **Runtime**: Node.js with Express.js
+- **Database**: PostgreSQL
+- **Authentication**: JWT (JSON Web Tokens)
+- **Validation**: Express Validator
+- **API Architecture**: RESTful API
 
 ### **Project Structure**
 ```
@@ -195,19 +204,15 @@ src/
 │   │   └── AppointmentScheduling.tsx
 │   └── Medical/               # Medical history components
 │       └── MedicalHistoryManagement.tsx
-├── services/                  # Business logic and data services
-│   ├── userService.ts         # User management operations
-│   ├── petService.ts          # Pet CRUD operations
-│   └── appointmentService.ts  # Appointment management
+├── lib/                       # External integrations
+│   ├── api.ts                 # Backend API client (Axios)
+│   └── utils.ts               # General utilities
 ├── schemas/                   # Zod validation schemas
 │   └── userSchema.ts          # User form validation
 ├── utils/                     # Utility functions
 │   ├── roleManagement.ts      # RBAC and permissions
 │   ├── passwordRecovery.ts    # Password reset utilities
 │   └── testData.ts           # Demo data initialization
-├── lib/                       # External integrations
-│   ├── supabase.ts            # Supabase client & email service
-│   └── utils.ts               # General utilities
 ├── hooks/                     # Custom React hooks
 │   ├── use-toast.ts
 │   └── use-mobile.tsx
@@ -269,6 +274,7 @@ All major code files include detailed inline comments explaining:
 
 ### Prerequisites
 - Node.js 18+ 
+- PostgreSQL 14+
 - pnpm (recommended) or npm
 
 ### Installation
@@ -276,24 +282,58 @@ All major code files include detailed inline comments explaining:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd petcare-app
+   cd petcare-app-v1
    ```
 
 2. **Install dependencies**
+   
+   **Backend:**
    ```bash
+   cd backend
+   npm install
+   ```
+   
+   **Frontend:**
+   ```bash
+   cd frontend
    pnpm install
    # or
    npm install
    ```
 
-3. **Start development server**
-   ```bash
-   pnpm run dev
-   # or
-   npm run dev
+3. **Configure environment variables**
+   
+   **Backend** (`backend/.env`):
+   ```env
+   PORT=3001
+   DATABASE_URL=postgresql://user:password@localhost:5432/petcare
+   JWT_SECRET=your-secret-key
    ```
 
-4. **Open your browser**
+4. **Initialize the database**
+   ```bash
+   cd backend
+   npm run db:init
+   ```
+
+5. **Start the servers**
+   
+   **Backend:**
+   ```bash
+   cd backend
+   npm run dev
+   # Runs on http://localhost:3001
+   ```
+   
+   **Frontend:**
+   ```bash
+   cd frontend
+   pnpm run dev
+   # or: npm run dev
+   # Runs on http://localhost:5173
+   ```
+
+6. **Open your browser**
    Navigate to `http://localhost:5173`
 
 ## 🔑 Demo Credentials
@@ -301,22 +341,15 @@ All major code files include detailed inline comments explaining:
 These accounts are preloaded via demo data and can be used to explore each dashboard:
 
 ### Administrator
-- Super Admin: `admin@petcare.com` / `adminpass123`
-- Elevated Admin: `admin.elevated@petcare.com` / `adminpass123`
-- Standard Admin: `admin.standard@petcare.com` / `adminpass123`
+- **Super Admin:** `admin@petcare.com` / `password123`
 
 ### Veterinarian
-- Primary: `vet@petcare.com` / `vet123`
-- Dr. Martinez: `dr.martinez@petcare.com` / `vetpass123`
-- Dr. Thompson: `dr.thompson@petcare.com` / `vetpass123`
+- **Dr. Sarah Johnson:** `vet@petcare.com` / `password123`
 
 ### Pet Owner
-- Primary: `owner@petcare.com` / `owner123`
-- Sarah Johnson: `sarah.johnson@email.com` / `password123`
-- Michael Chen: `michael.chen@email.com` / `password123`
-- Emma Rodriguez: `emma.rodriguez@email.com` / `password123`
+- **John Smith:** `owner@petcare.com` / `password123`
 
-Note: Password reset demo emails are logged in localStorage and visible in the console.
+**Note:** All demo accounts use the same password (`password123`) for simplicity. In production, enforce strong, unique passwords.
 
 ## 👥 User Roles & Permissions
 
@@ -376,46 +409,48 @@ pnpm run lint
 5. **Data Management**: Service layer pattern for business logic
 6. **Type Safety**: Comprehensive TypeScript types and interfaces
 
-### **Service Layer Architecture**
+### **API Architecture**
 
-The application uses a service layer pattern for data management:
+The application uses a RESTful API architecture with a dedicated backend:
 
-**UserService** (`userService.ts`)
-- Create, read, update, delete user operations
-- User search and filtering
-- Administrator privilege management
-- Role-based user queries
+**Backend API** (`backend/src/routes/`)
+- **Authentication API**: Login, registration, password reset
+- **User API**: User CRUD operations, profile management
+- **Pet API**: Pet management with medical records
+- **Appointment API**: Scheduling and status management
+- **Medical Records API**: Clinical records management
+- **Vaccination API**: Vaccination tracking
+- **Medication API**: Medication management
+- **Notification API**: System notifications
 
-**PetService** (`petService.ts`)
-- Pet CRUD operations
-- Medical record management (add, update, delete)
-- Vaccination record management (add, update, delete)
-- Medication record management (add, update, delete)
-- Allergy and notes management
-- Pet search functionality
-- Owner-based and system-wide pet queries
+**Frontend API Client** (`frontend/src/lib/api.ts`)
+- Axios-based HTTP client
+- JWT token management
+- Automatic authentication
+- Error handling and interceptors
+- Type-safe API calls
 
-**AppointmentService** (`appointmentService.ts`)
-- Appointment CRUD operations
-- Status management (scheduled, completed, cancelled)
-- Appointment rescheduling
-- Veterinarian-based appointment queries
-- Date range filtering
-- Status-based filtering
-
-**Email Service** (`supabase.ts`)
-- Password reset email generation
-- Password change confirmation emails
-- Demo email logging for development
-- Email history tracking
+**Key Features:**
+- PostgreSQL database for persistent storage
+- JWT authentication for secure access
+- RESTful endpoints following best practices
+- Request/response validation
+- Centralized error handling
 
 ### **Adding New Features**
 
-1. **Create Types**: Add TypeScript interfaces in `src/types.ts`
-2. **Service Layer**: Add business logic in `src/services/`
-3. **Validation**: Create Zod schemas in `src/schemas/`
-4. **Components**: Build UI components with shadcn/ui
-5. **Permissions**: Update role management in `src/utils/roleManagement.ts`
+1. **Backend**:
+   - Add database models in `backend/src/models/`
+   - Create API routes in `backend/src/routes/`
+   - Add validation in route handlers
+   - Update API documentation
+
+2. **Frontend**:
+   - Add TypeScript interfaces in `frontend/src/types.ts`
+   - Update API client in `frontend/src/lib/api.ts`
+   - Create Zod schemas in `frontend/src/schemas/`
+   - Build UI components with shadcn/ui
+   - Update role management in `frontend/src/utils/roleManagement.ts`
 
 ## 📊 Data Models
 
@@ -519,7 +554,7 @@ The application includes comprehensive demo data for testing:
 ## 🔮 Future Enhancements
 
 ### **Planned Features**
-- Real-time notifications and alerts system
+- Real-time notifications with WebSockets
 - Advanced reporting and analytics dashboards
 - Multi-clinic support with clinic management
 - External API integrations (labs, pharmacies)
@@ -533,14 +568,15 @@ The application includes comprehensive demo data for testing:
 - Video consultation integration
 
 ### **Technical Improvements**
-- Database integration (PostgreSQL/MongoDB/Supabase)
-- Real-time updates with WebSockets or Supabase Realtime
+- ✅ ~~Database integration (PostgreSQL)~~ **COMPLETED**
+- ✅ ~~JWT authentication~~ **COMPLETED**
+- ✅ ~~RESTful API backend~~ **COMPLETED**
+- Real-time updates with WebSockets
 - Advanced caching strategies (Redis)
 - Performance optimizations (lazy loading, code splitting)
 - Comprehensive test coverage (Jest, React Testing Library, Playwright)
 - Docker containerization for development and deployment
 - CI/CD pipeline setup (GitHub Actions)
-- Production-ready authentication (Supabase Auth, Auth0)
 - Email service integration (SendGrid, AWS SES)
 - Cloud storage for documents (AWS S3, Cloudinary)
 - Monitoring and error tracking (Sentry, LogRocket)

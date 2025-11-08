@@ -12,6 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Plus, Calendar as CalendarIcon, Clock, User as UserIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { Pet, Appointment, User } from '../../types';
+import { appointmentAPI, userAPI } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface AppointmentSchedulingProps {
   user: User;
@@ -22,23 +24,30 @@ interface AppointmentSchedulingProps {
 
 export default function AppointmentScheduling({ user, pets, appointments, setAppointments }: AppointmentSchedulingProps) {
   const [isScheduling, setIsScheduling] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
+  const [veterinarians, setVeterinarians] = useState<User[]>([]);
   const [formData, setFormData] = useState({
     petId: '',
-    veterinarian: '',
+    veterinarianId: '',
     type: '',
     time: '',
     reason: '',
     notes: ''
   });
 
-  const veterinarians = [
-    'Dr. Sarah Johnson',
-    'Dr. Michael Brown',
-    'Dr. Emily Davis',
-    'Dr. James Wilson',
-    'Dr. Lisa Chen'
-  ];
+  // Load veterinarians from backend
+  useEffect(() => {
+    const loadVeterinarians = async () => {
+      try {
+        const result = await userAPI.listUsers({ userType: 'veterinarian' });
+        setVeterinarians(result.users || []);
+      } catch (error) {
+        console.error('Failed to load veterinarians:', error);
+      }
+    };
+    loadVeterinarians();
+  }, []);
 
   const appointmentTypes = [
     'Routine Checkup',
@@ -60,7 +69,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
   const resetForm = () => {
     setFormData({
       petId: '',
-      veterinarian: '',
+      veterinarianId: '',
       type: '',
       time: '',
       reason: '',
@@ -69,50 +78,61 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     setSelectedDate(undefined);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedDate) {
-      alert('Please select a date');
+      toast.error('Please select a date');
       return;
     }
 
     const pet = pets.find(p => p.id === formData.petId);
     if (!pet) {
-      alert('Please select a pet');
+      toast.error('Please select a pet');
       return;
     }
 
-    const appointment: Appointment = {
-      id: Date.now().toString(),
-      petId: formData.petId,
-      petName: pet.name,
-      ownerId: user.email,
-      veterinarian: formData.veterinarian,
-      type: formData.type,
-      date: selectedDate.toISOString(),
-      time: formData.time,
-      reason: formData.reason,
-      notes: formData.notes,
-      status: 'scheduled',
-      createdAt: new Date().toISOString()
-    };
+    setIsLoading(true);
 
-    const updatedAppointments = [...appointments, appointment];
-    setAppointments(updatedAppointments);
-    localStorage.setItem(`appointments_${user.email}`, JSON.stringify(updatedAppointments));
-    
-    setIsScheduling(false);
-    resetForm();
+    try {
+      const appointmentData = {
+        petId: formData.petId,
+        veterinarianId: formData.veterinarianId,
+        type: formData.type,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        time: formData.time,
+        reason: formData.reason
+      };
+
+      const newAppointment = await appointmentAPI.createAppointment(appointmentData);
+      setAppointments([...appointments, newAppointment]);
+      toast.success('Appointment scheduled successfully!');
+      
+      setIsScheduling(false);
+      resetForm();
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to schedule appointment';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleCancelAppointment = (appointmentId: string) => {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
+  const handleCancelAppointment = async (appointmentId: string) => {
+    if (!confirm('Are you sure you want to cancel this appointment?')) {
+      return;
+    }
+
+    try {
+      await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
       const updatedAppointments = appointments.map(apt =>
         apt.id === appointmentId ? { ...apt, status: 'cancelled' } : apt
       );
       setAppointments(updatedAppointments);
-      localStorage.setItem(`appointments_${user.email}`, JSON.stringify(updatedAppointments));
+      toast.success('Appointment cancelled successfully');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to cancel appointment';
+      toast.error(message);
     }
   };
 
@@ -186,8 +206,8 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 <div className="space-y-2">
                   <Label htmlFor="veterinarian">Veterinarian *</Label>
                   <Select
-                    value={formData.veterinarian}
-                    onValueChange={(value) => setFormData({ ...formData, veterinarian: value })}
+                    value={formData.veterinarianId}
+                    onValueChange={(value) => setFormData({ ...formData, veterinarianId: value })}
                     required
                   >
                     <SelectTrigger>
@@ -195,8 +215,8 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                     </SelectTrigger>
                     <SelectContent>
                       {veterinarians.map((vet) => (
-                        <SelectItem key={vet} value={vet}>
-                          {vet}
+                        <SelectItem key={vet.id} value={vet.id}>
+                          Dr. {vet.fullName}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -294,11 +314,11 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
               </div>
 
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsScheduling(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsScheduling(false)} disabled={isLoading}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  Schedule Appointment
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? 'Scheduling...' : 'Schedule Appointment'}
                 </Button>
               </div>
             </form>

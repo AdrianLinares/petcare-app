@@ -62,15 +62,16 @@ These explain what a function does.
  * 
  * HOW IT WORKS:
  * 1. User enters email and password
- * 2. Check localStorage for user
- * 3. Verify password matches
+ * 2. Send credentials to backend API
+ * 3. Backend verifies password and returns JWT token
+ * 4. Store token and user data in localStorage
  * 
  * PARAMETERS:
  * @param email - The user's email
  * @param password - The user's password
  * 
  * RETURNS:
- * @returns true if successful, false if failed
+ * @returns Promise<User> - The logged-in user object
  */
 ```
 
@@ -115,16 +116,17 @@ Special notes for beginners about tricky concepts.
 These break down complex operations into steps.
 
 ```typescript
-// STEP 1: Look for this user in localStorage
-const savedUser = localStorage.getItem('user_' + email);
+// STEP 1: Send login request to backend API
+const response = await authAPI.login(email, password);
 
-// STEP 2: User exists! Convert from text to object
-const userData = JSON.parse(savedUser);
+// STEP 2: Backend returns JWT token and user data
+const { token, user } = response;
 
-// STEP 3: Check if password matches
-if (userData.password === password) {
-  // SUCCESS!
-}
+// STEP 3: Store token for future API requests
+localStorage.setItem('token', token);
+
+// STEP 4: Save user data to state
+setCurrentUser(user);
 ```
 
 **What it tells you:**
@@ -329,9 +331,8 @@ These files have comprehensive comments:
 These files are documented in BEGINNER_GUIDE.md with code examples:
 
 - **src/types.ts** - All TypeScript interfaces explained
-- **src/services/petService.ts** - Example comments shown
-- **src/services/userService.ts** - CRUD operations explained
-- **src/services/appointmentService.ts** - Booking logic explained
+- **src/lib/api.ts** - API client and all API modules explained
+- **Components** - React components with inline comments
 
 ### 📚 Referenced in Guides
 These are explained in ARCHITECTURE.md and BEGINNER_GUIDE.md:
@@ -360,7 +361,7 @@ These are explained in ARCHITECTURE.md and BEGINNER_GUIDE.md:
 - Find all files related to it
 - Read them in order:
   1. Type definitions (types.ts)
-  2. Service file (userService.ts)
+  2. API client (lib/api.ts - authAPI)
   3. Component file (LoginForm.tsx)
   4. Where it's used (App.tsx)
 
@@ -395,17 +396,26 @@ These are explained in ARCHITECTURE.md and BEGINNER_GUIDE.md:
 
 ```typescript
 // Good: Explains WHY
-// Using setTimeout to avoid race condition with state updates
-setTimeout(() => loadData(), 0);
+// Using async/await to ensure user loads before fetching their pets
+await loadUser();
+await loadPets();
 
 // Good: Warns about something important
-// IMPORTANT: Don't change this order - pets must load before appointments
-loadPets();
-loadAppointments();
+// IMPORTANT: JWT token must be present for API calls to work
+if (!token) {
+  throw new Error('Not authenticated');
+}
 
 // Good: Explains business logic
-// Veterinarians can see all pets, but owners only see their own
-const pets = isVet ? PetService.getAllPets() : PetService.getPetsByOwner(userId);
+// Veterinarians can see all pets via API, owners only see their own
+const pets = isVet ? await petAPI.getPets() : await petAPI.getPetsByOwner(userId);
+
+// Good: Explains async pattern
+// Wait for all API calls to complete before updating state
+const [pets, appointments] = await Promise.all([
+  petAPI.getPets(),
+  appointmentAPI.getAppointments()
+]);
 ```
 
 ### Bad Comment Examples

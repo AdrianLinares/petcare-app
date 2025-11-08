@@ -13,8 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import Footer from '@/components/ui/footer';
 import { Calendar, Clock, Users, FileText, Bell, User as UserIcon, Edit, Save, X, Search, Filter, Trash2 } from 'lucide-react';
 import { Appointment, User, Pet } from '../../types';
-import { AppointmentService } from '../../services/appointmentService';
-import { PetService } from '../../services/petService';
+import { appointmentAPI, petAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
@@ -29,6 +28,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
   const [activeTab, setActiveTab] = useState('today');
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [medicalForm, setMedicalForm] = useState({
     diagnosis: '',
     treatment: '',
@@ -45,20 +45,36 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
   const [petSearchTerm, setPetSearchTerm] = useState('');
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
 
-  const loadAppointments = () => {
-    const vetAppointments = AppointmentService.getAppointmentsByVeterinarian(user.fullName);
-    setAppointments(vetAppointments);
+  const loadAppointments = async () => {
+    try {
+      const appointmentsData = await appointmentAPI.getAppointments();
+      // Filter appointments for this veterinarian
+      const vetAppointments = appointmentsData.filter(apt => apt.veterinarianId === user.id);
+      setAppointments(vetAppointments);
+    } catch (error: any) {
+      console.error('Failed to load appointments:', error);
+      toast.error('Failed to load appointments');
+    }
   };
 
-  const loadPets = () => {
-    const pets = PetService.getAllPets();
-    setAllPets(pets);
+  const loadPets = async () => {
+    try {
+      const petsData = await petAPI.getPets();
+      setAllPets(petsData);
+    } catch (error: any) {
+      console.error('Failed to load pets:', error);
+      toast.error('Failed to load pets');
+    }
   };
 
   useEffect(() => {
-    loadAppointments();
-    loadPets();
-  }, [user.fullName]);
+    const loadData = async () => {
+      setIsLoading(true);
+      await Promise.all([loadAppointments(), loadPets()]);
+      setIsLoading(false);
+    };
+    loadData();
+  }, [user.id]);
 
   const today = new Date().toDateString();
   const todayAppointments = appointments.filter(apt => 
@@ -73,42 +89,45 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     new Date(apt.date).toDateString() === today && apt.status === 'completed'
   ).length;
 
-  const handleCompleteAppointment = (appointmentId: string) => {
-    const appointment = appointments.find(apt => apt.id === appointmentId);
-    if (appointment) {
-      try {
-        AppointmentService.updateAppointmentStatus(appointmentId, appointment.ownerId, 'completed');
-        loadAppointments();
-        toast.success('Appointment marked as completed');
-      } catch (error) {
-        toast.error('Failed to update appointment');
-      }
+  const handleCompleteAppointment = async (appointmentId: string) => {
+    try {
+      await appointmentAPI.updateAppointment(appointmentId, { status: 'completed' });
+      await loadAppointments();
+      toast.success('Appointment marked as completed');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to update appointment';
+      toast.error(message);
     }
   };
 
-  const handleCancelAppointment = (appointmentId: string) => {
-    const appointment = appointments.find(apt => apt.id === appointmentId);
-    if (appointment && confirm('Are you sure you want to cancel this appointment?')) {
-      try {
-        AppointmentService.updateAppointmentStatus(appointmentId, appointment.ownerId, 'cancelled');
-        loadAppointments();
-        toast.success('Appointment cancelled');
-      } catch (error) {
-        toast.error('Failed to cancel appointment');
-      }
+  const handleCancelAppointment = async (appointmentId: string) => {
+    if (!confirm('Are you sure you want to cancel this appointment?')) {
+      return;
+    }
+
+    try {
+      await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
+      await loadAppointments();
+      toast.success('Appointment cancelled');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to cancel appointment';
+      toast.error(message);
     }
   };
 
-  const handleDeleteAppointment = (appointmentId: string) => {
-    const appointment = appointments.find(apt => apt.id === appointmentId);
-    if (appointment && confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
-      try {
-        AppointmentService.deleteAppointment(appointmentId, appointment.ownerId);
-        loadAppointments();
-        toast.success('Appointment deleted');
-      } catch (error) {
-        toast.error('Failed to delete appointment');
-      }
+  const handleDeleteAppointment = async (appointmentId: string) => {
+    if (!confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // Note: Backend doesn't have delete endpoint, so we just mark as cancelled
+      await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
+      await loadAppointments();
+      toast.success('Appointment cancelled');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to delete appointment';
+      toast.error(message);
     }
   };
 
@@ -122,24 +141,22 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     });
   };
 
-  const handleSaveMedicalHistory = () => {
+  const handleSaveMedicalHistory = async () => {
     if (!editingAppointment) return;
 
-    const updatedAppointment = {
-      ...editingAppointment,
-      diagnosis: medicalForm.diagnosis,
-      treatment: medicalForm.treatment,
-      notes: medicalForm.notes,
-      followUpDate: medicalForm.followUpDate
-    };
-
     try {
-      AppointmentService.updateAppointment(updatedAppointment);
-      loadAppointments();
+      await appointmentAPI.updateAppointment(editingAppointment.id, {
+        diagnosis: medicalForm.diagnosis,
+        treatment: medicalForm.treatment,
+        notes: medicalForm.notes,
+        followUpDate: medicalForm.followUpDate
+      });
+      await loadAppointments();
       setEditingAppointment(null);
       toast.success('Medical History Correctly Updated');
-    } catch (error) {
-      toast.error('Failed to update medical history');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to update medical history';
+      toast.error(message);
     }
   };
 
@@ -151,21 +168,20 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     });
   };
 
-  const handleSaveReschedule = () => {
+  const handleSaveReschedule = async () => {
     if (!reschedulingAppointment) return;
 
     try {
-      AppointmentService.rescheduleAppointment(
-        reschedulingAppointment.id,
-        reschedulingAppointment.ownerId,
-        rescheduleForm.date.toISOString(),
-        rescheduleForm.time
-      );
-      loadAppointments();
+      await appointmentAPI.updateAppointment(reschedulingAppointment.id, {
+        date: format(rescheduleForm.date, 'yyyy-MM-dd'),
+        time: rescheduleForm.time
+      });
+      await loadAppointments();
       setReschedulingAppointment(null);
       toast.success('Appointment rescheduled successfully');
-    } catch (error) {
-      toast.error('Failed to reschedule appointment');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to reschedule appointment';
+      toast.error(message);
     }
   };
 

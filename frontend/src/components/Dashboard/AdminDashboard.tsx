@@ -11,8 +11,7 @@ import Footer from '@/components/ui/footer';
 import { Users, Calendar, FileText, TrendingUp, Bell, Search, Shield, Edit, Trash2, Eye, Filter, AlertTriangle, X } from 'lucide-react';
 import { Appointment, User, Pet } from '../../types';
 import UserManagementDialogs from '../Admin/UserManagementDialogs';
-import { UserService } from '../../services/userService';
-import { PetService } from '../../services/petService';
+import { userAPI, petAPI, appointmentAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
 
@@ -35,23 +34,26 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const [petSearchTerm, setPetSearchTerm] = useState('');
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
 
-  const loadData = useCallback(() => {
-    // Load all users using UserService
-    const users = UserService.getAllUsers();
-    setAllUsers(users);
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Load all users from backend
+      const usersResult = await userAPI.listUsers();
+      setAllUsers(usersResult.users || []);
 
-    // Load all appointments
-    const appointments: Appointment[] = [];
-    const appointmentKeys = Object.keys(localStorage).filter(key => key.startsWith('appointments_'));
-    appointmentKeys.forEach(key => {
-      const userAppointments = JSON.parse(localStorage.getItem(key) || '[]');
-      appointments.push(...userAppointments);
-    });
-    setAllAppointments(appointments);
+      // Load all appointments from backend
+      const appointments = await appointmentAPI.getAppointments();
+      setAllAppointments(appointments);
 
-    // Load all pets
-    const pets = PetService.getAllPets();
-    setAllPets(pets);
+      // Load all pets from backend
+      const pets = await petAPI.getPets();
+      setAllPets(pets);
+    } catch (error: any) {
+      console.error('Failed to load admin dashboard data:', error);
+      toast.error('Failed to load dashboard data. Please refresh the page.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -86,41 +88,34 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     
     setIsLoading(true);
     try {
-      // Remove appointment from owner's localStorage
-      const ownerAppointments = JSON.parse(localStorage.getItem(`appointments_${selectedAppointment.ownerId}`) || '[]');
-      const updatedOwnerAppointments = ownerAppointments.filter((apt: Appointment) => apt.id !== selectedAppointment.id);
-      localStorage.setItem(`appointments_${selectedAppointment.ownerId}`, JSON.stringify(updatedOwnerAppointments));
+      // Note: Backend doesn't have delete endpoint, so we mark as cancelled
+      await appointmentAPI.updateAppointment(selectedAppointment.id, { status: 'cancelled' });
       
       // Reload data
-      loadData();
+      await loadData();
       
-      toast.success('Appointment deleted successfully');
+      toast.success('Appointment cancelled successfully');
       setDeleteDialogOpen(false);
       setSelectedAppointment(null);
-    } catch (error) {
-      toast.error('Error deleting appointment');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Error deleting appointment';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleUpdateAppointmentStatus = async (appointmentId: string, newStatus: 'scheduled' | 'completed' | 'cancelled') => {
-    const appointment = allAppointments.find(apt => apt.id === appointmentId);
-    if (!appointment) return;
-    
     try {
-      // Update appointment in owner's localStorage
-      const ownerAppointments = JSON.parse(localStorage.getItem(`appointments_${appointment.ownerId}`) || '[]');
-      const updatedOwnerAppointments = ownerAppointments.map((apt: Appointment) =>
-        apt.id === appointmentId ? { ...apt, status: newStatus } : apt
-      );
-      localStorage.setItem(`appointments_${appointment.ownerId}`, JSON.stringify(updatedOwnerAppointments));
+      await appointmentAPI.updateAppointment(appointmentId, { status: newStatus });
       
       // Reload data
-      loadData();
+      await loadData();
       
       toast.success(`Appointment status updated to ${newStatus}`);
-    } catch (error) {
-      toast.error('Error updating appointment status');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Error updating appointment status';
+      toast.error(message);
     }
   };
   const totalUsers = allUsers.length;
@@ -139,7 +134,12 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 10);
 
-  const filteredUsers = UserService.searchUsers(searchTerm);
+  const filteredUsers = allUsers.filter(u => 
+    searchTerm === '' || 
+    u.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.userType.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {

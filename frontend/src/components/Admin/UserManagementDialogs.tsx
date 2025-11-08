@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import UserForm from './UserForm';
-import { UserService } from '../../services/userService';
+import { userAPI } from '@/lib/api';
 import { User } from '../../types';
 import { UserFormData } from '../../schemas/userSchema';
 import { UserPlus, Edit, Trash2, AlertTriangle, Shield } from 'lucide-react';
@@ -27,16 +27,22 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
   const handleCreateUser = async (data: UserFormData) => {
     setIsLoading(true);
     try {
-      const result = UserService.createUser(data);
-      if (result.success) {
-        toast.success('User created successfully!');
-        setCreateDialogOpen(false);
-        onUsersChange();
-      } else {
-        toast.error(result.error || 'Failed to create user');
-      }
-    } catch (error) {
-      toast.error('An error occurred while creating the user');
+      await userAPI.createUser({
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+        phone: data.phone,
+        userType: data.userType,
+        address: data.address,
+        specialization: data.specialization,
+        licenseNumber: data.licenseNumber,
+        accessLevel: data.accessLevel,
+      });
+      toast.success('User created successfully!');
+      setCreateDialogOpen(false);
+      onUsersChange();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to create user');
     }
     setIsLoading(false);
   };
@@ -46,17 +52,22 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
     
     setIsLoading(true);
     try {
-      const result = UserService.updateUser(selectedUser.id, data);
-      if (result.success) {
-        toast.success('User updated successfully!');
-        setEditDialogOpen(false);
-        setSelectedUser(null);
-        onUsersChange();
-      } else {
-        toast.error(result.error || 'Failed to update user');
-      }
-    } catch (error) {
-      toast.error('An error occurred while updating the user');
+      await userAPI.updateUser(selectedUser.id, {
+        email: data.email,
+        fullName: data.fullName,
+        phone: data.phone,
+        address: data.address,
+        specialization: data.specialization,
+        licenseNumber: data.licenseNumber,
+        accessLevel: data.accessLevel,
+        userType: data.userType,
+      });
+      toast.success('User updated successfully!');
+      setEditDialogOpen(false);
+      setSelectedUser(null);
+      onUsersChange();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to update user');
     }
     setIsLoading(false);
   };
@@ -66,17 +77,13 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
     
     setIsLoading(true);
     try {
-      const result = UserService.deleteUser(selectedUser.id);
-      if (result.success) {
-        toast.success('User deleted successfully!');
-        setDeleteDialogOpen(false);
-        setSelectedUser(null);
-        onUsersChange();
-      } else {
-        toast.error(result.error || 'Failed to delete user');
-      }
-    } catch (error) {
-      toast.error('An error occurred while deleting the user');
+      await userAPI.deleteUser(selectedUser.id);
+      toast.success('User deleted successfully!');
+      setDeleteDialogOpen(false);
+      setSelectedUser(null);
+      onUsersChange();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to delete user');
     }
     setIsLoading(false);
   };

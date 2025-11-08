@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2, FileText, Syringe, Pill, AlertTriangle, ClipboardList } from 'lucide-react';
 import { Pet, MedicalRecord, VaccinationRecord, MedicationRecord } from '../../types';
-import { PetService } from '../../services/petService';
+import { petAPI, medicalRecordAPI, vaccinationAPI, medicationAPI } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface MedicalHistoryManagementProps {
@@ -24,18 +24,17 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
   
   // Medical Record states
   const [medicalRecordDialog, setMedicalRecordDialog] = useState(false);
-  const [editingMedicalIndex, setEditingMedicalIndex] = useState<number | null>(null);
-  const [medicalForm, setMedicalForm] = useState<MedicalRecord>({
+  const [editingMedicalId, setEditingMedicalId] = useState<string | null>(null);
+  const [medicalForm, setMedicalForm] = useState<Partial<MedicalRecord>>({
     date: '',
-    type: '',
-    description: '',
-    veterinarian: ''
+    recordType: '',
+    description: ''
   });
   
   // Vaccination states
   const [vaccinationDialog, setVaccinationDialog] = useState(false);
-  const [editingVaccinationIndex, setEditingVaccinationIndex] = useState<number | null>(null);
-  const [vaccinationForm, setVaccinationForm] = useState<VaccinationRecord>({
+  const [editingVaccinationId, setEditingVaccinationId] = useState<string | null>(null);
+  const [vaccinationForm, setVaccinationForm] = useState<Partial<VaccinationRecord>>({
     vaccine: '',
     date: '',
     nextDue: ''
@@ -43,8 +42,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
   
   // Medication states
   const [medicationDialog, setMedicationDialog] = useState(false);
-  const [editingMedicationIndex, setEditingMedicationIndex] = useState<number | null>(null);
-  const [medicationForm, setMedicationForm] = useState<MedicationRecord>({
+  const [editingMedicationId, setEditingMedicationId] = useState<string | null>(null);
+  const [medicationForm, setMedicationForm] = useState<Partial<MedicationRecord>>({
     name: '',
     dosage: '',
     startDate: '',
@@ -68,27 +67,37 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
   const [deleteAction, setDeleteAction] = useState<(() => void) | null>(null);
 
   // Medical Record handlers
-  const handleOpenMedicalDialog = (index?: number) => {
-    if (index !== undefined) {
-      const record = pet.medicalHistory?.[index];
-      if (record) {
-        setMedicalForm(record);
-        setEditingMedicalIndex(index);
-      }
+  const handleOpenMedicalDialog = (record?: MedicalRecord) => {
+    if (record) {
+      setMedicalForm({
+        date: record.date,
+        recordType: record.recordType,
+        description: record.description
+      });
+      setEditingMedicalId(record.id);
     } else {
-      setMedicalForm({ date: '', type: '', description: '', veterinarian: '' });
-      setEditingMedicalIndex(null);
+      setMedicalForm({ date: '', recordType: '', description: '' });
+      setEditingMedicalId(null);
     }
     setMedicalRecordDialog(true);
   };
 
-  const handleSaveMedicalRecord = () => {
+  const handleSaveMedicalRecord = async () => {
     try {
-      if (editingMedicalIndex !== null) {
-        PetService.updateMedicalRecord(pet.id, editingMedicalIndex, medicalForm);
+      if (editingMedicalId) {
+        await medicalRecordAPI.update(editingMedicalId, {
+          date: medicalForm.date,
+          recordType: medicalForm.recordType,
+          description: medicalForm.description
+        });
         toast.success('Medical record updated successfully');
       } else {
-        PetService.addMedicalRecord(pet.id, medicalForm);
+        await medicalRecordAPI.create({
+          petId: pet.id,
+          date: medicalForm.date!,
+          recordType: medicalForm.recordType!,
+          description: medicalForm.description!
+        });
         toast.success('Medical record added successfully');
       }
       onUpdate();
@@ -98,10 +107,10 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     }
   };
 
-  const handleDeleteMedicalRecord = (index: number) => {
-    setDeleteAction(() => () => {
+  const handleDeleteMedicalRecord = (id: string) => {
+    setDeleteAction(() => async () => {
       try {
-        PetService.deleteMedicalRecord(pet.id, index);
+        await medicalRecordAPI.delete(id);
         toast.success('Medical record deleted');
         onUpdate();
       } catch (error) {
@@ -112,27 +121,37 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
   };
 
   // Vaccination handlers
-  const handleOpenVaccinationDialog = (index?: number) => {
-    if (index !== undefined) {
-      const record = pet.vaccinations?.[index];
-      if (record) {
-        setVaccinationForm(record);
-        setEditingVaccinationIndex(index);
-      }
+  const handleOpenVaccinationDialog = (record?: VaccinationRecord) => {
+    if (record) {
+      setVaccinationForm({
+        vaccine: record.vaccine,
+        date: record.date,
+        nextDue: record.nextDue
+      });
+      setEditingVaccinationId(record.id);
     } else {
       setVaccinationForm({ vaccine: '', date: '', nextDue: '' });
-      setEditingVaccinationIndex(null);
+      setEditingVaccinationId(null);
     }
     setVaccinationDialog(true);
   };
 
-  const handleSaveVaccination = () => {
+  const handleSaveVaccination = async () => {
     try {
-      if (editingVaccinationIndex !== null) {
-        PetService.updateVaccinationRecord(pet.id, editingVaccinationIndex, vaccinationForm);
+      if (editingVaccinationId) {
+        await vaccinationAPI.update(editingVaccinationId, {
+          vaccine: vaccinationForm.vaccine,
+          date: vaccinationForm.date,
+          nextDue: vaccinationForm.nextDue
+        });
         toast.success('Vaccination record updated successfully');
       } else {
-        PetService.addVaccinationRecord(pet.id, vaccinationForm);
+        await vaccinationAPI.create({
+          petId: pet.id,
+          vaccine: vaccinationForm.vaccine!,
+          date: vaccinationForm.date!,
+          nextDue: vaccinationForm.nextDue
+        });
         toast.success('Vaccination record added successfully');
       }
       onUpdate();
@@ -142,10 +161,10 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     }
   };
 
-  const handleDeleteVaccination = (index: number) => {
-    setDeleteAction(() => () => {
+  const handleDeleteVaccination = (id: string) => {
+    setDeleteAction(() => async () => {
       try {
-        PetService.deleteVaccinationRecord(pet.id, index);
+        await vaccinationAPI.delete(id);
         toast.success('Vaccination record deleted');
         onUpdate();
       } catch (error) {
@@ -156,27 +175,40 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
   };
 
   // Medication handlers
-  const handleOpenMedicationDialog = (index?: number) => {
-    if (index !== undefined) {
-      const record = pet.medications?.[index];
-      if (record) {
-        setMedicationForm(record);
-        setEditingMedicationIndex(index);
-      }
+  const handleOpenMedicationDialog = (record?: MedicationRecord) => {
+    if (record) {
+      setMedicationForm({
+        name: record.name,
+        dosage: record.dosage,
+        startDate: record.startDate,
+        endDate: record.endDate
+      });
+      setEditingMedicationId(record.id);
     } else {
       setMedicationForm({ name: '', dosage: '', startDate: '', endDate: '' });
-      setEditingMedicationIndex(null);
+      setEditingMedicationId(null);
     }
     setMedicationDialog(true);
   };
 
-  const handleSaveMedication = () => {
+  const handleSaveMedication = async () => {
     try {
-      if (editingMedicationIndex !== null) {
-        PetService.updateMedicationRecord(pet.id, editingMedicationIndex, medicationForm);
+      if (editingMedicationId) {
+        await medicationAPI.update(editingMedicationId, {
+          name: medicationForm.name,
+          dosage: medicationForm.dosage,
+          startDate: medicationForm.startDate,
+          endDate: medicationForm.endDate
+        });
         toast.success('Medication record updated successfully');
       } else {
-        PetService.addMedicationRecord(pet.id, medicationForm);
+        await medicationAPI.create({
+          petId: pet.id,
+          name: medicationForm.name!,
+          dosage: medicationForm.dosage!,
+          startDate: medicationForm.startDate!,
+          endDate: medicationForm.endDate
+        });
         toast.success('Medication record added successfully');
       }
       onUpdate();
@@ -186,10 +218,10 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     }
   };
 
-  const handleDeleteMedication = (index: number) => {
-    setDeleteAction(() => () => {
+  const handleDeleteMedication = (id: string) => {
+    setDeleteAction(() => async () => {
       try {
-        PetService.deleteMedicationRecord(pet.id, index);
+        await medicationAPI.delete(id);
         toast.success('Medication record deleted');
         onUpdate();
       } catch (error) {
@@ -205,13 +237,13 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     setAllergiesDialog(true);
   };
 
-  const handleSaveAllergies = () => {
+  const handleSaveAllergies = async () => {
     try {
       const allergiesArray = allergiesText
         .split(',')
         .map(a => a.trim())
         .filter(a => a.length > 0);
-      PetService.updateAllergies(pet.id, allergiesArray);
+      await petAPI.updatePet(pet.id, { allergies: allergiesArray });
       toast.success('Allergies updated successfully');
       onUpdate();
       setAllergiesDialog(false);
@@ -226,9 +258,9 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     setNotesDialog(true);
   };
 
-  const handleSaveNotes = () => {
+  const handleSaveNotes = async () => {
     try {
-      PetService.updateNotes(pet.id, notesText);
+      await petAPI.updatePet(pet.id, { notes: notesText });
       toast.success('Notes updated successfully');
       onUpdate();
       setNotesDialog(false);
@@ -243,7 +275,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     setWeightDialog(true);
   };
 
-  const handleSaveWeight = () => {
+  const handleSaveWeight = async () => {
     try {
       const newWeight = parseFloat(weightValue);
       if (isNaN(newWeight) || newWeight <= 0) {
@@ -251,12 +283,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
         return;
       }
       
-      const updatedPet = {
-        ...pet,
-        weight: newWeight
-      };
-      
-      PetService.updatePet(updatedPet);
+      await petAPI.updatePet(pet.id, { weight: newWeight });
       toast.success('Weight updated successfully');
       onUpdate();
       setWeightDialog(false);
@@ -366,32 +393,32 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             <CardContent>
               {pet.medicalHistory && pet.medicalHistory.length > 0 ? (
                 <div className="space-y-4">
-                  {pet.medicalHistory.map((record, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:bg-gray-50">
+                  {pet.medicalHistory.map((record) => (
+                    <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline">{record.type}</Badge>
+                            <Badge variant="outline">{record.recordType}</Badge>
                             <span className="text-sm text-gray-600">
                               {new Date(record.date).toLocaleDateString()}
                             </span>
                           </div>
                           <p className="text-sm font-medium mb-1">{record.description}</p>
-                          <p className="text-xs text-gray-600">Veterinarian: {record.veterinarian}</p>
+                          <p className="text-xs text-gray-600">Veterinarian: {record.veterinarianName}</p>
                         </div>
                         {canEdit && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleOpenMedicalDialog(index)}
+                              onClick={() => handleOpenMedicalDialog(record)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleDeleteMedicalRecord(index)}
+                              onClick={() => handleDeleteMedicalRecord(record.id)}
                             >
                               <Trash2 className="h-4 w-4 text-red-500" />
                             </Button>
@@ -425,31 +452,33 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             <CardContent>
               {pet.vaccinations && pet.vaccinations.length > 0 ? (
                 <div className="space-y-4">
-                  {pet.vaccinations.map((record, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:bg-gray-50">
+                  {pet.vaccinations.map((record) => (
+                    <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-medium mb-1">{record.vaccine}</p>
                           <p className="text-sm text-gray-600">
                             Date: {new Date(record.date).toLocaleDateString()}
                           </p>
-                          <p className="text-sm text-gray-600">
-                            Next Due: {new Date(record.nextDue).toLocaleDateString()}
-                          </p>
+                          {record.nextDue && (
+                            <p className="text-sm text-gray-600">
+                              Next Due: {new Date(record.nextDue).toLocaleDateString()}
+                            </p>
+                          )}
                         </div>
                         {canEdit && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleOpenVaccinationDialog(index)}
+                              onClick={() => handleOpenVaccinationDialog(record)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleDeleteVaccination(index)}
+                              onClick={() => handleDeleteVaccination(record.id)}
                             >
                               <Trash2 className="h-4 w-4 text-red-500" />
                             </Button>
@@ -483,8 +512,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             <CardContent>
               {pet.medications && pet.medications.length > 0 ? (
                 <div className="space-y-4">
-                  {pet.medications.map((record, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:bg-gray-50">
+                  {pet.medications.map((record) => (
+                    <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-medium mb-1">{record.name}</p>
@@ -503,14 +532,14 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleOpenMedicationDialog(index)}
+                              onClick={() => handleOpenMedicationDialog(record)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleDeleteMedication(index)}
+                              onClick={() => handleDeleteMedication(record.id)}
                             >
                               <Trash2 className="h-4 w-4 text-red-500" />
                             </Button>
@@ -532,7 +561,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={medicalRecordDialog} onOpenChange={setMedicalRecordDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingMedicalIndex !== null ? 'Edit' : 'Add'} Medical Record</DialogTitle>
+            <DialogTitle>{editingMedicalId ? 'Edit' : 'Add'} Medical Record</DialogTitle>
             <DialogDescription>Add or update medical history for {pet.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -548,8 +577,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Label>Type</Label>
               <Input
                 placeholder="e.g., Checkup, Surgery, Emergency"
-                value={medicalForm.type}
-                onChange={(e) => setMedicalForm({ ...medicalForm, type: e.target.value })}
+                value={medicalForm.recordType}
+                onChange={(e) => setMedicalForm({ ...medicalForm, recordType: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -559,14 +588,6 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                 value={medicalForm.description}
                 onChange={(e) => setMedicalForm({ ...medicalForm, description: e.target.value })}
                 rows={3}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Veterinarian</Label>
-              <Input
-                placeholder="Veterinarian name"
-                value={medicalForm.veterinarian}
-                onChange={(e) => setMedicalForm({ ...medicalForm, veterinarian: e.target.value })}
               />
             </div>
             <div className="flex justify-end gap-2">
@@ -581,7 +602,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={vaccinationDialog} onOpenChange={setVaccinationDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingVaccinationIndex !== null ? 'Edit' : 'Add'} Vaccination</DialogTitle>
+            <DialogTitle>{editingVaccinationId ? 'Edit' : 'Add'} Vaccination</DialogTitle>
             <DialogDescription>Add or update vaccination record for {pet.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -621,7 +642,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={medicationDialog} onOpenChange={setMedicationDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingMedicationIndex !== null ? 'Edit' : 'Add'} Medication</DialogTitle>
+            <DialogTitle>{editingMedicationId ? 'Edit' : 'Add'} Medication</DialogTitle>
             <DialogDescription>Add or update medication record for {pet.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

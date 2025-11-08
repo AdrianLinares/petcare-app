@@ -47,10 +47,20 @@ Think of it like a digital filing cabinet for pet healthcare!
 - **Why we use it**: Makes development faster
 - **Simple explanation**: It's like a helper that runs your code in the browser during development
 
-### **localStorage** 💾
-- **What it is**: Browser storage (temporary database)
-- **Why we use it**: Store data on the user's computer
-- **Simple explanation**: Like saving files on your computer, but inside the browser
+### **PostgreSQL** 🐘
+- **What it is**: A powerful database system
+- **Why we use it**: Store all application data permanently and securely
+- **Simple explanation**: Like a super organized filing cabinet that multiple people can access at the same time
+
+### **Express.js** 🚂
+- **What it is**: A backend framework for Node.js
+- **Why we use it**: Handles API requests and talks to the database
+- **Simple explanation**: The middleman between the website and the database
+
+### **JWT (JSON Web Tokens)** 🔐
+- **What it is**: A secure way to authenticate users
+- **Why we use it**: Keeps users logged in securely
+- **Simple explanation**: Like a secure ID card that proves who you are
 
 ---
 
@@ -60,31 +70,47 @@ Here's how the folders and files are organized:
 
 ```
 petcare-app-v1/
-├── src/                          # All source code lives here
-│   ├── components/               # Reusable UI pieces
-│   │   ├── ui/                   # Basic UI components (buttons, cards, etc.)
-│   │   ├── Auth/                 # Login and password components
-│   │   ├── Dashboard/            # Main pages for each user type
-│   │   ├── Pet/                  # Pet management features
-│   │   ├── Appointment/          # Appointment scheduling features
-│   │   └── Medical/              # Medical record features
+├── frontend/                     # Frontend React application
+│   ├── src/
+│   │   ├── components/           # Reusable UI pieces
+│   │   │   ├── ui/               # Basic UI components (buttons, cards, etc.)
+│   │   │   ├── Auth/             # Login and password components
+│   │   │   ├── Dashboard/        # Main pages for each user type
+│   │   │   ├── Pet/              # Pet management features
+│   │   │   ├── Appointment/      # Appointment scheduling features
+│   │   │   └── Medical/          # Medical record features
+│   │   │
+│   │   ├── lib/                  # External integrations
+│   │   │   ├── api.ts            # Backend API client (Axios)
+│   │   │   └── utils.ts          # General utilities
+│   │   │
+│   │   ├── utils/                # Helper functions
+│   │   │   ├── roleManagement.ts # Who can do what (permissions)
+│   │   │   ├── passwordRecovery.ts # Password reset logic
+│   │   │   └── testData.ts      # Demo data for testing
+│   │   │
+│   │   ├── types.ts              # TypeScript type definitions
+│   │   ├── App.tsx               # Main application component
+│   │   └── main.tsx              # Entry point (starts everything)
 │   │
-│   ├── services/                 # Business logic (the "brain")
-│   │   ├── userService.ts        # User operations (create, edit, delete)
-│   │   ├── petService.ts         # Pet operations
-│   │   └── appointmentService.ts # Appointment operations
-│   │
-│   ├── utils/                    # Helper functions
-│   │   ├── roleManagement.ts     # Who can do what (permissions)
-│   │   ├── passwordRecovery.ts   # Password reset logic
-│   │   └── testData.ts          # Demo data for testing
-│   │
-│   ├── types.ts                  # TypeScript type definitions
-│   ├── App.tsx                   # Main application component
-│   └── main.tsx                  # Entry point (starts everything)
+│   └── package.json              # Frontend dependencies
 │
-├── public/                       # Static files (images, etc.)
-├── package.json                  # Project dependencies and scripts
+├── backend/                      # Backend API server
+│   ├── src/
+│   │   ├── routes/               # API endpoints
+│   │   │   ├── auth.js           # Authentication routes
+│   │   │   ├── users.js          # User management routes
+│   │   │   ├── pets.js           # Pet management routes
+│   │   │   ├── appointments.js   # Appointment routes
+│   │   │   ├── medicalRecords.js # Medical records routes
+│   │   │   └── ... (and more)
+│   │   │
+│   │   ├── models/               # Database models
+│   │   ├── middleware/           # Express middleware
+│   │   └── server.js             # Entry point
+│   │
+│   └── package.json              # Backend dependencies
+│
 └── README.md                     # Project documentation
 ```
 
@@ -95,10 +121,10 @@ Components are like LEGO pieces. Each piece does one thing, and you combine them
 
 **Example**: A `Button` component can be reused everywhere you need a button.
 
-#### `services/` - The Business Logic
-Services handle all the operations with data. They're like the "back office" of your app.
+#### `lib/` - API Client
+The API client handles all communication with the backend server. It's like a translator between the frontend and backend.
 
-**Example**: When you want to add a new pet, the `PetService` handles saving it to localStorage.
+**Example**: When you want to add a new pet, the `petAPI` sends a request to the backend server.
 
 #### `utils/` - Helper Functions
 Utilities are small helper functions that do specific tasks.
@@ -116,16 +142,36 @@ Let's follow what happens when a user logs in:
    ↓
 2. LoginForm component validates the input
    ↓
-3. App.tsx receives the login attempt
+3. Frontend sends credentials to backend API
    ↓
-4. App.tsx checks localStorage for the user
+4. Backend checks PostgreSQL database for the user
    ↓
-5. If correct, user data is saved to "state"
+5. If correct, backend creates a JWT token
    ↓
-6. React re-renders and shows the dashboard
+6. Frontend receives token and user data
    ↓
-7. Dashboard loads the user's pets and appointments
+7. Token is saved to localStorage for future requests
+   ↓
+8. App.tsx saves user data to "state"
+   ↓
+9. React re-renders and shows the dashboard
+   ↓
+10. Dashboard makes API calls to load pets and appointments
+    ↓
+11. Backend fetches data from database and returns it
+    ↓
+12. Frontend displays the data
 ```
+
+### **Frontend ↔️ Backend Communication**
+
+Every time the frontend needs data:
+1. **Frontend** makes an HTTP request (using Axios)
+2. **Request includes** the JWT token for authentication
+3. **Backend** validates the token
+4. **Backend** queries the PostgreSQL database
+5. **Backend** sends data back as JSON
+6. **Frontend** receives and displays the data
 
 ### **What is "State"?**
 State is like the application's memory. It remembers things while the app is running.

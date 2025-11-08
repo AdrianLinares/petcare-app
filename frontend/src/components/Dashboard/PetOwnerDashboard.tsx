@@ -9,6 +9,8 @@ import PetManagement from '../Pet/PetManagement';
 import AppointmentScheduling from '../Appointment/AppointmentScheduling';
 import PetMedicalRecords from '../Medical/PetMedicalRecords';
 import { Pet, Appointment, User } from '../../types';
+import { petAPI, appointmentAPI, vaccinationAPI } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface PetOwnerDashboardProps {
   user: User;
@@ -20,30 +22,39 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [overdueVaccines, setOverdueVaccines] = useState(0);
 
+  // Load data from backend
   useEffect(() => {
-    // Load user's pets and appointments with debugging
-    
-    const savedPets = localStorage.getItem(`pets_${user.email}`);
-    if (savedPets) {
+    const loadData = async () => {
+      setIsLoading(true);
       try {
-        const parsedPets = JSON.parse(savedPets);
-        setPets(parsedPets);
-      } catch (error) {
-        console.error('❌ Error parsing pets data:', error);
-      }
-    }
+        // Load pets
+        const petsData = await petAPI.getPets();
+        setPets(petsData);
 
-    const savedAppointments = localStorage.getItem(`appointments_${user.email}`);
-    if (savedAppointments) {
-      try {
-        const parsedAppointments = JSON.parse(savedAppointments);
-        setAppointments(parsedAppointments);
-      } catch (error) {
-        console.error('❌ Error parsing appointments data:', error);
+        // Load appointments
+        const appointmentsData = await appointmentAPI.getAppointments();
+        setAppointments(appointmentsData);
+
+        // Load upcoming vaccinations to count overdue
+        const upcomingVaccinations = await vaccinationAPI.getUpcoming();
+        const now = new Date();
+        const overdue = upcomingVaccinations.filter(vacc => 
+          vacc.nextDue && new Date(vacc.nextDue) < now
+        ).length;
+        setOverdueVaccines(overdue);
+      } catch (error: any) {
+        console.error('Failed to load dashboard data:', error);
+        toast.error('Failed to load some data. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [user.email]);
+    };
+    
+    loadData();
+  }, []);
 
   const upcomingAppointments = appointments
     .filter(apt => new Date(apt.date) > new Date() && apt.status !== 'cancelled')
@@ -138,17 +149,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                     <Bell className="h-8 w-8 text-yellow-500" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Overdue Vaccines</p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {pets.reduce((count, pet) => {
-                          const overdueVaccines = pet.vaccinations?.filter(vacc => {
-                            if (typeof vacc === 'object' && vacc.nextDue) {
-                              return new Date(vacc.nextDue) < new Date();
-                            }
-                            return false;
-                          }) || [];
-                          return count + overdueVaccines.length;
-                        }, 0)}
-                      </p>
+                      <p className="text-2xl font-bold text-gray-900">{overdueVaccines}</p>
                     </div>
                   </div>
                 </CardContent>

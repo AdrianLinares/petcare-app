@@ -118,6 +118,35 @@ export const userAPI = {
     return data;
   },
 
+  async createUser(userData: {
+    email: string;
+    password: string;
+    fullName: string;
+    phone: string;
+    userType: string;
+    address?: string;
+    specialization?: string;
+    licenseNumber?: string;
+    accessLevel?: string;
+  }) {
+    const { data } = await api.post('/users', userData);
+    return data;
+  },
+
+  async updateUser(id: string, updates: {
+    email?: string;
+    fullName?: string;
+    phone?: string;
+    address?: string;
+    specialization?: string;
+    licenseNumber?: string;
+    accessLevel?: string;
+    userType?: string;
+  }) {
+    const { data } = await api.patch(`/users/${id}`, updates);
+    return data;
+  },
+
   async deleteUser(id: string) {
     await api.delete(`/users/${id}`);
   },

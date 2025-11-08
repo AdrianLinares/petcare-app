@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from '@/components/ui/badge';
 import { Plus, Heart, Edit, Trash2, Calendar } from 'lucide-react';
 import { Pet, User } from '../../types';
+import { petAPI } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface PetManagementProps {
   user: User;
@@ -19,6 +21,7 @@ interface PetManagementProps {
 export default function PetManagement({ user, pets, setPets }: PetManagementProps) {
   const [isAddingPet, setIsAddingPet] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     species: '',
@@ -47,38 +50,45 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    const petData: Pet = {
-      id: editingPet ? editingPet.id : Date.now().toString(),
-      ownerId: user.email,
-      name: formData.name,
-      species: formData.species,
-      breed: formData.breed,
-      age: parseInt(formData.age),
-      weight: parseFloat(formData.weight),
-      color: formData.color,
-      gender: formData.gender as 'male' | 'female',
-      conditions: formData.conditions ? formData.conditions.split(',').map(c => c.trim()) : [],
-      vaccinations: formData.vaccinations ? formData.vaccinations.split(',').map(v => v.trim()) : [],
-      notes: formData.notes,
-      createdAt: editingPet ? editingPet.createdAt : new Date().toISOString()
-    };
+    try {
+      const petData = {
+        name: formData.name,
+        species: formData.species,
+        breed: formData.breed,
+        age: parseInt(formData.age),
+        weight: parseFloat(formData.weight),
+        color: formData.color,
+        gender: formData.gender as 'male' | 'female',
+        conditions: formData.conditions ? formData.conditions.split(',').map(c => c.trim()) : [],
+        vaccinations: formData.vaccinations ? formData.vaccinations.split(',').map(v => v.trim()) : [],
+        notes: formData.notes
+      };
 
-    let updatedPets;
-    if (editingPet) {
-      updatedPets = pets.map(pet => pet.id === editingPet.id ? petData : pet);
-    } else {
-      updatedPets = [...pets, petData];
+      if (editingPet) {
+        // Update existing pet
+        const updatedPet = await petAPI.updatePet(editingPet.id, petData);
+        setPets(pets.map(pet => pet.id === editingPet.id ? updatedPet : pet));
+        toast.success('Pet updated successfully!');
+      } else {
+        // Create new pet
+        const newPet = await petAPI.createPet(petData);
+        setPets([...pets, newPet]);
+        toast.success('Pet added successfully!');
+      }
+      
+      setIsAddingPet(false);
+      setEditingPet(null);
+      resetForm();
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to save pet';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
-
-    setPets(updatedPets);
-    localStorage.setItem(`pets_${user.email}`, JSON.stringify(updatedPets));
-    
-    setIsAddingPet(false);
-    setEditingPet(null);
-    resetForm();
   };
 
   const handleEdit = (pet: Pet) => {
@@ -98,11 +108,18 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
     setIsAddingPet(true);
   };
 
-  const handleDelete = (petId: string) => {
-    if (confirm('Are you sure you want to delete this pet?')) {
-      const updatedPets = pets.filter(pet => pet.id !== petId);
-      setPets(updatedPets);
-      localStorage.setItem(`pets_${user.email}`, JSON.stringify(updatedPets));
+  const handleDelete = async (petId: string) => {
+    if (!confirm('Are you sure you want to delete this pet? This will also delete all associated medical records.')) {
+      return;
+    }
+    
+    try {
+      await petAPI.deletePet(petId);
+      setPets(pets.filter(pet => pet.id !== petId));
+      toast.success('Pet deleted successfully');
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to delete pet';
+      toast.error(message);
     }
   };
 
@@ -268,11 +285,11 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
               </div>
 
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsAddingPet(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsAddingPet(false)} disabled={isLoading}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {editingPet ? 'Update Pet' : 'Add Pet'}
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? 'Saving...' : (editingPet ? 'Update Pet' : 'Add Pet')}
                 </Button>
               </div>
             </form>

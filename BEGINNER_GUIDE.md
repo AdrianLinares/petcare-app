@@ -20,11 +20,12 @@ Don't worry if you're still learning! This guide will explain concepts as we go.
 1. [How to Navigate This Guide](#how-to-navigate-this-guide)
 2. [Understanding the Entry Point](#understanding-the-entry-point)
 3. [Understanding Data Types](#understanding-data-types)
-4. [Understanding Services](#understanding-services)
-5. [Understanding Components](#understanding-components)
-6. [Understanding State and Props](#understanding-state-and-props)
-7. [Common Code Patterns](#common-code-patterns)
-8. [Practice Exercises](#practice-exercises)
+4. [Understanding the Backend API](#understanding-the-backend-api)
+5. [Understanding API Communication](#understanding-api-communication)
+6. [Understanding Components](#understanding-components)
+7. [Understanding State and Props](#understanding-state-and-props)
+8. [Common Code Patterns](#common-code-patterns)
+9. [Practice Exercises](#practice-exercises)
 
 ---
 
@@ -145,60 +146,179 @@ export interface Pet {
 
 ---
 
-## Understanding Services
+## Understanding the Backend API
 
-Services are like the "brain" of the app. They handle all data operations.
+The app uses a **client-server architecture**. The frontend (React app) talks to a backend server (Node.js + Express) which talks to a database (PostgreSQL).
 
-### Example: PetService
+### What is an API?
 
-**File**: `src/services/petService.ts`
+**API = Application Programming Interface**
 
-Let's look at a simple function:
+Think of it like a restaurant:
+- **Frontend (You)**: The customer who orders food
+- **API (Waiter)**: Takes your order and brings your food
+- **Backend (Kitchen)**: Prepares the food
+- **Database (Pantry)**: Stores the ingredients
+
+### The API Client
+
+**File**: `src/lib/api.ts`
+
+The API client is how the frontend talks to the backend:
 
 ```typescript
 /**
  * BEGINNER EXPLANATION:
- * This function gets all pets that belong to a specific owner
- * 
- * How it works:
- * 1. It looks in localStorage (browser storage)
- * 2. It finds the key for this owner (pets_email@example.com)
- * 3. It converts the JSON string to JavaScript objects
- * 4. It returns the list of pets
+ * This is like a phone book of functions that talk to the server
+ * Each function sends a request to the backend and waits for a response
  */
 
-static getPetsByOwner(ownerId: string): Pet[] {
-  try {
-    // Step 1: Create a storage key using the owner's ID
-    // Example: if ownerId is "john@example.com"
-    // then key becomes "pets_john@example.com"
-    const key = `pets_${ownerId}`;
-    
-    // Step 2: Try to get data from localStorage
-    const petsData = localStorage.getItem(key);
-    
-    // Step 3: If data exists, convert it from string to objects
-    // If not, return an empty array []
-    if (petsData) {
-      return JSON.parse(petsData);  // Convert string to Pet objects
-    } else {
-      return [];  // No pets found, return empty list
-    }
-    
-  } catch (error) {
-    // If something goes wrong, show error and return empty list
-    console.error('Error loading pets:', error);
-    return [];
+// Import axios - a library for making HTTP requests
+import axios from 'axios';
+
+// Create an axios instance with default settings
+const api = axios.create({
+  baseURL: 'http://localhost:3001/api',  // Where our backend lives
+  headers: {
+    'Content-Type': 'application/json',  // We send/receive JSON
+  },
+});
+
+// Add JWT token to every request automatically
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
+```
+
+### Example: Getting Pets from the API
+
+```typescript
+/**
+ * BEGINNER EXPLANATION:
+ * This function asks the backend for all pets
+ * 
+ * How it works:
+ * 1. Send HTTP GET request to backend
+ * 2. Backend queries PostgreSQL database
+ * 3. Backend sends data back as JSON
+ * 4. Frontend receives and returns the pet list
+ */
+
+export const petAPI = {
+  async getPets() {
+    // "await" means "wait for this to finish"
+    // We're asking: "Hey backend, give me all the pets"
+    const { data } = await api.get('/pets');
+    
+    // Return the pet data
+    return data as Pet[];
+  },
+};
+```
+
+**Key Concepts:**
+- `async/await`: Wait for operations to complete (API calls take time)
+- `axios`: Library for making HTTP requests
+- `HTTP GET`: Ask for data
+- `HTTP POST`: Send new data
+- `HTTP PATCH`: Update existing data
+- `HTTP DELETE`: Remove data
+- `JWT Token`: Secure ID card that proves who you are
+
+---
+
+## Understanding API Communication
+
+### How Frontend and Backend Talk
+
+```
+1. User clicks "Get My Pets" button
+   ↓
+2. Frontend calls petAPI.getPets()
+   ↓
+3. Axios sends HTTP request to backend
+   ↓
+4. Backend receives request
+   ↓
+5. Backend queries PostgreSQL database
+   ↓
+6. Database returns pet records
+   ↓
+7. Backend sends pets as JSON response
+   ↓
+8. Frontend receives response
+   ↓
+9. React displays pets on screen
+```
+
+### Making an API Call in a Component
+
+```typescript
+/**
+ * BEGINNER EXPLANATION:
+ * This shows how to use the API in a React component
+ */
+
+import { useEffect, useState } from 'react';
+import { petAPI } from '@/lib/api';
+import { Pet } from '@/types';
+
+function PetList() {
+  // State to store the pets
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Load pets when component first appears
+  useEffect(() => {
+    const loadPets = async () => {
+      try {
+        // Ask API for pets (this is async, so we wait)
+        const allPets = await petAPI.getPets();
+        
+        // Save pets to state
+        setPets(allPets);
+      } catch (error) {
+        // If something went wrong, show error
+        console.error('Failed to load pets:', error);
+      } finally {
+        // Either way, we're done loading
+        setLoading(false);
+      }
+    };
+    
+    // Actually call the function
+    loadPets();
+  }, []);  // Empty array means "run once when component mounts"
+  
+  // Show loading message while waiting
+  if (loading) {
+    return <p>Loading pets...</p>;
+  }
+  
+  // Show the pets
+  return (
+    <div>
+      {pets.map(pet => (
+        <div key={pet.id}>
+          <h3>{pet.name}</h3>
+          <p>{pet.species}</p>
+        </div>
+      ))}
+    </div>
+  );
 }
 ```
 
 **Key Concepts:**
-- `static`: Means you don't need to create a PetService object first
-- `try/catch`: Error handling - if something breaks, catch it
-- `localStorage`: Browser storage (like saving files)
-- `JSON.parse`: Converts text to JavaScript objects
-- `JSON.stringify`: Converts JavaScript objects to text (for saving)
+- `async` function: Can use `await` inside
+- `await`: Wait for promise to complete
+- `try/catch/finally`: Handle errors gracefully
+- API calls are **asynchronous** - they take time
+- Always handle loading and error states
 
 ---
 
