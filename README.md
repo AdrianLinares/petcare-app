@@ -227,11 +227,7 @@ src/
 
 **New to programming or React? We've got comprehensive guides for you!**
 
-### 🎯 Start Here: [DOCUMENTATION_INDEX.md](./DOCUMENTATION_INDEX.md)
-
-This index helps you navigate all available documentation based on your experience level.
-
-### 📝 Available Guides
+### 🎯 Start Here: 
 
 - **[BEGINNER_GUIDE.md](./BEGINNER_GUIDE.md)** - Step-by-step guide to understanding the codebase
   - Explains React, TypeScript, and all core concepts
