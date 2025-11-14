@@ -3,8 +3,6 @@ services:
   - type: pserv
     name: petcare-db
     plan: free
-    databaseName: petcare
-    databaseUser: petcare_user
 
   # Backend API
   - type: web
