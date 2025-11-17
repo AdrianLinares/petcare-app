@@ -44,7 +44,22 @@ export const getUserFromToken = async (event: HandlerEvent): Promise<User | null
       return null;
     }
 
-    return result.rows[0];
+    const row = result.rows[0];
+
+    // Map snake_case database fields to camelCase
+    return {
+      id: row.id,
+      email: row.email,
+      fullName: row.full_name,
+      phone: row.phone,
+      userType: row.user_type,
+      accessLevel: row.access_level,
+      address: row.address,
+      specialization: row.specialization,
+      licenseNumber: row.license_number,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
   } catch (error) {
     return null;
   }
@@ -52,21 +67,21 @@ export const getUserFromToken = async (event: HandlerEvent): Promise<User | null
 
 export const requireAuth = async (event: HandlerEvent): Promise<User> => {
   const user = await getUserFromToken(event);
-  
+
   if (!user) {
     throw new Error('Authentication required');
   }
-  
+
   return user;
 };
 
 export const requireRole = async (event: HandlerEvent, ...allowedRoles: string[]): Promise<User> => {
   const user = await requireAuth(event);
-  
+
   if (!allowedRoles.includes(user.userType)) {
     throw new Error('Insufficient permissions');
   }
-  
+
   return user;
 };
 
@@ -75,20 +90,20 @@ export const requireAdmin = async (
   minLevel?: 'standard' | 'elevated' | 'super_admin'
 ): Promise<User> => {
   const user = await requireAuth(event);
-  
+
   if (user.userType !== 'administrator') {
     throw new Error('Administrator access required');
   }
-  
+
   if (minLevel) {
     const levels = ['standard', 'elevated', 'super_admin'];
     const userLevel = levels.indexOf(user.accessLevel || 'standard');
     const requiredLevel = levels.indexOf(minLevel);
-    
+
     if (userLevel < requiredLevel) {
       throw new Error('Insufficient admin privileges');
     }
   }
-  
+
   return user;
 };
