@@ -6,12 +6,28 @@ import { query } from './utils/database';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
 
 const handler: Handler = async (event: HandlerEvent) => {
+  // Log request for debugging (remove in production if too verbose)
+  console.log('Auth request:', {
+    method: event.httpMethod,
+    path: event.path,
+    hasBody: !!event.body,
+  });
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return corsResponse();
   }
 
   try {
+    // Check critical environment variables
+    if (!process.env.DATABASE_URL && !process.env.DB_HOST) {
+      console.error('CRITICAL: No database configuration found!');
+      throw new Error('Database configuration is missing');
+    }
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'default_secret') {
+      console.warn('WARNING: Using default JWT_SECRET - this is insecure!');
+    }
+
     const path = event.path.replace('/.netlify/functions/auth', '').replace('/api/auth', '');
     const body = event.body ? JSON.parse(event.body) : {};
 
@@ -79,6 +95,7 @@ const handler: Handler = async (event: HandlerEvent) => {
 
     // POST /auth/login
     if (path === '/login' && event.httpMethod === 'POST') {
+      console.log('Login attempt for:', body.email?.substring(0, 3) + '***');
       const { email, password } = body;
 
       if (!email || !password) {
@@ -86,10 +103,12 @@ const handler: Handler = async (event: HandlerEvent) => {
       }
 
       // Find user
+      console.log('Querying database for user...');
       const result = await query(
         'SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL',
         [email]
       );
+      console.log('Database query result:', result.rows.length > 0 ? 'User found' : 'User not found');
 
       if (result.rows.length === 0) {
         throw new Error('Invalid email or password');
@@ -98,18 +117,22 @@ const handler: Handler = async (event: HandlerEvent) => {
       const user = result.rows[0];
 
       // Verify password
+      console.log('Verifying password...');
       const validPassword = await bcrypt.compare(password, user.password_hash);
+      console.log('Password validation:', validPassword ? 'Success' : 'Failed');
       if (!validPassword) {
         throw new Error('Invalid email or password');
       }
 
       // Generate JWT token
+      console.log('Generating JWT token...');
       const token = jwt.sign(
         { userId: user.id, email: user.email, userType: user.user_type },
         process.env.JWT_SECRET || 'default_secret',
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions
       );
 
+      console.log('Login successful for user:', user.id);
       return successResponse({
         token,
         user: {
