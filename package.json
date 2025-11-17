@@ -16,7 +16,7 @@
     "db:setup": "cd backend && npm run db:setup",
     "db:migrate": "cd backend && npm run migrate",
     "db:seed": "cd backend && npm run seed",
-    "netlify:build": "cd netlify/functions && npm install && cd ../../frontend && npm run build"
+    "netlify:build": "cd netlify/functions && npm install && cd ../.. && npm run build:frontend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

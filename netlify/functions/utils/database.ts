@@ -20,7 +20,7 @@ export const getPool = () => {
           port: parseInt(process.env.DB_PORT || '5432'),
           database: process.env.DB_NAME || 'petcare_db',
           user: process.env.DB_USER || 'postgres',
-          password: process.env.DB_PASSWORD,
+          password: String(process.env.DB_PASSWORD || ''),
         };
 
     pool = new Pool({

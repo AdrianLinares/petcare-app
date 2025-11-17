@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 .env
 WARP.md
+# Local Netlify folder
+.netlify

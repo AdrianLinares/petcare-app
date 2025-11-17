@@ -8,11 +8,21 @@
   NODE_VERSION = "18"
 
 [dev]
-  command = "npm run dev"
-  port = 5173
+  command = "npm --prefix frontend run dev"
+  port = 8888
   targetPort = 5173
   framework = "#custom"
-  functions = "../netlify/functions"
+  functions = "netlify/functions"
+
+[context.dev.environment]
+  DB_HOST = "localhost"
+  DB_PORT = "5432"
+  DB_NAME = "petcare_db"
+  DB_USER = "postgres"
+  DB_PASSWORD = "petcare_dev_2025"
+  JWT_SECRET = "your_secret_key_here"
+  FRONTEND_URL = "http://localhost:8888"
+  NODE_ENV = "development"
 
 # API redirect - route /api/* to serverless functions
 [[redirects]]
