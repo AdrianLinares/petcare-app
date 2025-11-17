@@ -1,18 +1,15 @@
 [build]
   base = "."
   publish = "frontend/dist"
-  command = "cd frontend && npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install && npm run build && cp package.json ../../dist/functions/ && cp package-lock.json ../../dist/functions/ 2>/dev/null || true"
+  command = "cd frontend && npm install --legacy-peer-deps --include=dev && npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
 
 [functions]
-  # Use the compiled functions output directory. TypeScript build emits
-  # compiled JS to `dist/functions` (configured in
-  # `netlify/functions/tsconfig.json`), so Netlify should point to that
-  # folder for deployed functions.
-  directory = "dist/functions"
-  # Use esbuild to bundle functions with dependencies
+  # Point Netlify to the SOURCE TypeScript files
+  # Netlify's esbuild bundler will compile and bundle them automatically
+  directory = "netlify/functions"
   node_bundler = "esbuild"
 
 [dev]
