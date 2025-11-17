@@ -1,7 +1,7 @@
 [build]
-  base = "frontend"
-  publish = "dist"
-  command = "npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install && npm run build"
+  base = "."
+  publish = "frontend/dist"
+  command = "cd frontend && npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install && npm run build && cp package.json ../../dist/functions/ && cp package-lock.json ../../dist/functions/ 2>/dev/null || true"
 
 [build.environment]
   NODE_VERSION = "20"
@@ -12,6 +12,8 @@
   # `netlify/functions/tsconfig.json`), so Netlify should point to that
   # folder for deployed functions.
   directory = "dist/functions"
+  # Use esbuild to bundle functions with dependencies
+  node_bundler = "esbuild"
 
 [dev]
   command = "npm --prefix frontend run dev"
