@@ -1,13 +1,17 @@
 [build]
   base = "frontend"
   publish = "dist"
-  command = "npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install"
+  command = "npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "20"
 
 [functions]
-  directory = "netlify/functions"
+  # Use the compiled functions output directory. TypeScript build emits
+  # compiled JS to `dist/functions` (configured in
+  # `netlify/functions/tsconfig.json`), so Netlify should point to that
+  # folder for deployed functions.
+  directory = "dist/functions"
 
 [dev]
   command = "npm --prefix frontend run dev"
