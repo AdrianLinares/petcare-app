@@ -16,15 +16,15 @@
   framework = "#custom"
   functions = "netlify/functions"
 
-[context.dev.environment]
-  DB_HOST = "localhost"
-  DB_PORT = "5432"
-  DB_NAME = "petcare_db"
-  DB_USER = "postgres"
-  DB_PASSWORD = "petcare_dev_2025"
-  JWT_SECRET = "your_secret_key_here"
-  FRONTEND_URL = "http://localhost:8888"
-  NODE_ENV = "development"
+# [context.dev.environment]
+#   # WARNING: Do NOT commit sensitive credentials here
+#   # Instead, use Netlify CLI: netlify env:set KEY VALUE
+#   # Or use a .env file locally (which is gitignored)
+#   # Example for local dev:
+#   # DATABASE_URL = "postgresql://user:password@localhost:5432/petcare_db"
+#   # JWT_SECRET = "your_secret_key_here"
+#   # FRONTEND_URL = "http://localhost:8888"
+#   # NODE_ENV = "development"
 
 [[redirects]]
   from = "/api/*"

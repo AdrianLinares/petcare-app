@@ -23,6 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.local
+.env.*.local
+
+# Lock files (using pnpm)
+package-lock.json
+deno.lock
+yarn.lock
 WARP.md
 # Local Netlify folder
 .netlify

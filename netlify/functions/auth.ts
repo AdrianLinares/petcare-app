@@ -51,7 +51,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       const token = jwt.sign(
         { userId: user.id, email: user.email, userType: user.user_type },
         process.env.JWT_SECRET || 'default_secret',
-        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions
       );
 
       // Create welcome notification
@@ -107,7 +107,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       const token = jwt.sign(
         { userId: user.id, email: user.email, userType: user.user_type },
         process.env.JWT_SECRET || 'default_secret',
-        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions
       );
 
       return successResponse({

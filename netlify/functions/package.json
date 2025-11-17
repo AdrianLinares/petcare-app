@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Serverless functions for PetCare Application",
   "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@netlify/functions": "^2.4.0",
     "bcrypt": "^5.1.1",
