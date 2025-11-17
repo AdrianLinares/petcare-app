@@ -26,13 +26,11 @@
   FRONTEND_URL = "http://localhost:8888"
   NODE_ENV = "development"
 
-# API redirect - route /api/* to serverless functions
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# SPA redirect - route all other requests to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
