@@ -161,19 +161,21 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="userType">I am a...</Label>
-              <Select value={userType} onValueChange={setUserType} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select user type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pet_owner">Pet Owner</SelectItem>
-                  <SelectItem value="veterinarian">Veterinarian</SelectItem>
-                  <SelectItem value="administrator">Administrator</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="userType">I am a...</Label>
+                <Select value={userType} onValueChange={setUserType} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select user type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pet_owner">Pet Owner</SelectItem>
+                    <SelectItem value="veterinarian">Veterinarian</SelectItem>
+                    <SelectItem value="administrator">Administrator</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>

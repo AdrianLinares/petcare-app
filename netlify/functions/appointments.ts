@@ -37,7 +37,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       }
 
       if (params.date) {
-        queryText += ` AND DATE(a.appointment_date) = $${paramCount++}`;
+        queryText += ` AND DATE(a.date) = $${paramCount++}`;
         values.push(params.date);
       }
 
@@ -46,7 +46,7 @@ const handler: Handler = async (event: HandlerEvent) => {
         values.push(params.petId);
       }
 
-      queryText += ' ORDER BY a.appointment_date ASC';
+      queryText += ' ORDER BY a.date ASC';
 
       const result = await query(queryText, values);
       return successResponse(result.rows.map((apt: any) => ({
@@ -58,8 +58,8 @@ const handler: Handler = async (event: HandlerEvent) => {
         veterinarianId: apt.veterinarian_id,
         veterinarianName: apt.vet_name,
         type: apt.appointment_type,
-        date: apt.appointment_date,
-        time: apt.appointment_time,
+        date: apt.date,
+        time: apt.time,
         duration: apt.duration,
         reason: apt.reason,
         status: apt.status,
@@ -86,7 +86,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       const ownerId = petResult.rows[0].owner_id;
 
       const result = await query(
-        `INSERT INTO appointments (pet_id, owner_id, veterinarian_id, appointment_type, appointment_date, appointment_time, reason, status)
+        `INSERT INTO appointments (pet_id, owner_id, veterinarian_id, appointment_type, date, time, reason, status)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
         [petId, ownerId, veterinarianId, type, date, time, reason || null, 'scheduled']
@@ -128,11 +128,11 @@ const handler: Handler = async (event: HandlerEvent) => {
         let paramCount = 1;
 
         if (date) {
-          updates.push(`appointment_date = $${paramCount++}`);
+          updates.push(`date = $${paramCount++}`);
           values.push(date);
         }
         if (time) {
-          updates.push(`appointment_time = $${paramCount++}`);
+          updates.push(`time = $${paramCount++}`);
           values.push(time);
         }
         if (status) {

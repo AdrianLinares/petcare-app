@@ -36,7 +36,7 @@ This project uses a PostgreSQL database with seeded demo data. Use the pre-confi
 ### Data Storage Pattern
 This application uses a **PostgreSQL database** as the data persistence layer. All CRUD operations go through the backend REST API:
 
-- **Backend API** (`backend/src/routes/`): RESTful API with Express.js
+- **Serverless API** (`netlify/functions/`): RESTful API with Netlify Functions
 - **Frontend API Client** (`frontend/src/lib/api.ts`): Axios-based HTTP client with JWT authentication
 
 **API Modules:**
@@ -115,8 +115,8 @@ All core types are defined in `src/types.ts`:
 ### Adding New Features
 
 **Backend:**
-1. **Define database model** in `backend/src/models/`
-2. **Create API routes** in `backend/src/routes/`
+1. **Define serverless endpoint** in `netlify/functions/`
+2. **Add database queries** using Neon connection
 3. **Add validation** in route handlers
 4. **Test with API client** (Postman, Insomnia)
 

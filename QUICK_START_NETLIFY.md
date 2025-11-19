@@ -5,9 +5,8 @@
 ### 1. Install Dependencies
 
 ```bash
-./setup-netlify.sh
-# OR manually:
-npm install && cd frontend && npm install && cd ../netlify/functions && npm install
+npm run install:all
+# This installs dependencies for frontend and serverless functions
 ```
 
 ### 2. Configure Environment
@@ -42,13 +41,8 @@ Visit **http://localhost:8888**
 npm run dev                    # Start Netlify Dev server
 netlify dev                    # Alternative command
 
-# Database
-npm run db:setup               # Run migrations + seed data
-npm run db:migrate             # Run migrations only
-npm run db:seed                # Seed data only
-
 # Build
-npm run build                  # Build for production
+npm run build                  # Build frontend for production
 
 # Deployment
 netlify deploy                 # Preview deployment
@@ -60,16 +54,16 @@ netlify deploy --prod          # Production deployment
 ```
 netlify/functions/     # Serverless API functions
 frontend/              # React app
-backend/               # Old Express backend (can archive)
 ```
 
 ## What Changed?
 
-- ✅ API now runs on serverless functions (not Express)
-- ✅ Local dev now uses `netlify dev` (not separate backend/frontend)
-- ✅ Deploys to Netlify (not traditional hosting)
-- ✅ Environment variables in root `.env` (not backend/.env)
-- ✅ Frontend API URL: `http://localhost:8888/api` (was `http://localhost:3001/api`)
+- ✅ API now runs on serverless functions (Netlify Functions)
+- ✅ Database is Neon PostgreSQL (serverless, managed)
+- ✅ Local dev uses `netlify dev` (integrated development)
+- ✅ Deploys to Netlify with automatic builds
+- ✅ Environment variables in root `.env` file
+- ✅ Frontend API URL: `http://localhost:8888/.netlify/functions` (local dev)
 
 ## Need Help?
 
@@ -81,12 +75,13 @@ backend/               # Old Express backend (can archive)
 
 **Can't connect to database?**
 - Check `.env` file exists in project root
-- Verify DATABASE_URL or DB_* credentials
-- Ensure PostgreSQL is running
+- Verify DATABASE_URL points to your Neon database
+- Test connection with: `psql $DATABASE_URL`
 
 **Functions not working?**
-- Run `cd netlify/functions && npm install`
+- Run `npm run install:functions`
 - Check function logs: `netlify logs`
+- Verify environment variables are set in Netlify dashboard
 
 **Build fails?**
 - Clear cache: `rm -rf node_modules netlify/functions/node_modules frontend/node_modules`

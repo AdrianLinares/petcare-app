@@ -1,12 +1,14 @@
 # 🐾 PetCare Management System
 
-A comprehensive pet care management system built with modern web technologies, offering role-based dashboards for pet owners, veterinarians, and administrators.
+A comprehensive pet care management system built with modern web technologies, offering role-based dashboards for pet owners, veterinarians, and administrators. Deployed as a serverless application on Netlify with Neon PostgreSQL database.
 
 ![PetCare](https://img.shields.io/badge/PetCare-Management%20System-blue)
 ![React](https://img.shields.io/badge/React-18.3.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue)
 ![Vite](https://img.shields.io/badge/Vite-5.4.1-purple)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.11-cyan)
+![Netlify](https://img.shields.io/badge/Netlify-Serverless-00C7B7)
+![Neon](https://img.shields.io/badge/Neon-PostgreSQL-4F46E5)
 
 ## ⚡ Key Highlights
 
@@ -18,8 +20,9 @@ A comprehensive pet care management system built with modern web technologies, o
 - ✅ **Advanced Search & Filtering** across users, pets, and appointments
 - ✅ **Real-Time Dashboard Analytics** for all user types
 - ✅ **Full CRUD Operations** on users, pets, appointments, and medical records
-- ✅ **Backend API Integration** with PostgreSQL database and JWT authentication
+- ✅ **Serverless API** with Netlify Functions and Neon PostgreSQL
 - ✅ **Type-Safe Development** with TypeScript and Zod validation
+- ✅ **Scalable Architecture** with serverless deployment
 
 ## ✨ Features
 
@@ -169,58 +172,48 @@ A comprehensive pet care management system built with modern web technologies, o
 - **HTTP Client**: Axios
 
 #### Backend
-- **Runtime**: Node.js with Express.js
-- **Database**: PostgreSQL
+- **Runtime**: Netlify Serverless Functions
+- **Database**: Neon PostgreSQL (serverless)
 - **Authentication**: JWT (JSON Web Tokens)
-- **Validation**: Express Validator
-- **API Architecture**: RESTful API
+- **API Architecture**: RESTful serverless endpoints
 
 ### **Project Structure**
 ```
-src/
-├── components/
-│   ├── ui/                    # shadcn/ui components (40+ components)
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
-│   │   ├── form.tsx
-│   │   ├── table.tsx
-│   │   └── ... (and more)
-│   ├── Auth/                  # Authentication components
-│   │   ├── LoginForm.tsx
-│   │   ├── ForgotPasswordForm.tsx
-│   │   ├── ResetPasswordForm.tsx
-│   │   └── PasswordRecoveryDemo.tsx
-│   ├── Dashboard/             # Role-based dashboards
-│   │   ├── PetOwnerDashboard.tsx
-│   │   ├── VeterinarianDashboard.tsx
-│   │   └── AdminDashboard.tsx
-│   ├── Admin/                 # Admin-specific components
-│   │   ├── UserForm.tsx
-│   │   └── UserManagementDialogs.tsx
-│   ├── Pet/                   # Pet management components
-│   │   └── PetManagement.tsx
-│   ├── Appointment/           # Appointment components
-│   │   └── AppointmentScheduling.tsx
-│   └── Medical/               # Medical history components
-│       └── MedicalHistoryManagement.tsx
-├── lib/                       # External integrations
-│   ├── api.ts                 # Backend API client (Axios)
-│   └── utils.ts               # General utilities
-├── schemas/                   # Zod validation schemas
-│   └── userSchema.ts          # User form validation
-├── utils/                     # Utility functions
-│   ├── roleManagement.ts      # RBAC and permissions
-│   ├── passwordRecovery.ts    # Password reset utilities
-│   └── testData.ts           # Demo data initialization
-├── hooks/                     # Custom React hooks
-│   ├── use-toast.ts
-│   └── use-mobile.tsx
-├── pages/                     # Page components
-│   ├── Index.tsx
-│   └── NotFound.tsx
-├── types.ts                   # TypeScript type definitions
-└── App.tsx                    # Main application component
+petcare-app/
+├── frontend/                  # React application
+│   ├── src/
+│   │   ├── components/        # UI components
+│   │   │   ├── ui/           # shadcn/ui components
+│   │   │   ├── Auth/         # Authentication components
+│   │   │   ├── Dashboard/    # Role-based dashboards
+│   │   │   ├── Admin/        # Admin components
+│   │   │   ├── Pet/          # Pet management
+│   │   │   ├── Appointment/  # Appointment scheduling
+│   │   │   └── Medical/      # Medical records
+│   │   ├── lib/              # External integrations
+│   │   │   ├── api.ts        # API client
+│   │   │   └── utils.ts      # Utilities
+│   │   ├── schemas/          # Zod validation
+│   │   ├── utils/            # Helper functions
+│   │   ├── hooks/            # Custom React hooks
+│   │   └── types.ts          # TypeScript types
+│   └── package.json
+├── netlify/
+│   └── functions/            # Serverless API functions
+│       ├── auth.ts           # Authentication endpoints
+│       ├── users.ts          # User management
+│       ├── pets.ts           # Pet endpoints
+│       ├── appointments.ts   # Appointment management
+│       ├── medical-records.ts
+│       ├── medications.ts
+│       ├── vaccinations.ts
+│       ├── clinical-records.ts
+│       ├── notifications.ts
+│       └── utils/            # Shared utilities
+│           ├── auth.ts       # JWT validation
+│           ├── database.ts   # Neon connection
+│           └── response.ts   # Response helpers
+└── netlify.toml              # Netlify configuration
 ```
 
 ## 📚 Documentation for Beginners
@@ -270,67 +263,65 @@ All major code files include detailed inline comments explaining:
 
 ### Prerequisites
 - Node.js 18+ 
-- PostgreSQL 14+
-- pnpm (recommended) or npm
+- npm or pnpm
+- Netlify CLI (optional for local development)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd petcare-app-v1
+   cd petcare-app
    ```
 
 2. **Install dependencies**
-   
-   **Backend:**
    ```bash
-   cd backend
-   npm install
-   ```
-   
-   **Frontend:**
-   ```bash
-   cd frontend
-   pnpm install
-   # or
-   npm install
+   npm run install:all
+   # This installs dependencies for frontend and serverless functions
    ```
 
 3. **Configure environment variables**
    
-   **Backend** (`backend/.env`):
+   Create a `.env` file in the project root:
    ```env
-   PORT=3001
-   DATABASE_URL=postgresql://user:password@localhost:5432/petcare
-   JWT_SECRET=your-secret-key
+   DATABASE_URL=your_neon_database_url
+   JWT_SECRET=your_secret_key_here
+   FRONTEND_URL=http://localhost:8888
+   NODE_ENV=development
    ```
 
-4. **Initialize the database**
+4. **Start development server**
    ```bash
-   cd backend
-   npm run db:init
-   ```
-
-5. **Start the servers**
-   
-   **Backend:**
-   ```bash
-   cd backend
    npm run dev
-   # Runs on http://localhost:3001
-   ```
-   
-   **Frontend:**
-   ```bash
-   cd frontend
-   pnpm run dev
-   # or: npm run dev
-   # Runs on http://localhost:5173
+   # Runs Netlify Dev on http://localhost:8888
    ```
 
-6. **Open your browser**
-   Navigate to `http://localhost:5173`
+5. **Open your browser**
+   Navigate to `http://localhost:8888`
+
+### Deployment to Netlify
+
+1. **Install Netlify CLI**
+   ```bash
+   npm install -g netlify-cli
+   ```
+
+2. **Login to Netlify**
+   ```bash
+   netlify login
+   ```
+
+3. **Initialize site**
+   ```bash
+   netlify init
+   ```
+
+4. **Deploy**
+   ```bash
+   netlify deploy --prod
+   ```
+
+For detailed deployment instructions, see [NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md).
 
 ## 🔑 Demo Credentials
 
@@ -407,17 +398,18 @@ pnpm run lint
 
 ### **API Architecture**
 
-The application uses a RESTful API architecture with a dedicated backend:
+The application uses serverless functions deployed on Netlify:
 
-**Backend API** (`backend/src/routes/`)
-- **Authentication API**: Login, registration, password reset
-- **User API**: User CRUD operations, profile management
-- **Pet API**: Pet management with medical records
-- **Appointment API**: Scheduling and status management
-- **Medical Records API**: Clinical records management
-- **Vaccination API**: Vaccination tracking
-- **Medication API**: Medication management
-- **Notification API**: System notifications
+**Serverless Functions** (`netlify/functions/`)
+- **Authentication**: Login, registration, password reset
+- **Users**: User CRUD operations, profile management
+- **Pets**: Pet management with medical records
+- **Appointments**: Scheduling and status management
+- **Medical Records**: Clinical records management
+- **Vaccinations**: Vaccination tracking
+- **Medications**: Medication management
+- **Clinical Records**: Veterinary clinical notes
+- **Notifications**: System notifications
 
 **Frontend API Client** (`frontend/src/lib/api.ts`)
 - Axios-based HTTP client
@@ -427,18 +419,21 @@ The application uses a RESTful API architecture with a dedicated backend:
 - Type-safe API calls
 
 **Key Features:**
-- PostgreSQL database for persistent storage
+- Neon PostgreSQL (serverless database)
 - JWT authentication for secure access
-- RESTful endpoints following best practices
+- RESTful serverless endpoints
+- Auto-scaling and high availability
 - Request/response validation
 - Centralized error handling
+- CORS support
 
 ### **Adding New Features**
 
-1. **Backend**:
-   - Add database models in `backend/src/models/`
-   - Create API routes in `backend/src/routes/`
-   - Add validation in route handlers
+1. **Serverless Functions**:
+   - Create new function in `netlify/functions/`
+   - Add database queries using Neon connection
+   - Implement JWT authentication with `requireAuth`
+   - Add validation and error handling
    - Update API documentation
 
 2. **Frontend**:
@@ -564,19 +559,19 @@ The application includes comprehensive demo data for testing:
 - Video consultation integration
 
 ### **Technical Improvements**
-- ✅ ~~Database integration (PostgreSQL)~~ **COMPLETED**
+- ✅ ~~Database integration (Neon PostgreSQL)~~ **COMPLETED**
 - ✅ ~~JWT authentication~~ **COMPLETED**
-- ✅ ~~RESTful API backend~~ **COMPLETED**
-- Real-time updates with WebSockets
-- Advanced caching strategies (Redis)
+- ✅ ~~Serverless API with Netlify~~ **COMPLETED**
+- Real-time updates with WebSockets or Pusher
+- Advanced caching strategies (Edge Functions)
 - Performance optimizations (lazy loading, code splitting)
 - Comprehensive test coverage (Jest, React Testing Library, Playwright)
-- Docker containerization for development and deployment
-- CI/CD pipeline setup (GitHub Actions)
+- CI/CD pipeline with Netlify automatic deploys
 - Email service integration (SendGrid, AWS SES)
 - Cloud storage for documents (AWS S3, Cloudinary)
 - Monitoring and error tracking (Sentry, LogRocket)
 - SEO optimization and meta tags
+- Rate limiting and API protection
 
 ## 🤝 Contributing
 

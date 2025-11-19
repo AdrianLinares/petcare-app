@@ -52,13 +52,13 @@ Most providers have a SQL editor in their dashboard:
 3. **Railway**: Click on the database → Query tab
 4. **Render**: Use the "Shell" or connect via psql
 
-Then paste the contents of `backend/database/schema.sql` and execute it.
+Then paste your database schema SQL and execute it.
 
 ### Method 3: Use a Database Client
 
 1. Download **TablePlus**, **DBeaver**, or **pgAdmin**
 2. Connect using your `DATABASE_URL`
-3. Open and execute `backend/database/schema.sql`
+3. Create your database schema using the SQL editor or import your schema file
 
 ## Step 3: Configure Netlify Environment Variables
 

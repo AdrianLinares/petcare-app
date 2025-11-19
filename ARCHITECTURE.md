@@ -47,15 +47,15 @@ Think of it like a digital filing cabinet for pet healthcare!
 - **Why we use it**: Makes development faster
 - **Simple explanation**: It's like a helper that runs your code in the browser during development
 
-### **PostgreSQL** 🐘
-- **What it is**: A powerful database system
-- **Why we use it**: Store all application data permanently and securely
-- **Simple explanation**: Like a super organized filing cabinet that multiple people can access at the same time
+### **Neon PostgreSQL** 🐘
+- **What it is**: A serverless PostgreSQL database
+- **Why we use it**: Automatic scaling, high availability, and modern developer experience
+- **Simple explanation**: Like a super organized filing cabinet in the cloud that scales automatically
 
-### **Express.js** 🚂
-- **What it is**: A backend framework for Node.js
-- **Why we use it**: Handles API requests and talks to the database
-- **Simple explanation**: The middleman between the website and the database
+### **Netlify Serverless Functions** ☁️
+- **What it is**: Server-side code that runs on-demand without managing servers
+- **Why we use it**: Handles API requests, talks to the database, and scales automatically
+- **Simple explanation**: The middleman between the website and the database, but without needing to manage a server
 
 ### **JWT (JSON Web Tokens)** 🔐
 - **What it is**: A secure way to authenticate users
@@ -69,7 +69,7 @@ Think of it like a digital filing cabinet for pet healthcare!
 Here's how the folders and files are organized:
 
 ```
-petcare-app-v1/
+petcare-app/
 ├── frontend/                     # Frontend React application
 │   ├── src/
 │   │   ├── components/           # Reusable UI pieces
@@ -81,7 +81,7 @@ petcare-app-v1/
 │   │   │   └── Medical/          # Medical record features
 │   │   │
 │   │   ├── lib/                  # External integrations
-│   │   │   ├── api.ts            # Backend API client (Axios)
+│   │   │   ├── api.ts            # API client (Axios)
 │   │   │   └── utils.ts          # General utilities
 │   │   │
 │   │   ├── utils/                # Helper functions
@@ -95,21 +95,21 @@ petcare-app-v1/
 │   │
 │   └── package.json              # Frontend dependencies
 │
-├── backend/                      # Backend API server
-│   ├── src/
-│   │   ├── routes/               # API endpoints
-│   │   │   ├── auth.js           # Authentication routes
-│   │   │   ├── users.js          # User management routes
-│   │   │   ├── pets.js           # Pet management routes
-│   │   │   ├── appointments.js   # Appointment routes
-│   │   │   ├── medicalRecords.js # Medical records routes
-│   │   │   └── ... (and more)
-│   │   │
-│   │   ├── models/               # Database models
-│   │   ├── middleware/           # Express middleware
-│   │   └── server.js             # Entry point
-│   │
-│   └── package.json              # Backend dependencies
+├── netlify/                      # Serverless backend
+│   └── functions/                # Serverless API functions
+│       ├── auth.ts               # Authentication endpoints
+│       ├── users.ts              # User management
+│       ├── pets.ts               # Pet endpoints
+│       ├── appointments.ts       # Appointment management
+│       ├── medical-records.ts
+│       ├── medications.ts
+│       ├── vaccinations.ts
+│       ├── clinical-records.ts
+│       ├── notifications.ts
+│       └── utils/                # Shared utilities
+│           ├── auth.ts           # JWT validation
+│           ├── database.ts       # Neon connection
+│           └── response.ts       # Response helpers
 │
 └── README.md                     # Project documentation
 ```
@@ -142,11 +142,11 @@ Let's follow what happens when a user logs in:
    ↓
 2. LoginForm component validates the input
    ↓
-3. Frontend sends credentials to backend API
+3. Frontend sends credentials to Netlify serverless function
    ↓
-4. Backend checks PostgreSQL database for the user
+4. Serverless function checks Neon PostgreSQL database for the user
    ↓
-5. If correct, backend creates a JWT token
+5. If correct, function creates a JWT token
    ↓
 6. Frontend receives token and user data
    ↓
@@ -156,21 +156,21 @@ Let's follow what happens when a user logs in:
    ↓
 9. React re-renders and shows the dashboard
    ↓
-10. Dashboard makes API calls to load pets and appointments
+10. Dashboard makes API calls to serverless functions
     ↓
-11. Backend fetches data from database and returns it
+11. Functions fetch data from Neon database and return it
     ↓
 12. Frontend displays the data
 ```
 
-### **Frontend ↔️ Backend Communication**
+### **Frontend ↔️ Serverless API Communication**
 
 Every time the frontend needs data:
 1. **Frontend** makes an HTTP request (using Axios)
 2. **Request includes** the JWT token for authentication
-3. **Backend** validates the token
-4. **Backend** queries the PostgreSQL database
-5. **Backend** sends data back as JSON
+3. **Serverless function** validates the token
+4. **Function** queries the Neon PostgreSQL database
+5. **Function** sends data back as JSON
 6. **Frontend** receives and displays the data
 
 ### **What is "State"?**

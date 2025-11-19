@@ -148,7 +148,7 @@ export interface Pet {
 
 ## Understanding the Backend API
 
-The app uses a **client-server architecture**. The frontend (React app) talks to a backend server (Node.js + Express) which talks to a database (PostgreSQL).
+The app uses a **serverless architecture**. The frontend (React app) talks to serverless API functions (Netlify Functions) which talk to a database (Neon PostgreSQL).
 
 ### What is an API?
 

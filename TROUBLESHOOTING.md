@@ -57,11 +57,11 @@ psql "postgresql://user:password@host.neon.tech/petcare_db?sslmode=require"
 SELECT id, email, user_type FROM users LIMIT 5;
 ```
 
-**If table doesn't exist**, run migrations:
+**If table doesn't exist**, you need to run the database schema:
 
 ```bash
-# Upload schema to Neon
-psql $DATABASE_URL < backend/database/schema.sql
+# Get your schema from Neon dashboard or create tables manually
+# The schema should match the structure used by the serverless functions
 ```
 
 ### 4. Common Issues & Solutions

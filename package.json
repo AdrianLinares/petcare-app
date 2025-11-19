@@ -1,24 +1,12 @@
 {
   "name": "petcare-app",
   "version": "1.0.0",
-  "description": "PetCare Application - Full-stack veterinary management system",
+  "description": "PetCare Application - Serverless veterinary management system",
   "private": true,
   "scripts": {
     "dev": "netlify dev",
-    "dev:old": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
-    "build:backend": "cd backend && npm run build",
-    "build:frontend": "cd frontend && npm run build",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../netlify/functions && npm install",
-    "install:netlify": "cd netlify/functions && npm install",
-    "db:setup": "cd backend && npm run db:setup",
-    "db:migrate": "cd backend && npm run migrate",
-    "db:seed": "cd backend && npm run seed",
-    "netlify:build": "cd netlify/functions && npm install && cd ../.. && npm run build:frontend"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+    "install:all": "npm install && cd frontend && npm install && cd ../netlify/functions && npm install",
+    "install:functions": "cd netlify/functions && npm install"
   }
 }
