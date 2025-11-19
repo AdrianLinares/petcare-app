@@ -126,11 +126,35 @@ const handler: Handler = async (event: HandlerEvent) => {
       return successResponse({ message: 'Password changed successfully' });
     }
 
-    // GET /users - List all users (Admin only)
+    // GET /users - List all users (Admin only, except for veterinarians which any authenticated user can see)
     if (path === '' && event.httpMethod === 'GET') {
+      const { userType, page = '1', limit = '20' } = params;
+      
+      // If requesting veterinarians, only require authentication (not admin)
+      if (userType === 'veterinarian') {
+        await requireAuth(event);
+        
+        const result = await query(
+          'SELECT id, email, full_name, phone, user_type, specialization, license_number FROM users WHERE user_type = $1 AND deleted_at IS NULL ORDER BY full_name ASC',
+          ['veterinarian']
+        );
+
+        return successResponse({
+          users: result.rows.map((u: any) => ({
+            id: u.id,
+            email: u.email,
+            fullName: u.full_name,
+            phone: u.phone,
+            userType: u.user_type,
+            specialization: u.specialization,
+            licenseNumber: u.license_number,
+          })),
+        });
+      }
+      
+      // For all other user types, require admin access
       await requireAdmin(event);
       
-      const { userType, page = '1', limit = '20' } = params;
       const pageNum = parseInt(page);
       const limitNum = Math.min(parseInt(limit), 100);
       const offset = (pageNum - 1) * limitNum;
