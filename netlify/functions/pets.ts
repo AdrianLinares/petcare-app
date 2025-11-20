@@ -34,6 +34,7 @@ const handler: Handler = async (event: HandlerEvent) => {
         name: pet.name,
         species: pet.species,
         breed: pet.breed,
+        age: pet.age,
         dateOfBirth: pet.date_of_birth,
         gender: pet.gender,
         color: pet.color,
@@ -45,6 +46,7 @@ const handler: Handler = async (event: HandlerEvent) => {
         medicalHistory: pet.medical_history,
         allergies: pet.allergies,
         currentMedications: pet.current_medications,
+        notes: pet.notes,
         createdAt: pet.created_at,
         updatedAt: pet.updated_at,
       })));
@@ -59,7 +61,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       }
 
       const ownerIdToUse = user.userType === 'pet_owner' ? user.id : ownerId;
-      
+
       if (!ownerIdToUse) {
         throw new Error('Owner ID is required');
       }
@@ -114,6 +116,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           name: pet.name,
           species: pet.species,
           breed: pet.breed,
+          age: pet.age,
           dateOfBirth: pet.date_of_birth,
           gender: pet.gender,
           color: pet.color,
@@ -124,6 +127,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           medicalHistory: pet.medical_history,
           allergies: pet.allergies,
           currentMedications: pet.current_medications,
+          notes: pet.notes,
           createdAt: pet.created_at,
           updatedAt: pet.updated_at,
         });
@@ -131,7 +135,7 @@ const handler: Handler = async (event: HandlerEvent) => {
 
       // PATCH /pets/:id
       if (event.httpMethod === 'PATCH') {
-        const { name, species, breed, dateOfBirth, gender, color, microchipId, weight, medicalHistory, allergies, currentMedications } = body;
+        const { name, species, breed, dateOfBirth, gender, color, microchipId, weight, medicalHistory, allergies, currentMedications, notes } = body;
 
         const updates: string[] = [];
         const values: any[] = [];
@@ -181,6 +185,10 @@ const handler: Handler = async (event: HandlerEvent) => {
           updates.push(`current_medications = $${paramCount++}`);
           values.push(currentMedications);
         }
+        if (notes !== undefined) {
+          updates.push(`notes = $${paramCount++}`);
+          values.push(notes);
+        }
 
         if (updates.length === 0) {
           throw new Error('No fields to update');
@@ -188,7 +196,7 @@ const handler: Handler = async (event: HandlerEvent) => {
 
         values.push(petId);
         let whereClause = `id = $${paramCount}`;
-        
+
         if (user.userType === 'pet_owner') {
           whereClause += ` AND owner_id = $${paramCount + 1}`;
           values.push(user.id);
@@ -211,6 +219,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           name: pet.name,
           species: pet.species,
           breed: pet.breed,
+          age: pet.age,
           dateOfBirth: pet.date_of_birth,
           gender: pet.gender,
           color: pet.color,
@@ -220,6 +229,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           medicalHistory: pet.medical_history,
           allergies: pet.allergies,
           currentMedications: pet.current_medications,
+          notes: pet.notes,
           updatedAt: pet.updated_at,
         });
       }

@@ -60,7 +60,9 @@ export interface Appointment {
   petId: string;
   petName: string;
   ownerId: string;
-  veterinarian: string;
+  veterinarian?: string;
+  veterinarianId?: string;
+  veterinarianName?: string;
   type: string;
   date: string;
   time: string;
@@ -128,9 +130,9 @@ export interface EmailLog {
 export interface Notification {
   id: string;
   userId: string;
-  type: 'appointment_reminder' | 'appointment_cancelled' | 'appointment_rescheduled' | 
-        'vaccination_due' | 'medication_reminder' | 'medical_update' | 
-        'system_alert' | 'welcome' | 'password_changed';
+  type: 'appointment_reminder' | 'appointment_cancelled' | 'appointment_rescheduled' |
+  'vaccination_due' | 'medication_reminder' | 'medical_update' |
+  'system_alert' | 'welcome' | 'password_changed';
   title: string;
   message: string;
   relatedEntityType?: 'appointment' | 'pet' | 'medication' | 'vaccination';

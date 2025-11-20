@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,34 @@ interface MedicalHistoryManagementProps {
 
 export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: MedicalHistoryManagementProps) {
   const [activeTab, setActiveTab] = useState('medical');
-  
+  const [loading, setLoading] = useState(true);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [vaccinations, setVaccinations] = useState<VaccinationRecord[]>([]);
+  const [medications, setMedications] = useState<MedicationRecord[]>([]);
+
+  const loadAll = async () => {
+    setLoading(true);
+    try {
+      const [m, v, md] = await Promise.all([
+        medicalRecordAPI.getByPet(pet.id),
+        vaccinationAPI.getByPet(pet.id),
+        medicationAPI.getByPet(pet.id),
+      ]);
+      setMedicalRecords(m);
+      setVaccinations(v);
+      setMedications(md);
+    } catch (e) {
+      toast.error('Failed to load medical history');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pet.id]);
+
   // Medical Record states
   const [medicalRecordDialog, setMedicalRecordDialog] = useState(false);
   const [editingMedicalId, setEditingMedicalId] = useState<string | null>(null);
@@ -30,7 +57,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     recordType: '',
     description: ''
   });
-  
+
   // Vaccination states
   const [vaccinationDialog, setVaccinationDialog] = useState(false);
   const [editingVaccinationId, setEditingVaccinationId] = useState<string | null>(null);
@@ -39,7 +66,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     date: '',
     nextDue: ''
   });
-  
+
   // Medication states
   const [medicationDialog, setMedicationDialog] = useState(false);
   const [editingMedicationId, setEditingMedicationId] = useState<string | null>(null);
@@ -100,6 +127,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
         });
         toast.success('Medical record added successfully');
       }
+      await loadAll();
       onUpdate();
       setMedicalRecordDialog(false);
     } catch (error) {
@@ -112,6 +140,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       try {
         await medicalRecordAPI.delete(id);
         toast.success('Medical record deleted');
+        await loadAll();
         onUpdate();
       } catch (error) {
         toast.error('Failed to delete medical record');
@@ -154,6 +183,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
         });
         toast.success('Vaccination record added successfully');
       }
+      await loadAll();
       onUpdate();
       setVaccinationDialog(false);
     } catch (error) {
@@ -166,6 +196,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       try {
         await vaccinationAPI.delete(id);
         toast.success('Vaccination record deleted');
+        await loadAll();
         onUpdate();
       } catch (error) {
         toast.error('Failed to delete vaccination record');
@@ -211,6 +242,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
         });
         toast.success('Medication record added successfully');
       }
+      await loadAll();
       onUpdate();
       setMedicationDialog(false);
     } catch (error) {
@@ -223,6 +255,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       try {
         await medicationAPI.delete(id);
         toast.success('Medication record deleted');
+        await loadAll();
         onUpdate();
       } catch (error) {
         toast.error('Failed to delete medication record');
@@ -282,7 +315,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
         toast.error('Please enter a valid weight');
         return;
       }
-      
+
       await petAPI.updatePet(pet.id, { weight: newWeight });
       toast.success('Weight updated successfully');
       onUpdate();
@@ -391,9 +424,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               </div>
             </CardHeader>
             <CardContent>
-              {pet.medicalHistory && pet.medicalHistory.length > 0 ? (
+              {loading ? (
+                <p className="text-center text-gray-500 py-8">Loading...</p>
+              ) : medicalRecords && medicalRecords.length > 0 ? (
                 <div className="space-y-4">
-                  {pet.medicalHistory.map((record) => (
+                  {medicalRecords.map((record) => (
                     <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -450,9 +485,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               </div>
             </CardHeader>
             <CardContent>
-              {pet.vaccinations && pet.vaccinations.length > 0 ? (
+              {loading ? (
+                <p className="text-center text-gray-500 py-8">Loading...</p>
+              ) : vaccinations && vaccinations.length > 0 ? (
                 <div className="space-y-4">
-                  {pet.vaccinations.map((record) => (
+                  {vaccinations.map((record) => (
                     <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -510,9 +547,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               </div>
             </CardHeader>
             <CardContent>
-              {pet.medications && pet.medications.length > 0 ? (
+              {loading ? (
+                <p className="text-center text-gray-500 py-8">Loading...</p>
+              ) : medications && medications.length > 0 ? (
                 <div className="space-y-4">
-                  {pet.medications.map((record) => (
+                  {medications.map((record) => (
                     <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
