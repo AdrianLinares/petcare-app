@@ -1,8 +1,86 @@
+/**
+ * Role Management Utility Module
+ * 
+ * BEGINNER EXPLANATION:
+ * This module defines what different user types can and cannot do in the system.
+ * It's like a rulebook that says "Pet owners can do X but not Y" and
+ * "Administrators can do everything."
+ * 
+ * User Roles:
+ * 1. pet_owner: Regular users who own pets
+ *    - Can manage their own pets and appointments
+ *    - Can view medical records for their pets
+ *    - Cannot access admin features
+ * 
+ * 2. veterinarian: Medical professionals
+ *    - Can view all pets and medical records
+ *    - Can add/edit clinical information
+ *    - Can manage their appointments
+ *    - Cannot manage users or system settings
+ * 
+ * 3. administrator: System managers
+ *    - Can do everything in the system
+ *    - Manage users, pets, appointments
+ *    - Access all reports and settings
+ *    - Different levels: standard, elevated, super_admin
+ * 
+ * How It Works:
+ * 1. User logs in → System stores their role (pet_owner, vet, admin)
+ * 2. User tries to perform action → Check permissions
+ * 3. RoleManager.hasPermission() returns true/false
+ * 4. UI shows/hides features based on permissions
+ * 5. Backend validates permissions before allowing actions
+ * 
+ * Permission Checks:
+ * - UI Level: Hide buttons user can't use (better UX)
+ * - API Level: Verify permissions before processing (security)
+ * 
+ * SECURITY NOTE:
+ * Never trust client-side permission checks alone! Always verify on the server.
+ * A malicious user could modify client code to bypass UI restrictions.
+ * 
+ * Example Usage:
+ * ```typescript
+ * const permissions = RoleManager.getRolePermissions(user.userType);
+ * if (permissions.canDeleteUsers) {
+ *   // Show delete button
+ * }
+ * 
+ * // Or simpler:
+ * if (RoleManager.hasPermission(user, 'canEditClinicalRecords')) {
+ *   // Allow editing
+ * }
+ * ```
+ */
+
 import { User } from '../types';
 
+/**
+ * User Role Types
+ * 
+ * BEGINNER NOTE: TypeScript will enforce that userType can only be one of these values.
+ * You can't accidentally set userType to "customer" or "manager" - it must be one of these.
+ */
 export type UserRole = 'pet_owner' | 'veterinarian' | 'administrator';
+
+/**
+ * Admin Access Levels
+ * 
+ * BEGINNER EXPLANATION:
+ * Administrators can have different power levels:
+ * - standard: Can manage users and appointments
+ * - elevated: Additionally can access reports and analytics  
+ * - super_admin: Full system access including settings
+ */
 export type AdminAccessLevel = 'standard' | 'elevated' | 'super_admin';
 
+/**
+ * Role Permissions Interface
+ * 
+ * BEGINNER EXPLANATION:
+ * This defines all possible permissions in the system. Each permission
+ * is a boolean (true/false). True = user can perform this action.
+ */
 export interface RolePermissions {
   canCreateUsers: boolean;
   canEditUsers: boolean;
@@ -103,7 +181,7 @@ export class RoleManager {
 
   // Check if a user has a specific permission
   static hasPermission(
-    user: User, 
+    user: User,
     permission: keyof RolePermissions
   ): boolean {
     const permissions = this.getRolePermissions(user.userType, user.accessLevel as AdminAccessLevel);
@@ -168,12 +246,12 @@ export class RoleManager {
 
   // Validate if a user can assign a specific role/access level
   static canAssignRole(
-    currentUser: User, 
-    targetUserType: UserRole, 
+    currentUser: User,
+    targetUserType: UserRole,
     targetAccessLevel?: AdminAccessLevel
   ): boolean {
     const creatableTypes = this.getCreatableUserTypes(currentUser);
-    
+
     // Check if the current user can create this type of user
     if (!creatableTypes.includes(targetUserType)) {
       return false;

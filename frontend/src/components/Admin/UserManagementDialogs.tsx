@@ -1,3 +1,37 @@
+/**
+ * User Management Dialogs Component (Admin)
+ * 
+ * Provides a complete user management interface with dialogs for:
+ * - Creating new users
+ * - Editing existing users
+ * - Deleting users with confirmation
+ * - Displaying users list with role badges
+ * 
+ * BEGINNER EXPLANATION:
+ * This component is like an admin control panel for managing people in the system.
+ * It shows a list of all users and provides buttons to add, edit, or remove them.
+ * Each action opens a dialog (popup) to perform that operation safely.
+ * 
+ * ROLE-BASED SECURITY:
+ * - Uses RoleManager to check permissions before allowing actions
+ * - Prevents privilege escalation (can't create higher-level admins)
+ * - Users can't delete themselves (prevents self-lockout)
+ * - Shows appropriate error messages if action not allowed
+ * 
+ * COMPONENT FLOW:
+ * 1. Displays list of users with info (name, email, role)
+ * 2. User clicks "Add/Edit/Delete" button
+ * 3. Permission check runs (RoleManager)
+ * 4. If allowed, opens appropriate dialog
+ * 5. User fills form or confirms action
+ * 6. API call executes the operation
+ * 7. List refreshes to show changes
+ * 
+ * @param users - Array of all users in the system
+ * @param onUsersChange - Callback to refresh user list after changes
+ * @param currentUser - The logged-in admin (for permission checks)
+ */
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -14,19 +48,48 @@ import { RoleManager } from '../../utils/roleManagement';
 interface UserManagementDialogsProps {
   users: User[];
   onUsersChange: () => void;
-  currentUser: User; // Add current user for role management
+  currentUser: User;
 }
 
 export default function UserManagementDialogs({ users, onUsersChange, currentUser }: UserManagementDialogsProps) {
+  // STATE: Controls visibility of create user dialog
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  // STATE: Controls visibility of edit user dialog
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  // STATE: Controls visibility of delete confirmation dialog
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // STATE: The user currently being edited or deleted
+  // Null when no user is selected
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  // STATE: Loading indicator during API operations
+  // Disables buttons to prevent duplicate submissions
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Handle Create User
+   * 
+   * Creates a new user account by sending form data to the backend API.
+   * On success, closes dialog and refreshes the user list.
+   * 
+   * FLOW:
+   * 1. Set loading state (disables submit button)
+   * 2. Call API to create user with all form data
+   * 3. Show success message
+   * 4. Close the create dialog
+   * 5. Trigger parent component to refresh user list
+   * 6. If error occurs, show error message
+   * 7. Always clear loading state at the end
+   * 
+   * @param data - Form data from UserForm component
+   */
   const handleCreateUser = async (data: UserFormData) => {
     setIsLoading(true);
     try {
+      // Call backend API to create new user
       await userAPI.createUser({
         email: data.email,
         password: data.password,
@@ -38,20 +101,37 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
         licenseNumber: data.licenseNumber,
         accessLevel: data.accessLevel,
       });
+
+      // Show success notification to admin
       toast.success('User created successfully!');
+
+      // Close the dialog
       setCreateDialogOpen(false);
+
+      // Tell parent component to refresh the user list
       onUsersChange();
     } catch (error: any) {
+      // Extract error message from API response or use default
       toast.error(error?.response?.data?.message || 'Failed to create user');
     }
     setIsLoading(false);
   };
 
+  /**
+   * Handle Edit User
+   * 
+   * Updates an existing user's information.
+   * Note: Password is not included in update (handled separately).
+   * 
+   * @param data - Updated form data from UserForm
+   */
   const handleEditUser = async (data: UserFormData) => {
+    // Safety check: ensure we have a user selected
     if (!selectedUser) return;
-    
+
     setIsLoading(true);
     try {
+      // Call API to update user (notice: no password field)
       await userAPI.updateUser(selectedUser.id, {
         email: data.email,
         fullName: data.fullName,
@@ -62,22 +142,37 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
         accessLevel: data.accessLevel,
         userType: data.userType,
       });
+
       toast.success('User updated successfully!');
       setEditDialogOpen(false);
-      setSelectedUser(null);
-      onUsersChange();
+      setSelectedUser(null); // Clear selection
+      onUsersChange(); // Refresh list
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Failed to update user');
     }
     setIsLoading(false);
   };
 
+  /**
+   * Handle Delete User
+   * 
+   * Permanently removes a user from the system.
+   * This also deletes all associated data (pets, appointments, etc.).
+   * 
+   * SECURITY:
+   * - User cannot delete themselves (checked in openDeleteDialog)
+   * - Requires confirmation dialog before executing
+   * - Cannot be undone!
+   */
   const handleDeleteUser = async () => {
+    // Safety check
     if (!selectedUser) return;
-    
+
     setIsLoading(true);
     try {
+      // Permanently delete user and all their data
       await userAPI.deleteUser(selectedUser.id);
+
       toast.success('User deleted successfully!');
       setDeleteDialogOpen(false);
       setSelectedUser(null);
@@ -88,24 +183,70 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
     setIsLoading(false);
   };
 
+  /**
+   * Open Edit Dialog with Permission Check
+   * 
+   * Before opening the edit dialog, verifies that the current admin
+   * has permission to manage the target user.
+   * 
+   * PERMISSION RULES:
+   * - Standard admins can only edit pet owners and vets
+   * - Elevated admins can edit other standard admins
+   * - Super admins can edit anyone
+   * - No one can edit users with higher privilege than themselves
+   * 
+   * @param user - The user to edit
+   */
   const openEditDialog = (user: User) => {
+    // Check if current admin has permission to manage this user
     if (!RoleManager.canManageUser(currentUser, user)) {
       toast.error('You do not have permission to edit this user');
       return;
     }
+
+    // Permission granted - open dialog
     setSelectedUser(user);
     setEditDialogOpen(true);
   };
 
+  /**
+   * Open Delete Dialog with Permission Check
+   * 
+   * Similar to edit, but with additional check to prevent self-deletion.
+   * 
+   * SECURITY:
+   * This function only opens the dialog. The actual permission check
+   * for showing the delete button is in the render section below.
+   * 
+   * @param user - The user to delete
+   */
   const openDeleteDialog = (user: User) => {
+    // Permission check
     if (!RoleManager.canManageUser(currentUser, user)) {
       toast.error('You do not have permission to delete this user');
       return;
     }
+
     setSelectedUser(user);
     setDeleteDialogOpen(true);
   };
 
+  /**
+   * Get Badge Color for User Type
+   * 
+   * Returns Tailwind CSS classes for coloring user type badges.
+   * 
+   * BEGINNER EXPLANATION:
+   * This is a helper function that returns different colors based on user type:
+   * - Pet Owner = Blue
+   * - Veterinarian = Green
+   * - Administrator = Purple
+   * 
+   * The returned string is CSS classes that style the badge.
+   * 
+   * @param userType - The type of user (pet_owner, veterinarian, administrator)
+   * @returns Tailwind CSS classes for background and text color
+   */
   const getUserTypeColor = (userType: string) => {
     switch (userType) {
       case 'pet_owner':
@@ -134,7 +275,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
         {users.map((user) => {
           const canEdit = RoleManager.canManageUser(currentUser, user);
           const canDelete = RoleManager.canManageUser(currentUser, user) && user.id !== currentUser.id;
-          
+
           return (
             <div
               key={user.id}

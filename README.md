@@ -299,6 +299,13 @@ All major code files include detailed inline comments explaining:
 5. **Open your browser**
    Navigate to `http://localhost:8888`
 
+### Demo Data (Development)
+
+- On first load, the app seeds demo data (users, pets, appointments)
+  into `localStorage` via an initializer in `frontend/src/utils/testData.ts`.
+- This makes the app usable without a real database during development.
+- In production, configure the serverless API with a PostgreSQL database.
+
 ### Deployment to Netlify
 
 1. **Install Netlify CLI**
@@ -328,7 +335,7 @@ For detailed deployment instructions, see [NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPL
 These accounts are preloaded via demo data and can be used to explore each dashboard:
 
 ### Administrator
-- **Super Admin:** `admin@petcare.com` / `password123`
+- **Elevated Admin:** `admin@petcare.com` / `password123`
 
 ### Veterinarian
 - **Dr. Sarah Johnson:** `vet@petcare.com` / `password123`
@@ -374,17 +381,17 @@ These accounts are preloaded via demo data and can be used to explore each dashb
 ### **Available Scripts**
 
 ```bash
-# Development server
-pnpm run dev
+# Development server (Netlify Dev)
+npm run dev
 
-# Build for production
-pnpm run build
+# Build frontend for production
+npm run build
 
-# Preview production build
-pnpm run preview
+# Install all dependencies (root, frontend, functions)
+npm run install:all
 
-# Lint code
-pnpm run lint
+# Install only functions dependencies
+npm run install:functions
 ```
 
 ### **Code Structure Guidelines**
@@ -534,7 +541,7 @@ The application uses comprehensive TypeScript interfaces for type safety:
 ## 🧪 Testing
 
 The application includes comprehensive demo data for testing:
-- **Pre-loaded User Accounts**: 9 demo users across all three roles
+- **Pre-loaded User Accounts**: demo users across all three roles
 - **Sample Pet Profiles**: Multiple pets with complete medical histories
 - **Example Appointments**: Scheduled, completed, and cancelled appointments
 - **Medical Records**: Vaccinations, medications, and clinical notes
@@ -589,7 +596,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support and questions:
 - Open an issue on GitHub
-- Contact the development team
 - Check the documentation
 
 ---

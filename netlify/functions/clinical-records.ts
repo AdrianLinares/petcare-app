@@ -1,8 +1,65 @@
+/**
+ * Clinical Records Serverless Function
+ * 
+ * BEGINNER EXPLANATION:
+ * This function manages detailed clinical visit records. These are comprehensive
+ * notes that veterinarians create after examining a pet, including symptoms,
+ * diagnosis, treatment, and prescribed medications.
+ * 
+ * API Endpoints:
+ * GET    /clinical-records          - List all clinical records (filtered by role)
+ * GET    /clinical-records?petId=x  - Get clinical records for specific pet
+ * POST   /clinical-records          - Create new clinical record
+ * PATCH  /clinical-records/:id      - Update clinical record
+ * DELETE /clinical-records/:id      - Delete clinical record
+ * 
+ * Clinical Record Structure:
+ * - petId: Which pet was examined
+ * - appointmentId: Link to appointment (optional)
+ * - veterinarianId: Which vet examined the pet
+ * - date: When the examination occurred
+ * - symptoms: What symptoms were observed
+ * - diagnosis: The medical diagnosis
+ * - treatment: What treatment was provided
+ * - medications: Array of medications prescribed
+ * - notes: Additional observations
+ * - followUpDate: When pet should return (if needed)
+ * 
+ * Clinical Records vs Medical Records:
+ * - Clinical Records: Detailed visit notes (symptoms → diagnosis → treatment)
+ * - Medical Records: General medical events ("Had surgery", "Annual checkup")
+ * 
+ * Both serve different purposes:
+ * - Clinical: Detailed medical documentation for serious issues
+ * - Medical: Quick high-level history
+ * 
+ * Medications Field:
+ * Stored as JSON array in database:
+ * Example: ["Amoxicillin 500mg", "Pain reliever"]
+ * This is separate from the medications table, which tracks ongoing prescriptions.
+ * 
+ * Appointment Association:
+ * Optional appointmentId links clinical record to appointment.
+ * Allows viewing medical notes directly from appointment history.
+ * 
+ * Role-Based Access:
+ * - Pet Owners: Can VIEW clinical records for their pets (read-only)
+ * - Veterinarians: Can CREATE and EDIT clinical records
+ * - Administrators: Full access to all records
+ */
+
 import { Handler } from '@netlify/functions';
 import { query } from './utils/database';
 import { requireAuth } from './utils/auth';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
 
+/**
+ * Map Clinical Record Database Row to Frontend Format
+ * 
+ * BEGINNER EXPLANATION:
+ * Converts database field names to JavaScript format and ensures
+ * the medications field is properly formatted as an array.
+ */
 function mapClinical(row: any) {
   return {
     id: row.id,

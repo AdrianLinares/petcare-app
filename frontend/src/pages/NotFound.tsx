@@ -1,3 +1,33 @@
+/**
+ * 404 Not Found Page Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This page appears when users try to access a URL that doesn't exist in the app.
+ * It's like a friendly error page that helps users get back on track.
+ * 
+ * When Does This Show?
+ * - User types wrong URL (e.g., /random-page)
+ * - User clicks broken link
+ * - Page was moved or deleted
+ * 
+ * User-Friendly Features:
+ * 1. Clear "404" message (standard HTTP error code for "not found")
+ * 2. Explanation of what happened
+ * 3. Two options to recover:
+ *    - "Return Home" button: Goes to main page
+ *    - "Go Back" button: Returns to previous page (like browser back button)
+ * 
+ * Why Have a 404 Page?
+ * - Better user experience than blank page or browser error
+ * - Keeps users in the app instead of leaving
+ * - Maintains brand consistency even during errors
+ * - Helps users navigate back to working pages
+ * 
+ * Technical Note:
+ * This is registered as a catch-all route in the React Router configuration.
+ * Any route that doesn't match defined paths will show this component.
+ */
+
 import { Button } from '@/components/ui/button';
 
 export default function NotFoundPage() {

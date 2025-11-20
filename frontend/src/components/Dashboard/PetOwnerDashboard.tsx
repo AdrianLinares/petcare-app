@@ -1,3 +1,32 @@
+/**
+ * PetOwnerDashboard Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This is the main interface for pet owners. It's like a personal control panel
+ * where they can manage everything related to their pets.
+ * 
+ * Key Features:
+ * 1. Overview tab - Quick stats and upcoming appointments
+ * 2. My Pets tab - Add, edit, and view pets
+ * 3. Appointments tab - Schedule and manage vet visits
+ * 4. Medical Records tab - View vaccination history, medications, etc.
+ * 
+ * Architecture:
+ * - Tab-based navigation (4 main sections)
+ * - Each tab shows different specialized components
+ * - Data loads once on mount, then updates as user makes changes
+ * - Statistics calculated from loaded data (no separate API calls)
+ * 
+ * User Experience Flow:
+ * 1. User logs in → Sees overview with key stats
+ * 2. Can click tabs to access different features
+ * 3. Can drill down into specific pet details
+ * 4. Changes sync to backend immediately
+ * 
+ * @param {User} user - The currently logged-in pet owner
+ * @param {Function} onLogout - Callback function to handle user logout
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,12 +47,23 @@ interface PetOwnerDashboardProps {
 }
 
 export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardProps) {
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [overdueVaccines, setOverdueVaccines] = useState(0);
+  // ============================================
+  // STATE MANAGEMENT
+  // ============================================
+  // BEGINNER NOTE: These state variables hold all the data for the dashboard.
+  // React re-renders the UI automatically when any of these change.
+
+  // Data states - The actual data from the backend
+  const [pets, setPets] = useState<Pet[]>([]);                     // List of user's pets
+  const [appointments, setAppointments] = useState<Appointment[]>([]); // List of user's appointments
+  const [overdueVaccines, setOverdueVaccines] = useState(0);       // Count of overdue vaccinations
+
+  // Navigation states - Control which tab/pet is displayed
+  const [activeTab, setActiveTab] = useState('overview');          // Which tab is currently active
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null); // Which pet's medical records to show
+
+  // UI states - Control loading and visual feedback
+  const [isLoading, setIsLoading] = useState(true);                // Shows loading state during initial data fetch
 
   // Load data from backend
   useEffect(() => {
@@ -41,7 +81,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
         // Load upcoming vaccinations to count overdue
         const upcomingVaccinations = await vaccinationAPI.getUpcoming();
         const now = new Date();
-        const overdue = upcomingVaccinations.filter(vacc => 
+        const overdue = upcomingVaccinations.filter(vacc =>
           vacc.nextDue && new Date(vacc.nextDue) < now
         ).length;
         setOverdueVaccines(overdue);
@@ -52,7 +92,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
         setIsLoading(false);
       }
     };
-    
+
     loadData();
   }, []);
 
@@ -74,9 +114,9 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <img 
-                  src="/petcare-logo.png" 
-                  alt="PetCare" 
+                <img
+                  src="/petcare-logo.png"
+                  alt="PetCare"
                   className="h-8 w-auto mr-3"
                 />
                 <h1 className="text-xl font-bold text-blue-600">PetCare</h1>
@@ -238,9 +278,9 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
           </TabsContent>
 
           <TabsContent value="appointments">
-            <AppointmentScheduling 
-              user={user} 
-              pets={pets} 
+            <AppointmentScheduling
+              user={user}
+              pets={pets}
               appointments={appointments}
               setAppointments={setAppointments}
             />
@@ -257,8 +297,8 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
               </Card>
             ) : selectedPetId ? (
               <div>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setSelectedPetId(null)}
                   className="mb-4"
                 >
@@ -303,7 +343,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
           </TabsContent>
         </Tabs>
       </div>
-      
+
       <Footer />
     </div>
   );

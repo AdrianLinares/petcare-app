@@ -1,3 +1,38 @@
+/**
+ * ClinicalRecordForm Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This form allows veterinarians to add detailed clinical records after examining a pet.
+ * Think of it as a digital version of the notes a vet writes after each visit.
+ * 
+ * Key Features:
+ * - Captures symptoms observed during visit
+ * - Records diagnosis made by veterinarian
+ * - Documents treatment provided
+ * - Optionally lists medications prescribed
+ * - Can schedule follow-up appointments
+ * 
+ * Form Fields:
+ * - Date: When the visit occurred (defaults to today)
+ * - Symptoms: What the owner/vet observed (required)
+ * - Diagnosis: The vet's medical diagnosis (required)
+ * - Treatment: What treatment was provided (required)
+ * - Medications: List of prescribed drugs (optional, comma-separated)
+ * - Notes: Any additional observations (optional)
+ * - Follow-up Date: When pet should return (optional)
+ * 
+ * Workflow:
+ * 1. Vet fills out form after examining pet
+ * 2. Form validates required fields
+ * 3. Medications string is split into array
+ * 4. Data sent to backend API
+ * 5. On success, parent component refreshes data
+ * 
+ * @param {string} petId - ID of the pet this record is for
+ * @param {Function} onClose - Callback to close the form dialog
+ * @param {Function} onSuccess - Callback when record is successfully created
+ */
+
 import { useState } from 'react';
 import { clinicalRecordAPI } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';

@@ -1,13 +1,66 @@
+/**
+ * Authentication Utility Module
+ * 
+ * BEGINNER EXPLANATION:
+ * This module provides helper functions for verifying user identity in API requests.
+ * Think of it as a "security checkpoint" that other functions use to make sure
+ * the person making a request is who they claim to be.
+ * 
+ * Key Functions:
+ * 1. getUserFromToken(): Extracts and validates JWT token from request
+ * 2. requireAuth(): Ensures request has valid authentication (throws if not)
+ * 3. requireAdmin(): Ensures user is an administrator (throws if not)
+ * 4. requireRole(): Ensures user has specific role (throws if not)
+ * 
+ * How JWT Verification Works:
+ * 1. Extract token from Authorization header ("Bearer <token>")
+ * 2. Verify token signature using JWT_SECRET
+ * 3. Check token hasn't expired
+ * 4. Look up user in database to ensure they still exist
+ * 5. Return user object if all checks pass
+ * 
+ * Why Check Database After Token Verification?
+ * Tokens can be valid but the user might have been:
+ * - Deleted from the system
+ * - Had their account disabled
+ * - Had their role changed
+ * So we always verify against the database.
+ * 
+ * Usage Pattern in Other Functions:
+ * ```typescript
+ * const user = await requireAuth(event);  // Get authenticated user or throw
+ * // Now we know user is valid, can use user.id, user.userType, etc.
+ * ```
+ * 
+ * Security Features:
+ * - Validates token signature (prevents tampering)
+ * - Checks expiration (prevents replay attacks)
+ * - Verifies user still exists (handles deleted accounts)
+ * - Role-based access control (different permissions per user type)
+ */
+
 import jwt from 'jsonwebtoken';
 import { HandlerEvent } from '@netlify/functions';
 import { query } from './database';
 
+/**
+ * Token Payload Interface
+ * 
+ * BEGINNER NOTE: This defines what data is stored INSIDE the JWT token.
+ * The token is encrypted, but once decoded, it contains this information.
+ */
 export interface TokenPayload {
   userId: string;
   email: string;
   userType: string;
 }
 
+/**
+ * User Interface
+ * 
+ * BEGINNER NOTE: This defines the user object returned after authentication.
+ * It contains all user information except sensitive data (like password).
+ */
 export interface User {
   id: string;
   email: string;
@@ -22,6 +75,19 @@ export interface User {
   updatedAt: Date;
 }
 
+/**
+ * Get User From Token
+ * 
+ * BEGINNER EXPLANATION:
+ * Extracts the JWT token from the request and returns the user it belongs to.
+ * Returns null if token is missing, invalid, expired, or user doesn't exist.
+ * 
+ * This is the "gentle" version - it doesn't throw errors, just returns null.
+ * Use this when authentication is optional.
+ * 
+ * @param {HandlerEvent} event - The incoming HTTP request
+ * @returns {Promise<User | null>} The authenticated user or null
+ */
 export const getUserFromToken = async (event: HandlerEvent): Promise<User | null> => {
   try {
     const token = event.headers.authorization?.replace('Bearer ', '');

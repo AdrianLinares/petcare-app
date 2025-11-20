@@ -1,8 +1,56 @@
+/**
+ * Vaccinations Serverless Function
+ * 
+ * BEGINNER EXPLANATION:
+ * This function manages pet vaccination records. It tracks which vaccines
+ * pets have received and when booster shots are due.
+ * 
+ * API Endpoints:
+ * GET    /vaccinations          - List all vaccinations (filtered by role)
+ * GET    /vaccinations?petId=x  - Get vaccinations for specific pet
+ * GET    /vaccinations/upcoming - Get vaccines due soon or overdue
+ * POST   /vaccinations          - Create new vaccination record
+ * PATCH  /vaccinations/:id      - Update vaccination record
+ * DELETE /vaccinations/:id      - Delete vaccination record
+ * 
+ * Vaccination Record Structure:
+ * - petId: Which pet received the vaccine
+ * - vaccine: Name of vaccine (e.g., "Rabies", "DHPP")
+ * - date: When vaccine was administered
+ * - nextDue: When booster shot is due (optional)
+ * - administeredBy: Which veterinarian gave the vaccine
+ * 
+ * Special Feature: Upcoming Vaccinations
+ * GET /vaccinations/upcoming returns vaccines where:
+ * - nextDue is set (has a future date)
+ * - Sorted by nextDue (earliest first)
+ * This helps owners/vets see which vaccines need renewal soon.
+ * 
+ * Why Track Next Due Date?
+ * Many vaccines require booster shots:
+ * - Rabies: Every 1-3 years (varies by state law)
+ * - DHPP: Every 1-3 years
+ * - Bordetella: Every 6-12 months
+ * System can remind owners when boosters are needed.
+ * 
+ * Role-Based Access:
+ * - Pet Owners: See vaccinations for their pets only
+ * - Veterinarians/Admins: See all vaccinations
+ */
+
 import { Handler } from '@netlify/functions';
 import { query } from './utils/database';
 import { requireAuth } from './utils/auth';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
 
+/**
+ * Map Vaccination Database Row to Frontend Format
+ * 
+ * BEGINNER EXPLANATION:
+ * Converts database field names (snake_case) to JavaScript
+ * convention (camelCase) and handles multiple possible field names
+ * for the veterinarian name (joins might use different aliases).
+ */
 function mapVaccination(row: any) {
   return {
     id: row.id,

@@ -1,3 +1,48 @@
+/**
+ * Authentication Serverless Function
+ * 
+ * BEGINNER EXPLANATION:
+ * This is the "gatekeeper" of the application. It handles user registration,
+ * login, and password management. Think of it as the bouncer at a club who
+ * checks IDs and gives out wristbands (JWT tokens).
+ * 
+ * API Endpoints:
+ * POST /auth/register       - Create a new user account
+ * POST /auth/login          - Sign in existing user
+ * POST /auth/forgot-password - Request password reset
+ * POST /auth/reset-password  - Complete password reset with token
+ * POST /auth/refresh         - Get new JWT token (refresh session)
+ * 
+ * Security Features:
+ * 1. Password Hashing: Uses bcrypt to hash passwords (never stores plain text)
+ * 2. JWT Tokens: Issues JSON Web Tokens for authenticated sessions
+ * 3. Password Reset Tokens: Generates secure one-time tokens with expiration
+ * 4. Rate Limiting: Prevents brute force attacks (handled by Netlify)
+ * 
+ * How JWT Authentication Works:
+ * 1. User logs in with email/password
+ * 2. Server verifies credentials
+ * 3. Server creates JWT token containing user info
+ * 4. Client stores token and sends with each request
+ * 5. Other endpoints verify token to identify user
+ * 
+ * Password Reset Flow:
+ * 1. User requests reset (provides email)
+ * 2. System generates unique token and stores in database
+ * 3. Email sent with link containing token
+ * 4. User clicks link, enters new password
+ * 5. System validates token and updates password
+ * 
+ * Environment Variables Required:
+ * - DATABASE_URL or DB_HOST: Database connection
+ * - JWT_SECRET: Secret key for signing tokens (NEVER commit this!)
+ * - JWT_EXPIRES_IN: How long tokens are valid (default: 7 days)
+ * 
+ * Response Format:
+ * Success: { success: true, data: {...} }
+ * Error: { success: false, error: "message" }
+ */
+
 import { Handler, HandlerEvent } from '@netlify/functions';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';

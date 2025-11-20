@@ -1,3 +1,39 @@
+/**
+ * MedicationForm Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This form tracks medications that pets are taking. It's like a digital prescription
+ * tracker that helps owners and vets keep track of what medications are active.
+ * 
+ * Key Features:
+ * - Records medication name and dosage instructions
+ * - Tracks start and end dates for medication course
+ * - Shows whether medication is currently active
+ * - Optional end date for ongoing medications
+ * 
+ * Form Fields:
+ * - Name: Medication name (e.g., "Amoxicillin")
+ * - Dosage: How much and how often (e.g., "500mg twice daily")
+ * - Start Date: When medication course began (defaults to today)
+ * - End Date: When medication course ends (optional - leave blank for ongoing)
+ * - Active: Checkbox to mark if medication is currently being taken
+ * 
+ * Use Cases:
+ * - Prescribing antibiotics after surgery
+ * - Recording ongoing medications for chronic conditions
+ * - Tracking pain medication courses
+ * - Managing flea/tick prevention schedules
+ * 
+ * Active Checkbox Behavior:
+ * - Checked = Pet is currently taking this medication
+ * - Unchecked = Medication has been discontinued
+ * - Vets can deactivate medications without deleting the record
+ * 
+ * @param {string} petId - ID of the pet this medication is for
+ * @param {Function} onClose - Callback to close the form dialog
+ * @param {Function} onSuccess - Callback when medication is successfully added
+ */
+
 import { useState } from 'react';
 import { medicationAPI } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';

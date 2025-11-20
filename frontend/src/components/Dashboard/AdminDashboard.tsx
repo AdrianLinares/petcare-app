@@ -1,3 +1,30 @@
+/**
+ * AdminDashboard Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This is the main control panel for administrators. Think of it as the "command center"
+ * where admins can oversee everything in the PetCare system.
+ * 
+ * Key Features:
+ * 1. View all users (pet owners, veterinarians, other admins)
+ * 2. Manage all appointments (view, update status, cancel)
+ * 3. View all pets in the system
+ * 4. Monitor system statistics (total users, appointments, etc.)
+ * 5. Search and filter data across all entities
+ * 
+ * Architecture:
+ * - Uses tabs to organize different views (Overview, Users, Appointments, Pets)
+ * - Loads all data from backend APIs on mount
+ * - Provides CRUD operations for managing system data
+ * - Role-based: Only accessible to users with 'administrator' role
+ * 
+ * Data Flow:
+ * User interacts → Component updates state → API call to backend → Refresh data → UI updates
+ * 
+ * @param {User} user - The currently logged-in administrator
+ * @param {Function} onLogout - Callback function to handle user logout
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,37 +48,69 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
-  const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [appointmentSearchTerm, setAppointmentSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [allPets, setAllPets] = useState<Pet[]>([]);
-  const [petSearchTerm, setPetSearchTerm] = useState('');
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  // ============================================
+  // STATE MANAGEMENT
+  // ============================================
+  // BEGINNER NOTE: State variables hold the data that powers the dashboard.
+  // When these change, React automatically re-renders the UI.
 
+  // Data states - Store the actual data from the backend
+  const [allUsers, setAllUsers] = useState<User[]>([]);                    // All users in the system
+  const [allAppointments, setAllAppointments] = useState<Appointment[]>([]); // All appointments in the system
+  const [allPets, setAllPets] = useState<Pet[]>([]);                       // All pets in the system
+
+  // Search and filter states - Control what data is displayed
+  const [searchTerm, setSearchTerm] = useState('');                        // Search text for user table
+  const [appointmentSearchTerm, setAppointmentSearchTerm] = useState('');  // Search text for appointment table
+  const [petSearchTerm, setPetSearchTerm] = useState('');                  // Search text for pet table
+  const [statusFilter, setStatusFilter] = useState<string>('all');         // Filter appointments by status
+
+  // Dialog states - Control which modal dialogs are open
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null); // Appointment being viewed/edited
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);             // Controls view appointment dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);         // Controls delete confirmation dialog
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);        // Pet being viewed for medical history
+
+  // UI states - Control loading and interaction states
+  const [isLoading, setIsLoading] = useState(false);                       // Shows loading spinner during API calls
+
+  /**
+   * Load Data Function
+   * 
+   * BEGINNER EXPLANATION:
+   * This function fetches ALL data from the backend that the admin needs to see.
+   * It's wrapped in useCallback so it doesn't get recreated on every render.
+   * 
+   * Why use Promise.all? We could load data one-by-one, but loading in parallel
+   * (all at once) is much faster. Think of it like opening 3 browser tabs at once
+   * instead of waiting for each page to load before opening the next one.
+   * 
+   * Flow:
+   * 1. Set loading state to true (shows spinner)
+   * 2. Call all three APIs simultaneously
+   * 3. Update state with the results
+   * 4. Handle any errors with user-friendly message
+   * 5. Turn off loading state
+   */
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Load all users from backend
+      // Load all users from backend (pet owners, vets, admins)
       const usersResult = await userAPI.listUsers();
       setAllUsers(usersResult.users || []);
 
-      // Load all appointments from backend
+      // Load all appointments from backend (all statuses)
       const appointments = await appointmentAPI.getAppointments();
       setAllAppointments(appointments);
 
-      // Load all pets from backend
+      // Load all pets from backend (all owners)
       const pets = await petAPI.getPets();
       setAllPets(pets);
     } catch (error: any) {
       console.error('Failed to load admin dashboard data:', error);
       toast.error('Failed to load dashboard data. Please refresh the page.');
     } finally {
+      // Always turn off loading, even if there was an error
       setIsLoading(false);
     }
   }, []);
@@ -62,14 +121,14 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
   // Filter appointments based on search and status
   const filteredAppointments = allAppointments.filter(appointment => {
-    const matchesSearch = appointmentSearchTerm === '' || 
+    const matchesSearch = appointmentSearchTerm === '' ||
       appointment.petName.toLowerCase().includes(appointmentSearchTerm.toLowerCase()) ||
       appointment.veterinarian.toLowerCase().includes(appointmentSearchTerm.toLowerCase()) ||
       appointment.type.toLowerCase().includes(appointmentSearchTerm.toLowerCase()) ||
       appointment.ownerId.toLowerCase().includes(appointmentSearchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -85,15 +144,15 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
   const confirmDeleteAppointment = async () => {
     if (!selectedAppointment) return;
-    
+
     setIsLoading(true);
     try {
       // Note: Backend doesn't have delete endpoint, so we mark as cancelled
       await appointmentAPI.updateAppointment(selectedAppointment.id, { status: 'cancelled' });
-      
+
       // Reload data
       await loadData();
-      
+
       toast.success('Appointment cancelled successfully');
       setDeleteDialogOpen(false);
       setSelectedAppointment(null);
@@ -108,10 +167,10 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const handleUpdateAppointmentStatus = async (appointmentId: string, newStatus: 'scheduled' | 'completed' | 'cancelled') => {
     try {
       await appointmentAPI.updateAppointment(appointmentId, { status: newStatus });
-      
+
       // Reload data
       await loadData();
-      
+
       toast.success(`Appointment status updated to ${newStatus}`);
     } catch (error: any) {
       const message = error.response?.data?.error || 'Error updating appointment status';
@@ -126,7 +185,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const cancelledAppointments = allAppointments.filter(apt => apt.status === 'cancelled').length;
 
   const today = new Date().toDateString();
-  const todayAppointments = allAppointments.filter(apt => 
+  const todayAppointments = allAppointments.filter(apt =>
     new Date(apt.date).toDateString() === today
   ).length;
 
@@ -134,8 +193,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 10);
 
-  const filteredUsers = allUsers.filter(u => 
-    searchTerm === '' || 
+  const filteredUsers = allUsers.filter(u =>
+    searchTerm === '' ||
     u.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.userType.toLowerCase().includes(searchTerm.toLowerCase())
@@ -175,9 +234,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <img 
-                  src="/petcare-logo.png" 
-                  alt="PetCare" 
+                <img
+                  src="/petcare-logo.png"
+                  alt="PetCare"
                   className="h-8 w-auto mr-3"
                 />
                 <Shield className="h-8 w-8 text-red-600 mr-2" />
@@ -271,8 +330,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       <span className="text-sm font-medium">Pet Owners</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full" 
+                          <div
+                            className="bg-blue-500 h-2 rounded-full"
                             style={{ width: `${totalUsers > 0 ? (petOwners / totalUsers) * 100 : 0}%` }}
                           ></div>
                         </div>
@@ -283,8 +342,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       <span className="text-sm font-medium">Veterinarians</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full" 
+                          <div
+                            className="bg-green-500 h-2 rounded-full"
                             style={{ width: `${totalUsers > 0 ? (veterinarians / totalUsers) * 100 : 0}%` }}
                           ></div>
                         </div>
@@ -305,8 +364,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       <span className="text-sm font-medium">Completed</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full" 
+                          <div
+                            className="bg-green-500 h-2 rounded-full"
                             style={{ width: `${totalAppointments > 0 ? (completedAppointments / totalAppointments) * 100 : 0}%` }}
                           ></div>
                         </div>
@@ -317,8 +376,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       <span className="text-sm font-medium">Cancelled</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-red-500 h-2 rounded-full" 
+                          <div
+                            className="bg-red-500 h-2 rounded-full"
                             style={{ width: `${totalAppointments > 0 ? (cancelledAppointments / totalAppointments) * 100 : 0}%` }}
                           ></div>
                         </div>
@@ -385,8 +444,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                 </div>
               </CardHeader>
               <CardContent>
-                <UserManagementDialogs 
-                  users={filteredUsers} 
+                <UserManagementDialogs
+                  users={filteredUsers}
                   onUsersChange={loadData}
                   currentUser={user}
                 />
@@ -510,8 +569,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No appointments found</h3>
                     <p className="text-gray-600">
-                      {appointmentSearchTerm || statusFilter !== 'all' 
-                        ? 'Try adjusting your search or filter criteria' 
+                      {appointmentSearchTerm || statusFilter !== 'all'
+                        ? 'Try adjusting your search or filter criteria'
                         : 'No medical appointments have been scheduled yet'}
                     </p>
                   </div>
@@ -523,15 +582,15 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
           <TabsContent value="medical" className="space-y-6">
             {selectedPet ? (
               <div>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setSelectedPet(null)}
                   className="mb-4"
                 >
                   ← Back to Pet List
                 </Button>
-                <MedicalHistoryManagement 
-                  pet={selectedPet} 
+                <MedicalHistoryManagement
+                  pet={selectedPet}
                   onUpdate={loadData}
                   canEdit={true}
                 />
@@ -568,8 +627,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {filteredPets.map((pet) => (
-                            <Card 
-                              key={pet.id} 
+                            <Card
+                              key={pet.id}
                               className="cursor-pointer hover:shadow-lg transition-shadow"
                               onClick={() => setSelectedPet(pet)}
                             >
@@ -616,8 +675,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                         <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">No pets found</h3>
                         <p className="text-gray-600">
-                          {petSearchTerm 
-                            ? 'Try adjusting your search criteria' 
+                          {petSearchTerm
+                            ? 'Try adjusting your search criteria'
                             : 'No pets have been registered yet'}
                         </p>
                       </div>
@@ -699,7 +758,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
           </TabsContent>
         </Tabs>
       </div>
-      
+
       {/* View Appointment Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-2xl">
@@ -709,7 +768,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
               Complete information about the medical appointment
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedAppointment && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -722,7 +781,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   <p>{selectedAppointment.ownerId}</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">Date & Time</h4>
@@ -733,7 +792,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   <p>Dr. {selectedAppointment.veterinarian}</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">Type</h4>
@@ -746,35 +805,35 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   </Badge>
                 </div>
               </div>
-              
+
               {selectedAppointment.reason && (
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">Reason for Visit</h4>
                   <p className="text-sm bg-gray-50 p-3 rounded">{selectedAppointment.reason}</p>
                 </div>
               )}
-              
+
               {selectedAppointment.diagnosis && (
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">Diagnosis</h4>
                   <p className="text-sm bg-green-50 p-3 rounded">{selectedAppointment.diagnosis}</p>
                 </div>
               )}
-              
+
               {selectedAppointment.treatment && (
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">Treatment</h4>
                   <p className="text-sm bg-blue-50 p-3 rounded">{selectedAppointment.treatment}</p>
                 </div>
               )}
-              
+
               {selectedAppointment.notes && (
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">Additional Notes</h4>
                   <p className="text-sm bg-gray-50 p-3 rounded">{selectedAppointment.notes}</p>
                 </div>
               )}
-              
+
               <div className="text-xs text-gray-500 pt-4 border-t">
                 Created: {new Date(selectedAppointment.createdAt).toLocaleString()}
               </div>

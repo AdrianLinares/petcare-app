@@ -1,3 +1,51 @@
+/**
+ * Appointments Serverless Function
+ * 
+ * BEGINNER EXPLANATION:
+ * This function manages veterinary appointments. It's like an online booking
+ * system that handles scheduling, viewing, and managing vet appointments.
+ * 
+ * API Endpoints:
+ * GET    /appointments       - List appointments (filtered by role)
+ * POST   /appointments       - Create new appointment
+ * GET    /appointments/:id   - Get specific appointment
+ * PATCH  /appointments/:id   - Update appointment (status, medical notes)
+ * DELETE /appointments/:id   - Cancel appointment (soft delete)
+ * 
+ * Role-Based Filtering:
+ * - Pet Owners: See only appointments for their pets
+ * - Veterinarians: See only appointments assigned to them
+ * - Administrators: See ALL appointments
+ * 
+ * Appointment Statuses:
+ * - scheduled: Appointment is confirmed and upcoming
+ * - completed: Appointment happened and is finished
+ * - cancelled: Appointment was cancelled
+ * 
+ * Query Parameters (GET /appointments):
+ * - status: Filter by appointment status
+ * - date: Filter by specific date (YYYY-MM-DD)
+ * - petId: Filter by specific pet
+ * 
+ * Update Limitations:
+ * Current API allows updating:
+ * - status (scheduled/completed/cancelled)
+ * - Medical notes (diagnosis, treatment, notes, followUpDate)
+ * 
+ * NOT currently supported:
+ * - Changing appointment date/time (would need separate reschedule endpoint)
+ * 
+ * Database Joins:
+ * Appointment query joins 3 tables:
+ * - appointments: Main appointment data
+ * - pets: Get pet name
+ * - users (twice): Get owner name AND veterinarian name
+ * 
+ * Soft Delete Pattern:
+ * Cancelled appointments aren't removed - we set deleted_at timestamp.
+ * This preserves history for record-keeping and analytics.
+ */
+
 import { Handler, HandlerEvent } from '@netlify/functions';
 import { query } from './utils/database';
 import { requireAuth } from './utils/auth';

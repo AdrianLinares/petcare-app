@@ -1,9 +1,59 @@
 import { User, Pet, Appointment } from '../types';
 
+/**
+ * Test Data Initialization Module
+ * 
+ * BEGINNER EXPLANATION:
+ * This file creates fake (demo) data for testing and demonstrating the app.
+ * It populates the app with sample users, pets, and appointments so you can
+ * explore features without manually creating everything.
+ * 
+ * What Data Does It Create?
+ * 1. Users:
+ *    - 4 pet owners (Sarah, Michael, Emma, Demo Owner)
+ *    - 3 veterinarians (Dr. Martinez, Dr. Thompson, Dr. Johnson)
+ *    - 3 administrators (different access levels)
+ * 
+ * 2. Pets:
+ *    - Dogs: Max, Rocky, Bella, Buddy
+ *    - Cats: Luna, Whiskers
+ *    - Each with realistic details (breed, age, vaccinations, etc.)
+ * 
+ * 3. Appointments:
+ *    - Past appointments (completed/cancelled)
+ *    - Future appointments (scheduled)
+ *    - Realistic dates and times
+ * 
+ * Why Use Test Data?
+ * - Quick setup for development
+ * - Demo the app to stakeholders
+ * - Test features without manual data entry
+ * - Consistent data across team members
+ * 
+ * How It Works:
+ * 1. Checks version - only initializes if data is outdated
+ * 2. Clears old data to prevent conflicts
+ * 3. Creates all test users, pets, appointments
+ * 4. Stores in localStorage (simulating database)
+ * 5. Marks as initialized with version number
+ * 
+ * IMPORTANT:
+ * This is for DEVELOPMENT ONLY. In production:
+ * - Use real database
+ * - Users register themselves
+ * - Remove or disable this initialization
+ * 
+ * Demo Credentials:
+ * - Pet Owner: owner@petcare.com / owner123
+ * - Veterinarian: vet@petcare.com / vet123
+ * - Administrator: admin@petcare.com / adminpass123
+ */
+
 export const initializeTestData = () => {
-  // Versión actualizada de datos de prueba - v5
+  // Version tracking prevents re-initializing if data already exists
+  // BEGINNER NOTE: Change version number when you update test data structure
   const currentVersion = '2024-12-17-v5';
-  
+
   // Verificar si ya están inicializados
   if (localStorage.getItem('testDataInitialized') === currentVersion) {
     console.log('✅ Test data already initialized');
@@ -26,6 +76,7 @@ export const initializeTestData = () => {
 
   // Propietarios de mascotas
   const petOwners: User[] = [
+    // NOTE: User objects follow the User interface (no gender field here)
     {
       id: 'user_001',
       email: 'sarah.johnson@email.com',
@@ -34,7 +85,7 @@ export const initializeTestData = () => {
       phone: '+1 (555) 123-4567',
       userType: 'pet_owner',
       createdAt: '2024-01-15T10:00:00Z',
-      address: '123 Oak Street, Los Angeles, CA 90210'
+      address: '123 Oak Street, Los Angeles, CA 90001'
     },
     {
       id: 'user_002',
@@ -157,10 +208,9 @@ export const initializeTestData = () => {
       age: 3,
       weight: 30.5,
       color: 'Golden',
-      gender: 'male',
+      gender: 'Male', // Capitalized to match Pet interface
       ownerId: 'sarah.johnson@email.com',
-      conditions: ['Hip Dysplasia'],
-      vaccinations: ['DHPP', 'Rabies', 'Bordetella'],
+      // Removed demo string arrays (conditions/vaccinations) that didn't match interface
       notes: 'Very friendly and energetic. Loves swimming and playing fetch.',
       createdAt: '2024-01-15T10:00:00Z'
     },
@@ -172,10 +222,9 @@ export const initializeTestData = () => {
       age: 2,
       weight: 4.2,
       color: 'White',
-      gender: 'female',
+      gender: 'Female', // Capitalized to match Pet interface
       ownerId: 'sarah.johnson@email.com',
-      conditions: [],
-      vaccinations: ['FVRCP', 'Rabies'],
+      // Removed demo string arrays (conditions/vaccinations) that didn't match interface
       notes: 'Indoor cat, very calm and affectionate. Enjoys grooming sessions.',
       createdAt: '2024-01-20T10:00:00Z'
     }
@@ -191,10 +240,9 @@ export const initializeTestData = () => {
       age: 5,
       weight: 36.3,
       color: 'Black and Tan',
-      gender: 'male',
+      gender: 'Male',
       ownerId: 'michael.chen@email.com',
-      conditions: ['ACL Injury'],
-      vaccinations: ['DHPP', 'Rabies'],
+      // Removed conditions and vaccinations arrays
       notes: 'Working dog background. Currently recovering from ACL surgery.',
       createdAt: '2024-02-10T14:30:00Z'
     }
@@ -210,10 +258,9 @@ export const initializeTestData = () => {
       age: 1,
       weight: 15.9,
       color: 'Chocolate Brown',
-      gender: 'female',
+      gender: 'Female',
       ownerId: 'emma.rodriguez@email.com',
-      conditions: [],
-      vaccinations: ['DHPP', 'Rabies'],
+      // Removed conditions and vaccinations arrays
       notes: 'Young energetic puppy. Still completing vaccination series.',
       createdAt: '2024-03-05T09:15:00Z'
     },
@@ -225,10 +272,9 @@ export const initializeTestData = () => {
       age: 4,
       weight: 6.8,
       color: 'Orange Tabby',
-      gender: 'male',
+      gender: 'Male',
       ownerId: 'emma.rodriguez@email.com',
-      conditions: [],
-      vaccinations: ['FVRCP', 'Rabies'],
+      // Removed conditions and vaccinations arrays
       notes: 'Large, gentle cat. Indoor/outdoor access.',
       createdAt: '2024-03-10T09:15:00Z'
     }
@@ -244,10 +290,9 @@ export const initializeTestData = () => {
       age: 6,
       weight: 13.6,
       color: 'Tricolor',
-      gender: 'male',
+      gender: 'Male',
       ownerId: 'owner@petcare.com',
-      conditions: ['Allergies'],
-      vaccinations: ['DHPP', 'Rabies', 'Bordetella'],
+      // Removed conditions and vaccinations arrays
       notes: 'Friendly beagle with seasonal allergies.',
       createdAt: '2024-01-01T12:00:00Z'
     }
@@ -456,8 +501,8 @@ export const clearTestData = () => {
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && (
-      key.startsWith('pets_') || 
-      key.startsWith('appointments_') || 
+      key.startsWith('pets_') ||
+      key.startsWith('appointments_') ||
       key.startsWith('user_') ||
       key === 'testDataInitialized'
     )) {
@@ -473,7 +518,7 @@ export const verifyTestData = () => {
   const users = [];
   const pets = [];
   const appointments = [];
-  
+
   // Contar usuarios
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -485,13 +530,13 @@ export const verifyTestData = () => {
       appointments.push(key);
     }
   }
-  
+
   console.log('🔍 Data verification:');
   console.log(`- User keys: ${users.length}`);
   console.log(`- Pet keys: ${pets.length}`);
   console.log(`- Appointment keys: ${appointments.length}`);
   console.log(`- Initialized: ${localStorage.getItem('testDataInitialized')}`);
-  
+
   return {
     users: users.length,
     pets: pets.length,

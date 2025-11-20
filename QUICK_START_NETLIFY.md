@@ -30,7 +30,7 @@ Visit **http://localhost:8888**
 
 ## Demo Credentials
 
-- **Super Admin:** `admin@petcare.com` / `password123`
+- **Elevated Admin:** `admin@petcare.com` / `password123`
 - **Veterinarian:** `vet@petcare.com` / `password123`
 - **Pet Owner:** `owner@petcare.com` / `password123`
 
@@ -68,8 +68,6 @@ frontend/              # React app
 ## Need Help?
 
 - 📖 **Full deployment guide:** `NETLIFY_DEPLOYMENT.md`
-- 📋 **Migration details:** `SERVERLESS_MIGRATION_SUMMARY.md`
-- 🛠️ **Development guide:** `WARP.md`
 
 ## Troubleshooting
 

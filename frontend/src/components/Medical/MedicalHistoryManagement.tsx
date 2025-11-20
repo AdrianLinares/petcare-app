@@ -1,3 +1,49 @@
+/**
+ * MedicalHistoryManagement Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This is an all-in-one medical management interface for a pet. It combines multiple
+ * medical data types and pet details in one comprehensive view.
+ * 
+ * Key Features:
+ * 1. Pet Basic Information:
+ *    - Weight tracking (with edit capability)
+ *    - Allergies list (comma-separated)
+ *    - General notes about the pet
+ * 
+ * 2. Three Types of Medical Records:
+ *    - Medical Records: General health events
+ *    - Vaccinations: Vaccine history and schedules
+ *    - Medications: Current and past prescriptions
+ * 
+ * 3. Full CRUD Operations:
+ *    - Create: Add new records via forms
+ *    - Read: View all records in tables
+ *    - Update: Edit existing records inline
+ *    - Delete: Remove records (with confirmation)
+ * 
+ * Architecture:
+ * - Uses tabs to organize different record types
+ * - Each record type has its own dialog form
+ * - Consistent CRUD pattern across all record types
+ * - Single confirmation dialog used for all deletions
+ * 
+ * Permission Control:
+ * - canEdit prop determines if user can modify records
+ * - When canEdit=false, all add/edit/delete buttons are hidden
+ * - Typically true for vets/admins, false for pet owners
+ * 
+ * State Management Pattern:
+ * - Each record type has: data array, dialog state, form state, editing ID
+ * - Opening form for new record: clears form, sets editing ID to null
+ * - Opening form for edit: populates form, stores editing ID
+ * - Saving: checks editing ID to determine create vs update
+ * 
+ * @param {Pet} pet - The pet whose medical history to manage
+ * @param {Function} onUpdate - Callback when pet data changes (weight, allergies, notes)
+ * @param {boolean} canEdit - Whether user has permission to add/edit/delete records
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +54,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, FileText, Syringe, Pill, AlertTriangle, ClipboardList } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Syringe, Pill, AlertTriangle, ClipboardList, RefreshCw } from 'lucide-react';
 import { Pet, MedicalRecord, VaccinationRecord, MedicationRecord } from '../../types';
 import { petAPI, medicalRecordAPI, vaccinationAPI, medicationAPI } from '@/lib/api';
 import { toast } from 'sonner';
@@ -415,12 +461,23 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Medical History</CardTitle>
-                {canEdit && (
-                  <Button onClick={() => handleOpenMedicalDialog()}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Record
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadAll}
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
                   </Button>
-                )}
+                  {canEdit && (
+                    <Button onClick={() => handleOpenMedicalDialog()}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Record
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -476,12 +533,23 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Vaccinations</CardTitle>
-                {canEdit && (
-                  <Button onClick={() => handleOpenVaccinationDialog()}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Vaccination
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadAll}
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
                   </Button>
-                )}
+                  {canEdit && (
+                    <Button onClick={() => handleOpenVaccinationDialog()}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Vaccination
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -538,12 +606,23 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Medications</CardTitle>
-                {canEdit && (
-                  <Button onClick={() => handleOpenMedicationDialog()}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Medication
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadAll}
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
                   </Button>
-                )}
+                  {canEdit && (
+                    <Button onClick={() => handleOpenMedicationDialog()}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Medication
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>

@@ -1,3 +1,56 @@
+/**
+ * Pets Serverless Function
+ * 
+ * BEGINNER EXPLANATION:
+ * This function manages pet records in the system. It handles creating new pets,
+ * viewing pet information, updating pet details, and soft-deleting pets.
+ * 
+ * API Endpoints:
+ * GET    /pets        - Get all pets (filtered by user role)
+ * POST   /pets        - Create new pet
+ * GET    /pets/:id    - Get specific pet details
+ * PATCH  /pets/:id    - Update pet information
+ * DELETE /pets/:id    - Delete pet (soft delete)
+ * 
+ * Role-Based Filtering:
+ * - Pet Owners: See only THEIR pets
+ * - Veterinarians: See ALL pets (need access for medical records)
+ * - Administrators: See ALL pets (system management)
+ * 
+ * Soft Delete Pattern:
+ * We don't actually delete pet records from the database. Instead, we set
+ * a 'deleted_at' timestamp. This allows:
+ * - Preserving medical history even if pet is removed
+ * - Potential recovery if deleted by accident
+ * - Audit trail of what happened and when
+ * 
+ * Pet Data Structure:
+ * Basic Info:
+ * - name, species, breed, age, date_of_birth, gender, color
+ * - microchip_id, weight
+ * 
+ * Medical Info:
+ * - medical_history: Array of past medical events
+ * - allergies: Array of known allergies
+ * - current_medications: Array of active medications
+ * - notes: General notes about the pet
+ * 
+ * Owner Association:
+ * - owner_id: Links pet to user
+ * - owner_name, owner_email: Populated via SQL JOIN
+ * 
+ * Authentication:
+ * All endpoints require valid JWT token. User type determines access level.
+ * 
+ * Example Flow (Create Pet):
+ * 1. Client sends POST /pets with pet data
+ * 2. Server verifies JWT token
+ * 3. If pet owner: use their user ID as owner
+ * 4. If admin/vet: can specify different owner ID
+ * 5. Insert into database
+ * 6. Return created pet object
+ */
+
 import { Handler, HandlerEvent } from '@netlify/functions';
 import { query } from './utils/database';
 import { requireAuth, requireRole } from './utils/auth';

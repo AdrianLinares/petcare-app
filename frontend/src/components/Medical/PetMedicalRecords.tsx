@@ -1,27 +1,69 @@
+/**
+ * PetMedicalRecords Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This is a comprehensive medical records viewer and manager for a specific pet.
+ * Think of it as a digital medical file cabinet that shows all health records for one pet.
+ * 
+ * Key Features:
+ * 1. Tabbed interface with 4 types of records:
+ *    - Medical Records: General medical events (checkups, surgeries)
+ *    - Vaccinations: Vaccination history and due dates
+ *    - Medications: Current and past medications
+ *    - Clinical Records: Detailed visit notes with diagnosis/treatment
+ * 
+ * 2. Permission-based editing:
+ *    - Pet owners: Can VIEW all records (read-only)
+ *    - Veterinarians: Can ADD new records
+ *    - Administrators: Can ADD and DELETE records
+ * 
+ * 3. CRUD Operations:
+ *    - Create: Add button opens form dialogs
+ *    - Read: Tables display all records with details
+ *    - Update: Some records can be deactivated (medications)
+ *    - Delete: Delete buttons (admin only) remove records
+ * 
+ * Architecture:
+ * - Loads all 4 record types in parallel when component mounts
+ * - Each tab shows a different record type
+ * - Forms appear as modal dialogs for adding records
+ * - After any change, refreshes data from backend
+ * 
+ * Data Flow:
+ * 1. Component mounts → Load all records from API
+ * 2. User clicks Add → Show form dialog
+ * 3. User submits form → Save to API
+ * 4. On success → Reload all data → Close dialog
+ * 
+ * @param {string} petId - ID of the pet whose records to display
+ * @param {string} petName - Name of the pet (for display in header)
+ * @param {User} currentUser - Currently logged-in user (determines permissions)
+ */
+
 import { useState, useEffect } from 'react';
-import { 
-  medicalRecordAPI, 
-  vaccinationAPI, 
-  medicationAPI, 
-  clinicalRecordAPI 
+import {
+  medicalRecordAPI,
+  vaccinationAPI,
+  medicationAPI,
+  clinicalRecordAPI
 } from '@/lib/api';
-import type { 
-  MedicalRecord, 
-  VaccinationRecord, 
-  MedicationRecord, 
+import type {
+  MedicalRecord,
+  VaccinationRecord,
+  MedicationRecord,
   ClinicalRecord,
-  User 
+  User
 } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { 
-  Plus, 
-  FileText, 
-  Syringe, 
-  Pill, 
+import {
+  Plus,
+  FileText,
+  Syringe,
+  Pill,
   Stethoscope,
   Calendar,
   User as UserIcon,
@@ -40,10 +82,10 @@ interface PetMedicalRecordsProps {
   currentUser: User;
 }
 
-export default function PetMedicalRecords({ 
-  petId, 
-  petName, 
-  currentUser 
+export default function PetMedicalRecords({
+  petId,
+  petName,
+  currentUser
 }: PetMedicalRecordsProps) {
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [vaccinations, setVaccinations] = useState<VaccinationRecord[]>([]);
@@ -51,13 +93,13 @@ export default function PetMedicalRecords({
   const [clinicalRecords, setClinicalRecords] = useState<ClinicalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('medical');
-  
+
   // Form states
   const [showMedicalForm, setShowMedicalForm] = useState(false);
   const [showVaccinationForm, setShowVaccinationForm] = useState(false);
   const [showMedicationForm, setShowMedicationForm] = useState(false);
   const [showClinicalForm, setShowClinicalForm] = useState(false);
-  
+
   // Edit states
   const [editingRecord, setEditingRecord] = useState<any>(null);
 
@@ -90,7 +132,7 @@ export default function PetMedicalRecords({
 
   const handleDeleteMedicalRecord = async (id: string) => {
     if (!confirm('Are you sure you want to delete this medical record?')) return;
-    
+
     try {
       await medicalRecordAPI.delete(id);
       setMedicalRecords(prev => prev.filter(r => r.id !== id));
@@ -102,7 +144,7 @@ export default function PetMedicalRecords({
 
   const handleDeleteVaccination = async (id: string) => {
     if (!confirm('Are you sure you want to delete this vaccination record?')) return;
-    
+
     try {
       await vaccinationAPI.delete(id);
       setVaccinations(prev => prev.filter(r => r.id !== id));
@@ -114,7 +156,7 @@ export default function PetMedicalRecords({
 
   const handleDeleteMedication = async (id: string) => {
     if (!confirm('Are you sure you want to delete this medication record?')) return;
-    
+
     try {
       await medicationAPI.delete(id);
       setMedications(prev => prev.filter(r => r.id !== id));
@@ -127,7 +169,7 @@ export default function PetMedicalRecords({
   const handleDeactivateMedication = async (id: string) => {
     try {
       await medicationAPI.deactivate(id);
-      setMedications(prev => 
+      setMedications(prev =>
         prev.map(m => m.id === id ? { ...m, active: false } : m)
       );
       toast.success('Medication deactivated');
@@ -138,7 +180,7 @@ export default function PetMedicalRecords({
 
   const handleDeleteClinicalRecord = async (id: string) => {
     if (!confirm('Are you sure you want to delete this clinical record?')) return;
-    
+
     try {
       await clinicalRecordAPI.delete(id);
       setClinicalRecords(prev => prev.filter(r => r.id !== id));
@@ -263,7 +305,7 @@ export default function PetMedicalRecords({
                   {vaccinations.map((vacc) => {
                     const nextDue = vacc.nextDue ? new Date(vacc.nextDue) : null;
                     const isDue = nextDue && nextDue <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-                    
+
                     return (
                       <Card key={vacc.id}>
                         <CardContent className="p-4">

@@ -1,3 +1,50 @@
+/**
+ * Users Serverless Function
+ * 
+ * BEGINNER EXPLANATION:
+ * This function manages user accounts and profiles. It handles viewing and
+ * updating user information, managing users (admin only), and changing passwords.
+ * 
+ * API Endpoints:
+ * GET  /users/me             - Get current user's profile
+ * PATCH /users/me            - Update current user's profile
+ * POST /users/me/change-password - Change user's password
+ * GET  /users                - List all users (admin only)
+ * GET  /users/:id            - Get specific user (admin only)
+ * PATCH /users/:id           - Update user (admin only)
+ * DELETE /users/:id          - Delete user (admin only)
+ * 
+ * Permission Levels:
+ * - All authenticated users: Can view/update their own profile
+ * - Administrators only: Can view/update/delete any user
+ * 
+ * User Types:
+ * - pet_owner: Regular users who own pets
+ * - veterinarian: Vets who treat pets and manage medical records
+ * - administrator: System admins with full access
+ * 
+ * Authentication:
+ * All endpoints require valid JWT token in Authorization header.
+ * Format: "Authorization: Bearer <token>"
+ * 
+ * Update Strategy:
+ * Uses dynamic SQL query building to only update provided fields.
+ * This allows partial updates (e.g., just change phone number).
+ * 
+ * Example Request Flow:
+ * 1. Client sends PATCH /users/me with { phone: "555-1234" }
+ * 2. Server extracts JWT token from header
+ * 3. Verifies token and gets user ID
+ * 4. Builds SQL: UPDATE users SET phone = $1 WHERE id = $2
+ * 5. Returns updated user object
+ * 
+ * Security:
+ * - Users can only modify their own profile (unless admin)
+ * - Password changes require current password verification
+ * - Sensitive fields (password_hash) never returned in responses
+ * - Admin actions require administrator role check
+ */
+
 import { Handler, HandlerEvent } from '@netlify/functions';
 import bcrypt from 'bcrypt';
 import { query } from './utils/database';
@@ -17,7 +64,7 @@ const handler: Handler = async (event: HandlerEvent) => {
     // GET /users/me - Get current user
     if (path === '/me' && event.httpMethod === 'GET') {
       const user = await requireAuth(event);
-      
+
       const result = await query(
         'SELECT id, email, full_name, phone, user_type, access_level, address, specialization, license_number, created_at FROM users WHERE id = $1',
         [user.id]
@@ -46,7 +93,7 @@ const handler: Handler = async (event: HandlerEvent) => {
     if (path === '/me' && event.httpMethod === 'PATCH') {
       const user = await requireAuth(event);
       const { fullName, phone, address, specialization, licenseNumber } = body;
-      
+
       const updates: string[] = [];
       const values: any[] = [];
       let paramCount = 1;
@@ -129,11 +176,11 @@ const handler: Handler = async (event: HandlerEvent) => {
     // GET /users - List all users (Admin only, except for veterinarians which any authenticated user can see)
     if (path === '' && event.httpMethod === 'GET') {
       const { userType, page = '1', limit = '20' } = params;
-      
+
       // If requesting veterinarians, only require authentication (not admin)
       if (userType === 'veterinarian') {
         await requireAuth(event);
-        
+
         const result = await query(
           'SELECT id, email, full_name, phone, user_type, specialization, license_number FROM users WHERE user_type = $1 AND deleted_at IS NULL ORDER BY full_name ASC',
           ['veterinarian']
@@ -151,10 +198,10 @@ const handler: Handler = async (event: HandlerEvent) => {
           })),
         });
       }
-      
+
       // For all other user types, require admin access
       await requireAdmin(event);
-      
+
       const pageNum = parseInt(page);
       const limitNum = Math.min(parseInt(limit), 100);
       const offset = (pageNum - 1) * limitNum;
@@ -203,7 +250,7 @@ const handler: Handler = async (event: HandlerEvent) => {
     // POST /users - Create user (Admin only)
     if (path === '' && event.httpMethod === 'POST') {
       await requireAdmin(event);
-      
+
       const { email, password, fullName, phone, userType, address, specialization, licenseNumber, accessLevel } = body;
 
       if (!email || !password || !fullName || !phone || !userType) {
@@ -239,14 +286,14 @@ const handler: Handler = async (event: HandlerEvent) => {
 
     // Handle dynamic routes like /users/:id
     const idMatch = path.match(/^\/([^\/]+)$/);
-    
+
     if (idMatch) {
       const userId = idMatch[1];
 
       // GET /users/:id - Get user by ID (Admin only)
       if (event.httpMethod === 'GET') {
         await requireAdmin(event);
-        
+
         const result = await query(
           'SELECT id, email, full_name, phone, user_type, access_level, address, specialization, license_number, created_at FROM users WHERE id = $1 AND deleted_at IS NULL',
           [userId]
@@ -274,9 +321,9 @@ const handler: Handler = async (event: HandlerEvent) => {
       // PATCH /users/:id - Update user (Admin only)
       if (event.httpMethod === 'PATCH') {
         await requireAdmin(event);
-        
+
         const { email, fullName, phone, address, specialization, licenseNumber, accessLevel, userType } = body;
-        
+
         const updates: string[] = [];
         const values: any[] = [];
         let paramCount = 1;
@@ -348,7 +395,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       // DELETE /users/:id - Delete user (Admin only)
       if (event.httpMethod === 'DELETE') {
         await requireAdmin(event, 'super_admin');
-        
+
         await query(
           'UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1',
           [userId]

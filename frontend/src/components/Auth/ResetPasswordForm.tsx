@@ -1,3 +1,34 @@
+/**
+ * Reset Password Form Component
+ * 
+ * This form allows users to set a new password using a reset token they received via email.
+ * It validates the token, ensures passwords match, and updates the user's password securely.
+ * 
+ * BEGINNER EXPLANATION:
+ * This is the second part of password recovery:
+ * 1. User clicks the link from their email
+ * 2. That link contains a special code (token) that proves they own the email
+ * 3. This form extracts the token and lets them enter a new password
+ * 4. Backend verifies token is valid and not expired, then updates password
+ * 
+ * TOKEN FLOW:
+ * - Token is generated when user requests password reset (expires in 1 hour)
+ * - Token is embedded in URL: website.com/reset#token=abc123
+ * - We extract it from URL and send it with the new password
+ * - Backend checks: Is token valid? Is it expired? Has it been used?
+ * - If all checks pass, password is updated
+ * 
+ * SECURITY:
+ * - Tokens expire after 1 hour
+ * - Each token can only be used once
+ * - Password must be at least 8 characters
+ * - Token is cryptographically secure (random, unpredictable)
+ * 
+ * @param resetToken - Optional token passed as prop (usually from URL)
+ * @param onSuccess - Callback when password is successfully reset
+ * @param onBack - Callback to return to forgot password screen
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,18 +46,44 @@ interface ResetPasswordFormProps {
 }
 
 export default function ResetPasswordForm({ resetToken: propToken, onSuccess, onBack }: ResetPasswordFormProps) {
+  // STATE: New password entered by user
   const [password, setPassword] = useState('');
+
+  // STATE: Password confirmation (must match password)
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // STATE: Toggle visibility of password field
   const [showPassword, setShowPassword] = useState(false);
+
+  // STATE: Toggle visibility of confirm password field
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // STATE: Loading indicator during API call
   const [loading, setLoading] = useState(false);
+
+  // STATE: Error message if validation or reset fails
   const [error, setError] = useState('');
+
+  // STATE: Success message after password is reset
   const [success, setSuccess] = useState('');
+
+  // STATE: Whether token has been validated
+  // If false, shows loading screen while checking token
   const [tokenValidated, setTokenValidated] = useState(true);
 
-  // Get token from props or URL
+  // Get reset token from either props or URL hash
+  // Props are used in testing, URL is used in production
   const token = propToken || getResetTokenFromURL();
 
+  /**
+   * EFFECT: Validate Reset Token
+   * 
+   * Runs once when component mounts to check if token exists.
+   * If no token, shows error message.
+   * 
+   * In production, you might also validate with backend here,
+   * but current implementation validates on submit.
+   */
   useEffect(() => {
     if (!token) {
       setError('No reset token provided.');
@@ -114,7 +171,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                 This password reset link is invalid or has expired
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -122,7 +179,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                   {error}
                 </AlertDescription>
               </Alert>
-              
+
               <div className="text-sm text-gray-600">
                 <p>This could happen if:</p>
                 <ul className="list-disc list-inside space-y-1 text-xs mt-2">
@@ -131,8 +188,8 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                   <li>The link was copied incorrectly</li>
                 </ul>
               </div>
-              
-              <Button 
+
+              <Button
                 onClick={onBack}
                 className="w-full"
               >
@@ -165,7 +222,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                 Your password has been updated successfully
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <Alert>
                 <CheckCircle className="h-4 w-4" />
@@ -173,12 +230,12 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                   {success}
                 </AlertDescription>
               </Alert>
-              
+
               <p className="text-sm text-gray-600 text-center">
                 Redirecting to login page...
               </p>
-              
-              <Button 
+
+              <Button
                 onClick={onSuccess}
                 className="w-full"
               >
@@ -197,9 +254,9 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <img 
-                src="/petcare-logo.png" 
-                alt="PetCare Logo" 
+              <img
+                src="/petcare-logo.png"
+                alt="PetCare Logo"
                 className="h-16 w-auto"
               />
             </div>
@@ -210,7 +267,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
               Enter a new password to secure your account
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -278,9 +335,9 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
               )}
 
               <div className="space-y-3">
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   disabled={loading}
                 >
                   {loading ? (
@@ -293,7 +350,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                   )}
                 </Button>
 
-                <Button 
+                <Button
                   type="button"
                   variant="ghost"
                   className="w-full"

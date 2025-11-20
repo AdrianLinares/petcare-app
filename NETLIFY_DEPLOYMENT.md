@@ -13,14 +13,8 @@ This guide will help you deploy the PetCare application to Netlify using serverl
 ### 1. Install Dependencies
 
 ```bash
-# Install root dependencies
-npm install
-
-# Install frontend dependencies
-cd frontend && npm install
-
-# Install function dependencies
-cd ../netlify/functions && npm install
+# One command installs root, frontend, and functions deps
+npm run install:all
 ```
 
 ### 2. Set Up Environment Variables
@@ -48,11 +42,19 @@ FRONTEND_URL=http://localhost:8888
 NODE_ENV=development
 ```
 
-### 3. Set Up Database
+### 3. Set Up Database (Production)
+
+For local development, demo data is seeded into `localStorage` automatically.
+For production, provision a PostgreSQL database and apply your schema.
+
+Optional example using `psql` and the provided seed file:
 
 ```bash
-# Run migrations and seed data
-npm run db:setup
+# Replace with your DATABASE_URL
+export DATABASE_URL="postgresql://user:password@host:5432/petcare_db"
+
+# Apply seed (adjust file as needed for your schema)
+psql "$DATABASE_URL" -f seed-database-fixed.sql
 ```
 
 ### 4. Run Local Development Server
@@ -78,12 +80,12 @@ This will start:
 
 ### 2. Configure Build Settings
 
-Netlify should automatically detect the `netlify.toml` configuration. Verify:
+Netlify uses `netlify.toml` in the repo root. Verify these align:
 
-- **Base directory**: `frontend`
-- **Build command**: `npm run build`
-- **Publish directory**: `dist`
-- **Functions directory**: `../netlify/functions`
+- **Base directory**: `.`
+- **Build command**: `cd frontend && npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install`
+- **Publish directory**: `frontend/dist`
+- **Functions directory**: `netlify/functions`
 
 ### 3. Set Environment Variables
 

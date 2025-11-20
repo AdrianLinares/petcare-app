@@ -1,3 +1,38 @@
+/**
+ * User Form Component (Admin)
+ * 
+ * A comprehensive form for creating or editing user accounts.
+ * Used by administrators to manage users in the system.
+ * 
+ * BEGINNER EXPLANATION:
+ * Think of this as an admin control panel for managing users.
+ * It can create new users (pet owners, vets, or admins) or edit existing ones.
+ * The form shows different fields based on the user type being created.
+ * 
+ * FORM VALIDATION:
+ * Uses react-hook-form with Zod schema validation:
+ * - react-hook-form: Manages form state and validation
+ * - Zod: Defines rules (e.g., "email must be valid format")
+ * - zodResolver: Connects Zod validation to react-hook-form
+ * 
+ * DYNAMIC FIELDS:
+ * - Pet Owner: Just basic info (name, email, phone, address)
+ * - Veterinarian: Adds specialization and license number
+ * - Administrator: Adds access level (standard/elevated/super_admin)
+ * 
+ * ROLE-BASED PERMISSIONS:
+ * Uses RoleManager to determine:
+ * - What user types current admin can create
+ * - What access levels they can assign
+ * - Prevents privilege escalation (can't create higher-level admins)
+ * 
+ * @param user - Existing user to edit (null for create mode)
+ * @param onSubmit - Callback with form data when submitted
+ * @param onCancel - Callback when user cancels
+ * @param isLoading - Whether form is currently submitting
+ * @param currentUser - The logged-in admin (for permission checking)
+ */
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,10 +50,25 @@ interface UserFormProps {
   onSubmit: (data: UserFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
-  currentUser: User; // Add current user for role management
+  currentUser: User;
 }
 
 export default function UserForm({ user, onSubmit, onCancel, isLoading = false, currentUser }: UserFormProps) {
+  /**
+   * REACT HOOK FORM SETUP
+   * 
+   * react-hook-form provides powerful form management:
+   * - register: Connects input fields to form state
+   * - handleSubmit: Wraps our submit function with validation
+   * - setValue: Programmatically set field values
+   * - watch: Monitor specific field values in real-time
+   * - formState: Access validation errors and form status
+   * 
+   * VALIDATION:
+   * - resolver: Uses Zod schema for validation rules
+   * - mode: 'onChange' validates as user types (instant feedback)
+   * - defaultValues: Pre-fills form when editing existing user
+   */
   const {
     register,
     handleSubmit,
@@ -41,7 +91,11 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
     }
   });
 
+  // WATCH: Monitor userType field to show/hide conditional fields
+  // When userType changes, form re-renders to show relevant fields
   const watchUserType = watch('userType');
+
+  // WATCH: Monitor accessLevel for administrator users
   const watchAccessLevel = watch('accessLevel');
 
   // Initialize form values when user changes

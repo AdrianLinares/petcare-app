@@ -1,3 +1,39 @@
+/**
+ * MedicalRecordForm Component
+ * 
+ * BEGINNER EXPLANATION:
+ * This is a simplified form for adding general medical records to a pet's history.
+ * It's more basic than the ClinicalRecordForm - used for recording any type of
+ * medical event (checkups, surgeries, emergencies, etc.).
+ * 
+ * Key Features:
+ * - Simple 3-field form (date, type, description)
+ * - Flexible record types (checkup, surgery, emergency, etc.)
+ * - Quick data entry for veterinarians
+ * 
+ * Form Fields:
+ * - Date: When the medical event occurred (defaults to today)
+ * - Record Type: Category of medical record (e.g., "Checkup", "Surgery")
+ * - Description: Detailed notes about the medical event
+ * 
+ * Use Cases:
+ * - Recording routine checkups
+ * - Documenting surgeries performed
+ * - Logging emergency visits
+ * - Adding historical medical events
+ * 
+ * Workflow:
+ * 1. User fills out 3 simple fields
+ * 2. Form validates required fields
+ * 3. Data sent to backend API
+ * 4. On success, parent refreshes medical records list
+ * 5. Dialog closes automatically
+ * 
+ * @param {string} petId - ID of the pet this record is for
+ * @param {Function} onClose - Callback to close the form dialog
+ * @param {Function} onSuccess - Callback when record is successfully created
+ */
+
 import { useState } from 'react';
 import { medicalRecordAPI } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';

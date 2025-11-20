@@ -1,3 +1,37 @@
+/**
+ * Appointment Scheduling Component
+ * 
+ * Provides a complete appointment management interface for pet owners:
+ * - Schedule new appointments with veterinarians
+ * - View upcoming appointments
+ * - Review past appointment history
+ * - Cancel scheduled appointments
+ * 
+ * BEGINNER EXPLANATION:
+ * Think of this like booking a doctor's appointment online.
+ * 1. Pick which pet needs to see the vet
+ * 2. Choose a veterinarian
+ * 3. Select a date and time slot
+ * 4. Describe the reason for visit
+ * 5. Submit and get confirmation
+ * 
+ * COMPONENT STRUCTURE:
+ * - Form Dialog: For creating new appointments
+ * - Upcoming Appointments Card: Shows future appointments
+ * - Past Appointments Card: Shows history
+ * 
+ * VALIDATION:
+ * - Must have at least one registered pet
+ * - Must select all required fields (pet, vet, date, time, type, reason)
+ * - Date must be in the future
+ * - Time must be during clinic hours
+ * 
+ * @param user - The logged-in pet owner
+ * @param pets - Array of user's pets
+ * @param appointments - Array of all appointments
+ * @param setAppointments - Function to update appointments list
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,31 +57,52 @@ interface AppointmentSchedulingProps {
 }
 
 export default function AppointmentScheduling({ user, pets, appointments, setAppointments }: AppointmentSchedulingProps) {
+  // STATE: Controls whether appointment dialog is open
   const [isScheduling, setIsScheduling] = useState(false);
+
+  // STATE: Loading indicator during form submission
   const [isLoading, setIsLoading] = useState(false);
+
+  // STATE: The date selected in calendar (undefined = not selected yet)
   const [selectedDate, setSelectedDate] = useState<Date>();
+
+  // STATE: List of available veterinarians loaded from backend
   const [veterinarians, setVeterinarians] = useState<User[]>([]);
+
+  // STATE: Form data for new appointment
+  // Stores all user inputs before submission
   const [formData, setFormData] = useState({
-    petId: '',
-    veterinarianId: '',
-    type: '',
-    time: '',
-    reason: '',
-    notes: ''
+    petId: '',           // Which pet needs appointment
+    veterinarianId: '',  // Which vet to see
+    type: '',            // Type of appointment (checkup, vaccination, etc.)
+    time: '',            // Time slot (09:00, 09:30, etc.)
+    reason: '',          // Why pet needs to see vet
+    notes: ''            // Additional information (optional)
   });
 
-  // Load veterinarians from backend
+  /**
+   * EFFECT: Load Available Veterinarians
+   * 
+   * Runs once when component mounts to fetch list of all vets.
+   * This populates the veterinarian dropdown in the form.
+   * 
+   * BEGINNER EXPLANATION:
+   * When this component first appears, we need to know who the veterinarians are
+   * so users can choose one. This effect fetches that list from the backend.
+   */
   useEffect(() => {
     const loadVeterinarians = async () => {
       try {
+        // Fetch only users with userType='veterinarian'
         const result = await userAPI.listUsers({ userType: 'veterinarian' });
         setVeterinarians(result.users || []);
       } catch (error) {
         console.error('Failed to load veterinarians:', error);
+        // Silently fail - user can still submit form if they know vet ID
       }
     };
     loadVeterinarians();
-  }, []);
+  }, []); // Empty dependency array = run once on mount
 
   const appointmentTypes = [
     'Routine Checkup',
@@ -80,7 +135,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedDate) {
       toast.error('Please select a date');
       return;
@@ -107,7 +162,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
       const newAppointment = await appointmentAPI.createAppointment(appointmentData);
       setAppointments([...appointments, newAppointment]);
       toast.success('Appointment scheduled successfully!');
-      
+
       setIsScheduling(false);
       resetForm();
     } catch (error: any) {
@@ -118,17 +173,37 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     }
   };
 
+  /**
+   * Handle Cancel Appointment
+   * 
+   * Cancels a scheduled appointment by updating its status.
+   * Requires user confirmation before proceeding.
+   * 
+   * FLOW:
+   * 1. Show browser confirmation dialog
+   * 2. If confirmed, call API to update status
+   * 3. Update local state to reflect cancellation
+   * 4. Show success/error message
+   * 
+   * @param appointmentId - ID of appointment to cancel
+   */
   const handleCancelAppointment = async (appointmentId: string) => {
+    // Browser confirmation dialog (returns true if user clicks OK)
     if (!confirm('Are you sure you want to cancel this appointment?')) {
       return;
     }
 
     try {
+      // Update appointment status in backend
       await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
+
+      // Update local state to reflect cancellation
+      // Cast status to correct type to satisfy TypeScript
       const updatedAppointments = appointments.map(apt =>
-        apt.id === appointmentId ? { ...apt, status: 'cancelled' } : apt
+        apt.id === appointmentId ? { ...apt, status: 'cancelled' as 'cancelled' } : apt
       );
       setAppointments(updatedAppointments);
+
       toast.success('Appointment cancelled successfully');
     } catch (error: any) {
       const message = error.response?.data?.error || 'Failed to cancel appointment';
@@ -180,7 +255,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 Book an appointment for your pet with our veterinarians
               </DialogDescription>
             </DialogHeader>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -202,7 +277,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="veterinarian">Veterinarian *</Label>
                   <Select
@@ -248,7 +323,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                     </PopoverContent>
                   </Popover>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="time">Time *</Label>
                   <Select

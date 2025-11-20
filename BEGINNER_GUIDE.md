@@ -178,11 +178,16 @@ import axios from 'axios';
 
 // Create an axios instance with default settings
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api',  // Where our backend lives
+  // Development: Netlify Dev proxies functions under /api on port 8888
+  baseURL: 'http://localhost:8888/api',
   headers: {
     'Content-Type': 'application/json',  // We send/receive JSON
   },
 });
+
+// BEGINNER NOTE:
+// In production, the baseURL is simply '/api' because Netlify rewrites
+// requests to the functions automatically.
 
 // Add JWT token to every request automatically
 api.interceptors.request.use((config) => {

@@ -1,8 +1,60 @@
+/**
+ * Medications Serverless Function
+ * 
+ * BEGINNER EXPLANATION:
+ * This function manages pet medication records. It tracks what medications
+ * pets are taking, dosages, and whether they're currently active.
+ * 
+ * API Endpoints:
+ * GET    /medications          - List all medications (filtered by role)
+ * GET    /medications?petId=x  - Get medications for specific pet
+ * POST   /medications          - Create new medication record
+ * PATCH  /medications/:id      - Update medication record
+ * PATCH  /medications/:id/deactivate - Mark medication as inactive
+ * DELETE /medications/:id      - Delete medication record
+ * 
+ * Medication Record Structure:
+ * - petId: Which pet is taking the medication
+ * - name: Medication name (e.g., "Amoxicillin")
+ * - dosage: How much and how often (e.g., "500mg twice daily")
+ * - startDate: When medication course began
+ * - endDate: When medication course ends (optional, for courses)
+ * - active: Whether pet is currently taking this (boolean)
+ * - prescribedBy: Which veterinarian prescribed it
+ * 
+ * Active vs Inactive Medications:
+ * - Active = true: Pet is currently taking this medication
+ * - Active = false: Pet has stopped taking this medication
+ * 
+ * Why not delete inactive medications?
+ * - Medical history: Need record of what pet has taken
+ * - Drug interactions: Important to know past medications
+ * - Allergies: If pet had reaction, need to remember
+ * 
+ * Deactivate Endpoint:
+ * Special endpoint to mark medication as inactive without deleting.
+ * Used when:
+ * - Medication course is complete
+ * - Pet stopped taking medication
+ * - Switching to different medication
+ * 
+ * Role-Based Access:
+ * - Pet Owners: See medications for their pets only
+ * - Veterinarians: Can see all medications, prescribe new ones
+ * - Administrators: Full access to all medication records
+ */
+
 import { Handler } from '@netlify/functions';
 import { query } from './utils/database';
 import { requireAuth } from './utils/auth';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
 
+/**
+ * Map Medication Database Row to Frontend Format
+ * 
+ * BEGINNER EXPLANATION:
+ * Converts database snake_case field names to JavaScript camelCase.
+ */
 function mapMedication(row: any) {
   return {
     id: row.id,

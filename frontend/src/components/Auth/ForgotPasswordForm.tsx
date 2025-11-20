@@ -1,3 +1,27 @@
+/**
+ * Forgot Password Form Component
+ * 
+ * This form allows users to request a password reset link when they've forgotten their password.
+ * It validates the email and sends a reset link to the user's registered email address.
+ * 
+ * BEGINNER EXPLANATION:
+ * Think of this like the "Forgot Password" feature you see on any website.
+ * User enters their email → System sends them a special link → They click link to reset password
+ * 
+ * FLOW:
+ * 1. User enters their email address
+ * 2. System validates email format
+ * 3. Backend checks if email exists in database
+ * 4. If exists, sends email with reset link containing a secure token
+ * 5. Shows success message (even if email doesn't exist, for security)
+ * 
+ * SECURITY NOTE:
+ * We don't reveal if an email exists in our database to prevent enumeration attacks.
+ * We always show "If that email exists, we sent a link" regardless of whether it's real.
+ * 
+ * @param onBack - Callback function to return to login screen
+ */
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,12 +36,36 @@ interface ForgotPasswordFormProps {
 }
 
 export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
+  // STATE: Email address entered by user
   const [email, setEmail] = useState('');
+
+  // STATE: Loading indicator while API call is in progress
   const [loading, setLoading] = useState(false);
+
+  // STATE: Whether form has been successfully submitted
+  // Used to show the "Check Your Email" success screen
   const [submitted, setSubmitted] = useState(false);
+
+  // STATE: Error message to display if something goes wrong
   const [error, setError] = useState('');
+
+  // STATE: Success message from API
   const [success, setSuccess] = useState('');
 
+  /**
+   * Handle Password Reset Request
+   * 
+   * Called when user submits the forgot password form.
+   * Validates email format and sends reset request to backend.
+   * 
+   * VALIDATION STEPS:
+   * 1. Check if email is not empty
+   * 2. Validate email format using regex pattern
+   * 3. Send request to backend API
+   * 4. Show success message (regardless of whether email exists)
+   * 
+   * @param e - Form submit event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -73,7 +121,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                 Password reset instructions sent
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <Alert>
                 <Mail className="h-4 w-4" />
@@ -81,7 +129,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                   {success}
                 </AlertDescription>
               </Alert>
-              
+
               <div className="text-sm text-gray-600 space-y-2">
                 <p>If you don't see the email in your inbox, please check:</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
@@ -90,17 +138,17 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                   <li>That the email isn't being blocked by your email provider</li>
                 </ul>
               </div>
-              
+
               <div className="flex flex-col space-y-2">
-                <Button 
+                <Button
                   onClick={handleTryAgain}
                   variant="outline"
                   className="w-full"
                 >
                   Send Another Email
                 </Button>
-                
-                <Button 
+
+                <Button
                   onClick={onBack}
                   variant="ghost"
                   className="w-full"
@@ -122,9 +170,9 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <img 
-                src="/petcare-logo.png" 
-                alt="PetCare Logo" 
+              <img
+                src="/petcare-logo.png"
+                alt="PetCare Logo"
                 className="h-16 w-auto"
               />
             </div>
@@ -135,7 +183,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
               Enter your email address and we'll send you a link to reset your password
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -163,9 +211,9 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
               )}
 
               <div className="space-y-3">
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   disabled={loading}
                 >
                   {loading ? (
@@ -181,7 +229,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                   )}
                 </Button>
 
-                <Button 
+                <Button
                   type="button"
                   variant="ghost"
                   className="w-full"
