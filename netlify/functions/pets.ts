@@ -26,7 +26,7 @@
  * 
  * Pet Data Structure:
  * Basic Info:
- * - name, species, breed, age, date_of_birth, gender, color
+ * - name, species, breed, age, gender, color
  * - microchip_id, weight
  * 
  * Medical Info:
@@ -88,7 +88,6 @@ const handler: Handler = async (event: HandlerEvent) => {
         species: pet.species,
         breed: pet.breed,
         age: pet.age,
-        dateOfBirth: pet.date_of_birth,
         gender: pet.gender,
         color: pet.color,
         microchipId: pet.microchip_id,
@@ -107,7 +106,7 @@ const handler: Handler = async (event: HandlerEvent) => {
 
     // POST /pets - Create new pet
     if (path === '' && event.httpMethod === 'POST') {
-      const { name, species, breed, dateOfBirth, gender, color, microchipId, weight, ownerId } = body;
+      const { name, species, breed, age, gender, color, microchipId, weight, ownerId } = body;
 
       if (!name || !species) {
         throw new Error('Name and species are required');
@@ -120,10 +119,10 @@ const handler: Handler = async (event: HandlerEvent) => {
       }
 
       const result = await query(
-        `INSERT INTO pets (name, species, breed, date_of_birth, gender, color, microchip_id, weight, owner_id)
+        `INSERT INTO pets (name, species, breed, age, gender, color, microchip_id, weight, owner_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING *`,
-        [name, species, breed || null, dateOfBirth || null, gender || null, color || null, microchipId || null, weight || null, ownerIdToUse]
+        [name, species, breed || null, age || null, gender || null, color || null, microchipId || null, weight || null, ownerIdToUse]
       );
 
       const pet = result.rows[0];
@@ -132,7 +131,7 @@ const handler: Handler = async (event: HandlerEvent) => {
         name: pet.name,
         species: pet.species,
         breed: pet.breed,
-        dateOfBirth: pet.date_of_birth,
+        age: pet.age,
         gender: pet.gender,
         color: pet.color,
         microchipId: pet.microchip_id,
@@ -170,7 +169,6 @@ const handler: Handler = async (event: HandlerEvent) => {
           species: pet.species,
           breed: pet.breed,
           age: pet.age,
-          dateOfBirth: pet.date_of_birth,
           gender: pet.gender,
           color: pet.color,
           microchipId: pet.microchip_id,
@@ -188,7 +186,7 @@ const handler: Handler = async (event: HandlerEvent) => {
 
       // PATCH /pets/:id
       if (event.httpMethod === 'PATCH') {
-        const { name, species, breed, dateOfBirth, gender, color, microchipId, weight, medicalHistory, allergies, currentMedications, notes } = body;
+        const { name, species, breed, age, gender, color, microchipId, weight, medicalHistory, allergies, currentMedications, notes } = body;
 
         const updates: string[] = [];
         const values: any[] = [];
@@ -206,9 +204,9 @@ const handler: Handler = async (event: HandlerEvent) => {
           updates.push(`breed = $${paramCount++}`);
           values.push(breed);
         }
-        if (dateOfBirth !== undefined) {
-          updates.push(`date_of_birth = $${paramCount++}`);
-          values.push(dateOfBirth);
+        if (age !== undefined) {
+          updates.push(`age = $${paramCount++}`);
+          values.push(age);
         }
         if (gender !== undefined) {
           updates.push(`gender = $${paramCount++}`);
@@ -273,7 +271,6 @@ const handler: Handler = async (event: HandlerEvent) => {
           species: pet.species,
           breed: pet.breed,
           age: pet.age,
-          dateOfBirth: pet.date_of_birth,
           gender: pet.gender,
           color: pet.color,
           microchipId: pet.microchip_id,
