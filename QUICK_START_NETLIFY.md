@@ -11,7 +11,15 @@ npm run install:all
 
 ### 2. Configure Environment
 
-Create a `.env` file in the project root:
+Copy the example file and adjust values for your environment:
+
+```bash
+cp .env.example .env
+```
+
+The `.env.example` file documents the required variables.
+Keep `.env.example` in sync whenever new variables are added.
+Example:
 
 ```bash
 DATABASE_URL=postgresql://user:password@localhost:5432/petcare_db

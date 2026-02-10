@@ -282,13 +282,13 @@ All major code files include detailed inline comments explaining:
 
 3. **Configure environment variables**
    
-   Create a `.env` file in the project root:
-   ```env
-   DATABASE_URL=your_neon_database_url
-   JWT_SECRET=your_secret_key_here
-   FRONTEND_URL=http://localhost:8888
-   NODE_ENV=development
-   ```
+  Copy the example file and adjust values for your environment:
+  ```bash
+  cp .env.example .env
+  ```
+   
+  The `.env.example` file documents the required variables.
+  Keep `.env.example` in sync whenever new variables are added.
 
 4. **Start development server**
    ```bash
