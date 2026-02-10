@@ -239,6 +239,22 @@ petcare-app/
   - Tips for learning from comments
   - ~20 minutes reading time
 
+### 🗄️ Database & Deployment
+
+- **[schema.sql](./schema.sql)** - Complete database schema definition
+  - All tables with correct columns
+  - Includes soft delete pattern (`deleted_at`)
+  - Create this BEFORE loading seed data
+  
+- **[seed-database-fixed.sql](./seed-database-fixed.sql)** - Demo data
+  - Test users, pets, appointments, and medical records
+  - Run AFTER schema.sql is applied
+  
+- **[DATABASE_SCHEMA_VERIFICATION.md](./DATABASE_SCHEMA_VERIFICATION.md)** - Schema verification report
+  - Detailed schema check against Netlify Functions
+  - Column mappings and validations
+  - Troubleshooting guide
+
 ### ✨ What You'll Learn
 
 - What React, TypeScript, and Tailwind CSS are and how they work
@@ -248,6 +264,7 @@ petcare-app/
 - Step-by-step explanations of key features (login, pet management, appointments)
 - How to read and navigate code comments
 - Debugging tips and best practices
+- Database schema and how it connects to the API
 
 ### 📝 Code Comments
 

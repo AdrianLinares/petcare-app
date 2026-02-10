@@ -1,6 +1,6 @@
 # Quick Start Guide - Netlify Serverless
 
-## 🚀 Get Started in 3 Steps
+## 🚀 Get Started in 5 Steps
 
 ### 1. Install Dependencies
 
@@ -28,13 +28,33 @@ FRONTEND_URL=http://localhost:8888
 NODE_ENV=development
 ```
 
-### 3. Run Development Server
+### 3. Set Up Database Schema (LOCAL DEV)
+
+For **local development**, the app uses `localStorage` automatically, so this step is optional.
+
+For **production or to use a real database locally**:
+
+```bash
+# Apply schema first
+psql "$DATABASE_URL" -f schema.sql
+
+# Optionally load test data
+psql "$DATABASE_URL" -f seed-database-fixed.sql
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
 ```
 
 Visit **http://localhost:8888**
+
+### 5. (Optional) Review Database Schema
+
+Check that schema is correct:
+- See [schema.sql](./schema.sql) for complete table definitions
+- See [DATABASE_SCHEMA_VERIFICATION.md](./DATABASE_SCHEMA_VERIFICATION.md) for verification report
 
 ## Demo Credentials
 

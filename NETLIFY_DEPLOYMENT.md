@@ -50,22 +50,46 @@ FRONTEND_URL=http://localhost:8888
 NODE_ENV=development
 ```
 
-### 3. Set Up Database (Production)
+### 3. Set Up Database Schema (Production)
+
+First, create the database schema using the provided schema file:
+
+```bash
+# Option 1: Using Neon SQL Editor (recommended)
+# Copy contents of schema.sql and paste into Neon SQL Editor
+# https://console.neon.tech
+
+# Option 2: Using psql CLI
+export DATABASE_URL="postgresql://user:password@host:port/database"
+psql "$DATABASE_URL" -f schema.sql
+```
+
+### 4. Seed Test Data (Optional)
 
 For local development, demo data is seeded into `localStorage` automatically.
-For production, provision a PostgreSQL database and apply your schema.
-
-Optional example using `psql` and the provided seed file:
+For production, you can optionally load test data:
 
 ```bash
 # Replace with your DATABASE_URL
 export DATABASE_URL="postgresql://user:password@host:5432/petcare_db"
 
-# Apply seed (adjust file as needed for your schema)
+# Apply schema first (REQUIRED)
+psql "$DATABASE_URL" -f schema.sql
+
+# Then load test data
 psql "$DATABASE_URL" -f seed-database-fixed.sql
 ```
 
-### 4. Run Local Development Server
+**Important:** Always run `schema.sql` BEFORE `seed-database-fixed.sql`
+
+**Key Points:**
+- `schema.sql`: Contains complete table definitions with all columns
+- `seed-database-fixed.sql`: Loads demo data for testing
+- Tables use soft delete pattern (`deleted_at` column)
+- All UNIQUE fields have indexes for performance
+- Foreign keys cascade on delete to prevent orphaned records
+
+### 5. Run Local Development Server
 
 ```bash
 # Start Netlify Dev (runs both frontend and serverless functions)
@@ -123,14 +147,25 @@ You can also deploy manually:
 netlify deploy --prod
 ```
 
-### 5. Run Database Migrations
+### 5. Set Up Database on Production
 
-After initial deployment, you need to run migrations on your production database:
+Before deploying, ensure your production database has the correct schema:
 
 ```bash
-# Install dependencies and run migrations on your database host
-# Or use a migration service/script
+# Using Neon SQL Editor
+# 1. Go to https://console.neon.tech
+# 2. Open SQL Editor
+# 3. Copy-paste contents of schema.sql
+# 4. Execute the schema
+
+# OR using psql with your DATABASE_URL
+psql "$PRODUCTION_DATABASE_URL" -f schema.sql
+
+# Optionally load seed data
+psql "$PRODUCTION_DATABASE_URL" -f seed-database-fixed.sql
 ```
+
+After deployment, the application will use the `DATABASE_URL` environment variable to connect.
 
 ## API Routes
 
