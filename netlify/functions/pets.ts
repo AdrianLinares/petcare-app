@@ -63,7 +63,18 @@ const handler: Handler = async (event: HandlerEvent) => {
 
   try {
     const path = event.path.replace('/.netlify/functions/pets', '').replace('/api/pets', '');
-    const body = event.body ? JSON.parse(event.body) : {};
+    let body = {};
+
+    try {
+      body = event.body ? JSON.parse(event.body) : {};
+    } catch (parseError: any) {
+      console.error('Error parsing request body:', parseError.message);
+      console.error('Raw body:', event.body);
+      return errorResponse(new Error('Invalid JSON in request body'), 400);
+    }
+
+    console.log('Request:', { method: event.httpMethod, path, body });
+
     const user = await requireAuth(event);
 
     // GET /pets - Get all pets for current user or all if vet/admin
@@ -108,6 +119,8 @@ const handler: Handler = async (event: HandlerEvent) => {
     if (path === '' && event.httpMethod === 'POST') {
       const { name, species, breed, age, gender, color, microchipId, weight, ownerId } = body;
 
+      console.log('POST /pets - Received:', { name, species, breed, age, gender, color, microchipId, weight, ownerId });
+
       if (!name || !species) {
         throw new Error('Name and species are required');
       }
@@ -118,6 +131,8 @@ const handler: Handler = async (event: HandlerEvent) => {
         throw new Error('Owner ID is required');
       }
 
+      console.log('Inserting pet with ownerIdToUse:', ownerIdToUse);
+
       const result = await query(
         `INSERT INTO pets (name, species, breed, age, gender, color, microchip_id, weight, owner_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -125,7 +140,15 @@ const handler: Handler = async (event: HandlerEvent) => {
         [name, species, breed || null, age || null, gender || null, color || null, microchipId || null, weight || null, ownerIdToUse]
       );
 
+      console.log('Query result:', result);
+
+      if (!result.rows || result.rows.length === 0) {
+        throw new Error('Failed to create pet - no rows returned');
+      }
+
       const pet = result.rows[0];
+      console.log('Created pet:', pet);
+
       return successResponse({
         id: pet.id,
         name: pet.name,
