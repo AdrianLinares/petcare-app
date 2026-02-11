@@ -218,7 +218,7 @@ petcare-app/
 
 ## 📚 Documentation for Beginners
 
-**New to programming or React? We've got comprehensive guides for you!**
+**New to programming or React? I've got comprehensive guides for you!**
 
 ### 🎯 Start Here: 
 
@@ -249,11 +249,6 @@ petcare-app/
 - **[seed-database-fixed.sql](./seed-database-fixed.sql)** - Demo data
   - Test users, pets, appointments, and medical records
   - Run AFTER schema.sql is applied
-  
-- **[DATABASE_SCHEMA_VERIFICATION.md](./DATABASE_SCHEMA_VERIFICATION.md)** - Schema verification report
-  - Detailed schema check against Netlify Functions
-  - Column mappings and validations
-  - Troubleshooting guide
 
 ### ✨ What You'll Learn
 
