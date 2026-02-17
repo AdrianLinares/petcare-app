@@ -288,9 +288,15 @@ All major code files include detailed inline comments explaining:
 
 2. **Install dependencies**
    ```bash
+   # Option 1: Use the automated fix script (recommended if you encounter npm errors)
+   ./fix-dependencies.sh
+   
+   # Option 2: Standard installation
    npm run install:all
    # This installs dependencies for frontend and serverless functions
    ```
+   
+   > **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [DEPENDENCY_FIX.md](./DEPENDENCY_FIX.md) for details.
 
 3. **Configure environment variables**
    
