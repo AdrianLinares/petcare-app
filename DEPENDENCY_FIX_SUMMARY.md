@@ -72,10 +72,10 @@ npm run install:all
 ### Option 3: Per-Directory
 ```bash
 # Frontend only
-cd frontend && npm install --legacy-peer-deps && npm rebuild
+cd frontend && rm -rf node_modules package-lock.json && npm install --include=dev
 
 # Netlify Functions only
-cd netlify/functions && npm install && npm rebuild
+cd netlify/functions && rm -rf node_modules package-lock.json && npm install
 ```
 
 ---
@@ -110,8 +110,7 @@ cd netlify/functions && npm install && npm rebuild
 ### The Fix:
 - Removes problematic `node_modules` and lock files
 - Clears npm cache to force fresh download
-- Uses `--legacy-peer-deps` for peer dependency compatibility
-- Runs `npm rebuild` to regenerate all native bindings and symlinks
+- Uses npm-only install flow and regenerates `package-lock.json`
 
 ---
 

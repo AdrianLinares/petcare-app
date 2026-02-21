@@ -274,8 +274,8 @@ All major code files include detailed inline comments explaining:
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or pnpm
+- Node.js 20 LTS
+- npm 10+
 - Netlify CLI (optional for local development)
 
 ### Installation
@@ -311,7 +311,7 @@ All major code files include detailed inline comments explaining:
 4. **Start development server**
    ```bash
    npm run dev
-   # Runs Netlify Dev on http://localhost:8888
+  # Runs Netlify Dev via npx on http://localhost:8888
    ```
 
 5. **Open your browser**
@@ -328,22 +328,22 @@ All major code files include detailed inline comments explaining:
 
 1. **Install Netlify CLI**
    ```bash
-   npm install -g netlify-cli
+  npm install
    ```
 
 2. **Login to Netlify**
    ```bash
-   netlify login
+  npx netlify login
    ```
 
 3. **Initialize site**
    ```bash
-   netlify init
+  npx netlify init
    ```
 
 4. **Deploy**
    ```bash
-   netlify deploy --prod
+  npx netlify deploy --prod
    ```
 
 For detailed deployment instructions, see [NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md).

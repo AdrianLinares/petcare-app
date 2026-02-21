@@ -32,11 +32,10 @@ The PetCare project had the following dependency-related issues:
 
 ### 1. **Created Fix Script** (`fix-dependencies.sh`)
    - Automates clean installation process
-   - Removes problematic `node_modules` and `package-lock.json` files
+   - Removes problematic `node_modules` and lock files
    - Clears npm cache
-   - Runs `npm install --legacy-peer-deps` for compatibility
-   - Executes `npm rebuild` to regenerate binary links
-   - Supports both frontend and netlify functions separately
+   - Runs clean `npm install` and regenerates `package-lock.json`
+   - Supports frontend and netlify functions separately
 
 ### 2. **Installation Steps**
    ```bash
@@ -98,15 +97,13 @@ The `fix-dependencies.sh` script can be run anytime dependencies become corrupte
 For CI/CD or deployment, consider using:
 ```bash
 npm ci  # Uses exact versions from package-lock.json
-npm rebuild  # To ensure native bindings and symlinks
 ```
 
 ## Additional Notes
 
-- The project uses `--legacy-peer-deps` flag for compatibility with peer dependency versions
+- The project now uses npm-only lockfile installs to avoid package-manager drift
 - All dependencies are specified with caret ranges (^) allowing minor version updates
 - Optional dependencies (like platform-specific binaries) may fail to install but don't affect functionality
-- The `npm rebuild` step is critical for ensuring `.bin` symlinks are created properly
 
 ---
 

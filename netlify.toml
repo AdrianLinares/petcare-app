@@ -1,7 +1,7 @@
 [build]
   base = "."
   publish = "frontend/dist"
-  command = "cd frontend && npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install"
+  command = "cd frontend && (npm ci --include=dev || npm install --include=dev) && npm run build && cd ../netlify/functions && (npm ci || npm install)"
 
 [build.environment]
   NODE_VERSION = "20"

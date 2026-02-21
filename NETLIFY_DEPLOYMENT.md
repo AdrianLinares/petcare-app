@@ -6,7 +6,7 @@ This guide will help you deploy the PetCare application to Netlify using serverl
 
 - A Netlify account (sign up at https://netlify.com)
 - A PostgreSQL database (you can use services like Neon, Supabase, or Railway)
-- Netlify CLI installed globally: `npm install -g netlify-cli`
+- Node.js 20 LTS and npm 10+
 
 ## Local Development
 
@@ -93,7 +93,7 @@ psql "$DATABASE_URL" -f seed-database-fixed.sql
 
 ```bash
 # Start Netlify Dev (runs both frontend and serverless functions)
-netlify dev
+npm run dev
 ```
 
 This will start:
@@ -115,7 +115,7 @@ This will start:
 Netlify uses `netlify.toml` in the repo root. Verify these align:
 
 - **Base directory**: `.`
-- **Build command**: `cd frontend && npm install --legacy-peer-deps --include=dev && npm run build && cd ../netlify/functions && npm install`
+- **Build command**: `cd frontend && (npm ci --include=dev || npm install --include=dev) && npm run build && cd ../netlify/functions && (npm ci || npm install)`
 - **Publish directory**: `frontend/dist`
 - **Functions directory**: `netlify/functions`
 
@@ -131,6 +131,22 @@ FRONTEND_URL=<your_netlify_site_url>
 NODE_ENV=production
 ```
 
+Or set them from CLI:
+
+```bash
+npx netlify env:set DATABASE_URL "postgresql://user:password@host:port/database?sslmode=require"
+npx netlify env:set JWT_SECRET "replace_with_strong_random_secret"
+npx netlify env:set JWT_EXPIRES_IN "7d"
+npx netlify env:set FRONTEND_URL "https://your-site.netlify.app"
+npx netlify env:set NODE_ENV "production"
+```
+
+Frontend production vars (Vite) are documented in `frontend/.env.production.example`:
+
+```bash
+VITE_API_URL=/api
+```
+
 **Important Security Notes:**
 - Use a PostgreSQL database with SSL enabled in production
 - Generate a strong, random JWT_SECRET (at least 32 characters)
@@ -144,7 +160,7 @@ You can also deploy manually:
 
 ```bash
 # Build and deploy
-netlify deploy --prod
+npx netlify deploy --prod
 ```
 
 ### 5. Set Up Database on Production

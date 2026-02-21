@@ -1,30 +1,19 @@
 #!/bin/bash
 
-# PetCare App Dependency Fix Script
-# Uses pnpm for reliable dependency installation, falls back to npm
+# PetCare App Dependency Fix Script (npm-only)
 
 set -e
 
-echo "🔧 PetCare App - Dependency Installation Fix"
-echo "=============================================="
+echo "🔧 PetCare App - Clean npm reinstall"
+echo "===================================="
 echo ""
 
-# Check if pnpm is available, install if not
-if ! command -v pnpm &> /dev/null; then
-    echo "📦 Installing pnpm (recommended for better compatibility)..."
-    npm install -g pnpm@latest > /dev/null 2>&1
-    echo "✅ pnpm installed"
-    echo ""
+if ! command -v npm &> /dev/null; then
+    echo "❌ npm is not installed. Install Node.js 20 LTS first."
+    exit 1
 fi
 
-# Determine which package manager to use
-if command -v pnpm &> /dev/null; then
-    PM="pnpm"
-    echo "Using package manager: pnpm ✅"
-else
-    PM="npm"
-    echo "Using package manager: npm"
-fi
+echo "Using package manager: npm ✅"
 echo ""
 
 # Function to install dependencies for a directory
@@ -35,20 +24,16 @@ install_deps() {
     echo "📦 Installing dependencies for $name..."
     cd "$dir"
     
-    # Remove problematic directories
+    # Remove problematic directories/files
     rm -rf node_modules
-    if [ "$PM" = "pnpm" ]; then
-        rm -rf pnpm-lock.yaml
-    else
-        rm -rf package-lock.json
-    fi
+    rm -f package-lock.json
     
-    # Install dependencies
-    echo "   Running: $PM install"
-    if [ "$PM" = "pnpm" ]; then
-        pnpm install 2>&1 | tail -15
-    else
-        npm install --legacy-peer-deps 2>&1 | tail -15 || echo "   ⚠️  npm install returned non-zero (this is okay if packages are installed)"
+    echo "   Running: npm install"
+    npm install --include=dev --no-audit --no-fund
+    
+    # Lock deterministic state for subsequent installs
+    if [ -f package-lock.json ]; then
+        echo "   ✅ package-lock.json generated"
     fi
     
     # Verify key packages are installed
@@ -69,7 +54,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Install root dependencies (if any)
 echo "📦 Checking root dependencies..."
 cd "$ROOT_DIR"
-$PM install > /dev/null 2>&1 || true
+npm install --no-audit --no-fund > /dev/null 2>&1 || true
 echo "✅ Root dependencies checked"
 echo ""
 
@@ -83,6 +68,6 @@ echo "=============================================="
 echo "✅ All dependencies installed successfully!"
 echo ""
 echo "Next steps:"
-echo "1. Run: npm run dev          (to start development server)"
+echo "1. Run: npm run dev          (starts Netlify Dev via npx)"
 echo "2. Run: npm run build        (to build for production)"
 echo ""

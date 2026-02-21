@@ -67,14 +67,14 @@ Check that schema is correct:
 ```bash
 # Development
 npm run dev                    # Start Netlify Dev server
-netlify dev                    # Alternative command
+npx netlify dev                # Alternative command
 
 # Build
 npm run build                  # Build frontend for production
 
 # Deployment
-netlify deploy                 # Preview deployment
-netlify deploy --prod          # Production deployment
+npx netlify deploy             # Preview deployment
+npx netlify deploy --prod      # Production deployment
 ```
 
 ## Project Structure
@@ -106,7 +106,7 @@ frontend/              # React app
 
 **Functions not working?**
 - Run `npm run install:functions`
-- Check function logs: `netlify logs`
+- Check function logs: `npx netlify logs`
 - Verify environment variables are set in Netlify dashboard
 
 **Build fails?**
