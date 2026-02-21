@@ -352,7 +352,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           updates.push(`license_number = $${paramCount++}`);
           values.push(licenseNumber);
         }
-        if (accessLevel !== undefined) {
+        if (accessLevel !== undefined && String(accessLevel).trim() !== '') {
           updates.push(`access_level = $${paramCount++}`);
           values.push(accessLevel);
         }

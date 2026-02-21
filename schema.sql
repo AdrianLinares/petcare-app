@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(20),
     address TEXT,
     user_type VARCHAR(50) NOT NULL CHECK (user_type IN ('pet_owner', 'veterinarian', 'administrator')),
-    access_level VARCHAR(50) CHECK (access_level IN ('standard', 'elevated', 'super')),
+    access_level VARCHAR(50) CHECK (access_level IN ('standard', 'elevated', 'super_admin')),
     specialization VARCHAR(255),
     license_number VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

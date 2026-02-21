@@ -99,7 +99,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
         address: data.address,
         specialization: data.specialization,
         licenseNumber: data.licenseNumber,
-        accessLevel: data.accessLevel,
+        ...(data.userType === 'administrator' && data.accessLevel ? { accessLevel: data.accessLevel } : {}),
       });
 
       // Show success notification to admin
@@ -139,8 +139,8 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
         address: data.address,
         specialization: data.specialization,
         licenseNumber: data.licenseNumber,
-        accessLevel: data.accessLevel,
         userType: data.userType,
+        ...(data.userType === 'administrator' && data.accessLevel ? { accessLevel: data.accessLevel } : {}),
       });
 
       toast.success('User updated successfully!');
