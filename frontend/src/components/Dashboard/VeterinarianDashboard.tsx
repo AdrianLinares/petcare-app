@@ -41,6 +41,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Footer from '@/components/ui/footer';
 import { Calendar, Clock, Users, FileText, Bell, User as UserIcon, Edit, Save, X, Search, Filter, Trash2 } from 'lucide-react';
+import NotificationBell from '../Notification/NotificationBell';
 import { Appointment, User, Pet } from '../../types';
 import { appointmentAPI, petAPI } from '@/lib/api';
 import { toast } from 'sonner';
@@ -278,7 +279,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Bell className="h-6 w-6 text-gray-400 cursor-pointer hover:text-gray-600" />
+              <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
                 Sign Out
               </Button>

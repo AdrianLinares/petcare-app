@@ -37,6 +37,7 @@ import { Calendar, Clock, Plus, Heart, Bell, FileText, User as UserIcon } from '
 import PetManagement from '../Pet/PetManagement';
 import AppointmentScheduling from '../Appointment/AppointmentScheduling';
 import PetMedicalRecords from '../Medical/PetMedicalRecords';
+import NotificationBell from '../Notification/NotificationBell';
 import { Pet, Appointment, User } from '../../types';
 import { petAPI, appointmentAPI, vaccinationAPI } from '@/lib/api';
 import { toast } from 'sonner';
@@ -126,7 +127,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Bell className="h-6 w-6 text-gray-400 cursor-pointer hover:text-gray-600" />
+              <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
                 Sign Out
               </Button>

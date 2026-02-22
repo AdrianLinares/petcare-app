@@ -25,7 +25,7 @@ VALUES
   ('550e8400-e29b-41d4-a716-446655440002', 
    'vet@petcare.com', 
    '$2b$10$rBV2x9vNXz0yZ8kK3SeEd8cLF2JR5.H8b7mLEoQfxHOXEfk6e2', 
-   'Dr. Sarah Johnson', 
+   'Sarah Johnson', 
    '+1-555-0102', 
    '456 Vet Avenue, Boston, MA 02102', 
    'veterinarian',

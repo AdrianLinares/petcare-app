@@ -49,6 +49,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { query } from './utils/database';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
+import { sendWelcomeNotification, sendPasswordChanged } from './utils/notifications';
 
 const handler: Handler = async (event: HandlerEvent) => {
   // Log request for debugging (remove in production if too verbose)
@@ -115,12 +116,10 @@ const handler: Handler = async (event: HandlerEvent) => {
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' } as jwt.SignOptions
       );
 
-      // Create welcome notification
-      await query(
-        `INSERT INTO notifications (user_id, type, title, message, priority)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [user.id, 'welcome', 'Welcome to PetCare!', `Welcome ${fullName}! Your account has been created successfully.`, 'normal']
-      );
+      // Send welcome notification (async, non-blocking)
+      sendWelcomeNotification(user.id, fullName).catch(err => {
+        console.error('Failed to send welcome notification:', err);
+      });
 
       return successResponse({
         token,
@@ -273,12 +272,14 @@ const handler: Handler = async (event: HandlerEvent) => {
         [resetToken.id]
       );
 
-      // Create notification
-      await query(
-        `INSERT INTO notifications (user_id, type, title, message, priority)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [resetToken.user_id, 'password_changed', 'Password Changed', 'Your password has been successfully changed.', 'normal']
-      );
+      // Get user email for notification
+      const userResult = await query('SELECT email FROM users WHERE id = $1', [resetToken.user_id]);
+      const userEmail = userResult.rows[0]?.email || 'your account';
+
+      // Send password changed notification (async, non-blocking)
+      sendPasswordChanged(resetToken.user_id, userEmail).catch(err => {
+        console.error('Failed to send password changed notification:', err);
+      });
 
       return successResponse({ message: 'Password reset successful' });
     }
