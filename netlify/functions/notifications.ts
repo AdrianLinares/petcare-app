@@ -18,7 +18,7 @@
  * - type: Category (welcome, appointment, reminder, system, alert)
  * - title: Short headline (e.g., "Appointment Scheduled")
  * - message: Detailed message content
- * - priority: Importance level (low, normal, high, urgent)
+ * - priority: Importance level (low, normal, high)
  * - read: Whether user has seen it (boolean)
  * - createdAt: When notification was created
  * 
@@ -37,7 +37,7 @@
  * - low: General information, can be ignored
  * - normal: Standard notifications
  * - high: Important, should be addressed
- * - urgent: Critical, requires immediate action
+ * Note: The database schema currently supports low/normal/high.
  * 
  * Read Status:
  * - read = false: New, unread notification (shows badge/highlight)
@@ -51,10 +51,8 @@
  * Automatic Notifications:
  * System automatically creates notifications for:
  * - New user registration (welcome message)
- * - Appointment scheduled/cancelled/rescheduled
- * - Upcoming appointments (24 hours before)
- * - Overdue vaccinations
  * - Password changes
+ * Other notification types are created only when explicitly requested.
  * 
  * Future Enhancements:
  * - Email integration (send important notifications via email)

@@ -73,7 +73,8 @@ function getPusher(): Pusher | null {
  * @param type - Notification type
  * @param title - Notification title
  * @param message - Notification message
- * @param priority - Priority level (default: normal)
+ * @param priority - Priority level (default: normal). Supported: low/normal/high.
+ *   Note: "urgent" is reserved for future schema support.
  */
 export async function sendNotification(
     userId: string,

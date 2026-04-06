@@ -5,11 +5,9 @@
 PetCare now supports **real-time notifications** powered by [Pusher](https://pusher.com). Users receive instant notifications for:
 
 - Welcome messages on registration
-- Appointment reminders, cancellations, rescheduling
-- Vaccination due dates
-- Medical record updates
 - Password changes (security alerts)
-- System announcements
+
+Other notification types (appointments, vaccinations, medical updates, system alerts) are available via helpers but are not wired automatically yet.
 
 ## Architecture
 
@@ -185,7 +183,7 @@ await sendNotification(
   'custom_type',
   'Notification Title',
   'Notification message goes here',
-  'high' // priority: low, normal, high, urgent
+  'high' // priority: low, normal, high
 );
 ```
 
@@ -207,6 +205,8 @@ import NotificationBell from '@/components/Notification/NotificationBell';
 
 ## Notification Types
 
+Only `welcome` and `password_changed` are triggered automatically in the current build. Other types are available when you call the helper functions manually.
+
 | Type                      | Priority | Description                              |
 |---------------------------|----------|------------------------------------------|
 | `welcome`                 | normal   | New user registration                    |
@@ -216,8 +216,8 @@ import NotificationBell from '@/components/Notification/NotificationBell';
 | `vaccination_due`         | high     | Vaccination due or overdue               |
 | `medication_reminder`     | normal   | Medication administration reminder       |
 | `medical_update`          | normal   | Vet updated medical records              |
-| `password_changed`        | urgent   | Security alert for password change       |
-| `system_alert`            | varies   | System maintenance, feature announcements|
+| `password_changed`        | high     | Security alert for password change       |
+| `system_alert`            | low/normal/high | System maintenance, feature announcements|
 
 ## Database Schema
 
@@ -298,7 +298,7 @@ If you see `Cannot find module '@/hooks/use-pusher'`:
 
 ## Future Enhancements
 
-- [ ] Email notifications for high/urgent priority
+- [ ] Email notifications for high priority
 - [ ] Browser push notifications (Web Push API)
 - [ ] SMS notifications via Twilio
 - [ ] Notification preferences (user can mute certain types)

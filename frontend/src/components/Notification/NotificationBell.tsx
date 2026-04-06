@@ -13,7 +13,8 @@
  * - Mark all notifications as read
  * - Delete notifications
  * - Real-time updates via Pusher
- * - Priority-based styling (urgent, high, normal, low)
+ * - Priority-based styling (high, normal, low)
+ *   Note: "urgent" is reserved for future schema support.
  * 
  * Visual States:
  * - Badge hidden when count = 0

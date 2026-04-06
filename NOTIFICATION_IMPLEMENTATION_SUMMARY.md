@@ -24,6 +24,7 @@
 - ✅ Integrated automatic notifications:
   - Welcome notification on registration
   - Password change security alerts
+  - Note: Other notification types are available but not wired by default
 
 ### 2. Frontend Implementation
 - ✅ Installed Pusher client SDK (`pusher-js`)
@@ -32,7 +33,7 @@
   - Dropdown with recent notifications
   - Mark as read, delete, mark all as read actions
   - Real-time toast notifications on arrival
-  - Priority-based styling (urgent=red, high=orange, normal=blue, low=gray)
+  - Priority-based styling (high=orange, normal=blue, low=gray)
   - Relative timestamps ("5m ago", "2h ago")
 - ✅ Created `usePusher` hook (`frontend/src/hooks/use-pusher.ts`):
   - Manages Pusher connection lifecycle
@@ -64,14 +65,14 @@
 
 ## 📊 Files Created/Modified
 
-### Created (6 files):
+### Created (5 files):
 1. `frontend/src/components/Notification/NotificationBell.tsx` - NotificationBell UI component
 2. `frontend/src/hooks/use-pusher.ts` - Pusher connection hook
 3. `netlify/functions/utils/notifications.ts` - Notification helper functions
 4. `REALTIME_NOTIFICATIONS.md` - Complete setup and usage guide
 5. `NOTIFICATION_IMPLEMENTATION_SUMMARY.md` - This file
 
-### Modified (7 files):
+### Modified (8 files):
 1. `netlify/functions/notifications.ts` - Full CRUD implementation + Pusher broadcast
 2. `netlify/functions/auth.ts` - Integrated welcome and password change notifications
 3. `frontend/src/components/Dashboard/PetOwnerDashboard.tsx` - Added NotificationBell
@@ -101,8 +102,8 @@
 User registers
     ↓
 auth.ts calls sendWelcomeNotification(userId, userName)
-    ↓
-notifications.ts inserts into DB
+  ↓
+utils/notifications.ts inserts into DB
     ↓
 Pusher.trigger('user-{userId}', 'notification-created', notification)
     ↓
@@ -180,7 +181,7 @@ npx netlify deploy --prod
 - [ ] Browser console shows: "✅ Pusher connected"
 - [ ] Browser console shows: "✅ Successfully subscribed to user-{userId}"
 - [ ] Toast notification appears on notification arrival
-- [ ] Reset password → Password changed notification appears (urgent/red)
+- [ ] Reset password → Password changed notification appears (high priority)
 
 ## 🚀 Future Enhancements
 
@@ -198,7 +199,7 @@ Notification system is extensible. Easy to add:
    - Medication refill needed → notify owner
 
 3. **Email Integration:**
-   - High/urgent notifications → also send email
+  - High priority notifications → also send email
    - Daily digest of unread notifications
 
 4. **Push Notifications:**
