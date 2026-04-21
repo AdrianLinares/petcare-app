@@ -1,20 +1,23 @@
 {
-  "name": "petcare-app",
-  "version": "1.0.0",
-  "description": "PetCare Application - Serverless veterinary management system",
-  "private": true,
-  "engines": {
-    "node": ">=20 <21",
-    "npm": ">=10"
-  },
-  "scripts": {
-    "dev": "npx netlify dev",
-    "build": "cd frontend && npm run build",
-    "install:all": "npm install && cd frontend && (npm ci --include=dev || npm install --include=dev) && cd ../netlify/functions && (npm ci || npm install)",
-    "install:functions": "cd netlify/functions && (npm ci || npm install)",
-    "reinstall:clean": "./fix-dependencies.sh"
-  },
-  "devDependencies": {
-    "netlify-cli": "^17.38.1"
-  }
+    "name": "petcare-app",
+    "version": "1.0.0",
+    "description": "PetCare Application - Serverless veterinary management system",
+    "private": true,
+    "engines": {
+        "node": ">=20 <21",
+        "npm": ">=10"
+    },
+    "scripts": {
+        "dev": "npx netlify dev",
+        "build": "cd frontend && npm run build",
+        "test": "cd frontend && npm run test",
+        "test:run": "cd frontend && npm run test:run",
+        "test:coverage": "cd frontend && npm run test:coverage",
+        "install:all": "npm install && cd frontend && (npm ci --include=dev || npm install --include=dev) && cd ../netlify/functions && (npm ci || npm install)",
+        "install:functions": "cd netlify/functions && (npm ci || npm install)",
+        "reinstall:clean": "./fix-dependencies.sh"
+    },
+    "devDependencies": {
+        "netlify-cli": "^17.38.1"
+    }
 }
