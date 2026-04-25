@@ -18,6 +18,6 @@
         "reinstall:clean": "./fix-dependencies.sh"
     },
     "devDependencies": {
-        "netlify-cli": "^17.38.1"
+        "netlify-cli": "^23.14.0"
     }
 }
