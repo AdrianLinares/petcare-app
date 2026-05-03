@@ -1,10 +1,48 @@
+/**
+ * =============================================================================
+ * DATABASE UTILITIES - CONNECTION POOL MANAGEMENT
+ * =============================================================================
+ *
+ * BEGINNER EXPLANATION:
+ * This file manages database connections for our serverless functions.
+ * It creates a "connection pool" - a group of reusable database connections
+ * that multiple API requests can share.
+ *
+ * WHY A POOL INSTEAD OF NEW CONNECTIONS?
+ * - Creating new database connections is slow (takes ~100-500ms)
+ * - Serverless functions are short-lived (10-second timeout)
+ * - Pool reuses connections across requests, making queries faster
+ *
+ * WHY SINGLETON POOL?
+ * - Each serverless function instance gets one pool
+ * - Prevents multiple pools fighting for the same connections
+ * - Ensures efficient resource usage
+ *
+ * CONFIGURATION CHOICES:
+ * - max: 5 connections (Neon free tier limits concurrent connections)
+ * - idleTimeoutMillis: 30000ms (close unused connections after 30 seconds)
+ * - connectionTimeoutMillis: 10000ms (fail fast on connection issues)
+ *
+ * =============================================================================
+ */
+
 import pg from 'pg';
 
 const { Pool } = pg;
 
-// Singleton pool instance
+// Singleton pool instance - one per function instance
 let pool: pg.Pool | null = null;
 
+/**
+ * getPool - Returns the shared database connection pool
+ *
+ * WHY SINGLETON PATTERN?
+ * Serverless functions can be invoked multiple times rapidly.
+ * Without singleton, each invocation would create a new pool,
+ * leading to connection exhaustion and performance issues.
+ *
+ * @returns pg.Pool - The shared connection pool instance
+ */
 export const getPool = () => {
   if (!pool) {
     console.log('Initializing database connection pool...');
@@ -14,7 +52,7 @@ export const getPool = () => {
       ? {
         connectionString: process.env.DATABASE_URL,
         ssl: {
-          rejectUnauthorized: false,
+          rejectUnauthorized: false, // Required for Neon SSL connections
         },
       }
       : {
@@ -33,9 +71,9 @@ export const getPool = () => {
 
     pool = new Pool({
       ...poolConfig,
-      max: 5, // Reduced for serverless (Neon has connection limits)
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000, // Increased timeout for cold starts
+      max: 5, // WHY 5? Neon free tier allows max 5 concurrent connections
+      idleTimeoutMillis: 30000, // Close unused connections after 30 seconds to prevent leaks
+      connectionTimeoutMillis: 10000, // Fail fast (10s) instead of hanging - important for serverless 10s timeout
     });
 
     // Add error handler for pool
@@ -47,6 +85,18 @@ export const getPool = () => {
   return pool;
 };
 
+/**
+ * query - Execute a database query with automatic error handling
+ *
+ * WHY THIS HELPER FUNCTION?
+ * - Consistent error logging across all database operations
+ * - Automatic pool management (no need to manually get pool)
+ * - Centralized error handling for debugging
+ *
+ * @param text - SQL query string
+ * @param params - Query parameters (prevents SQL injection)
+ * @returns pg.QueryResult - Database query result
+ */
 export const query = async (text: string, params?: any[]) => {
   const pool = getPool();
   try {

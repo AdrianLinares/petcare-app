@@ -345,9 +345,13 @@ All major code files include detailed inline comments explaining:
 4. **Deploy**
    ```bash
   npx netlify deploy --prod
-   ```
+    ```
 
-For detailed deployment instructions, see [NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md).
+## Getting Started
+
+For complete installation and deployment instructions, see [docs/installation_and_deploy.md](./docs/installation_and_deploy.md).
+
+Learn how to read the codebase comments in [docs/CODE_COMMENTS_GUIDE.md](./docs/CODE_COMMENTS_GUIDE.md).
 
 ## 🔑 Demo Credentials
 
