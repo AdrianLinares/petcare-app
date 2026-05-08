@@ -223,18 +223,20 @@ petcare-app/
 
 ### 🎯 Start Here: 
 
-- **[BEGINNER_GUIDE.md](./BEGINNER_GUIDE.md)** - Step-by-step guide to understanding the codebase
+Note: Documentation moved to the docs/ directory — links below point there.
+
+- **[BEGINNER_GUIDE.md](./docs/BEGINNER_GUIDE.md)** - Step-by-step guide to understanding the codebase
   - Explains React, TypeScript, and all core concepts
   - Includes code examples and practice exercises
   - ~60 minutes reading time
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Overview of how the application is structured  
+-- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Overview of how the application is structured  
   - Big-picture view of the system
   - Technology explanations
   - Common patterns used throughout
   - ~30 minutes reading time
 
-- **[CODE_COMMENTS_GUIDE.md](./CODE_COMMENTS_GUIDE.md)** - How to read code comments
+-- **[CODE_COMMENTS_GUIDE.md](./docs/CODE_COMMENTS_GUIDE.md)** - How to read code comments
   - Explains comment types and styles
   - Navigation strategies
   - Tips for learning from comments
@@ -297,7 +299,7 @@ All major code files include detailed inline comments explaining:
    # This installs dependencies for frontend and serverless functions
    ```
    
-   > **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [DEPENDENCY_FIX.md](./DEPENDENCY_FIX.md) for details.
+> **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [DEPENDENCY_FIX.md](./docs/DEPENDENCY_FIX.md) for details.
 
 3. **Configure environment variables**
 
@@ -390,6 +392,18 @@ npm --prefix netlify/functions run typecheck || npm --prefix netlify/functions r
 For complete installation and deployment instructions, see [docs/installation_and_deploy.md](./docs/installation_and_deploy.md).
 
 Learn how to read the codebase comments in [docs/CODE_COMMENTS_GUIDE.md](./docs/CODE_COMMENTS_GUIDE.md).
+
+## Documentation links
+
+The full documentation set is in the docs/ folder. Relevant files:
+
+- [docs/BEGINNER_GUIDE.md](./docs/BEGINNER_GUIDE.md)
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- [docs/CODE_COMMENTS_GUIDE.md](./docs/CODE_COMMENTS_GUIDE.md)
+- [docs/installation_and_deploy.md](./docs/installation_and_deploy.md)
+- [docs/DEPENDENCY_FIX.md](./docs/DEPENDENCY_FIX.md)
+- [docs/QUICK_START_NETLIFY.md](./docs/QUICK_START_NETLIFY.md)
+- [docs/NETLIFY_DEPLOYMENT.md](./docs/NETLIFY_DEPLOYMENT.md)
 
 ## 🔑 Demo Credentials
 
@@ -613,7 +627,7 @@ The application includes comprehensive demo data for testing:
 ## 🔮 Future Enhancements
 
 ### **Planned Features**
-- ✅ ~~Real-time notifications with WebSockets~~ **COMPLETED** (see [REALTIME_NOTIFICATIONS.md](./REALTIME_NOTIFICATIONS.md))
+-- ✅ ~~Real-time notifications with WebSockets~~ **COMPLETED** (see [REALTIME_NOTIFICATIONS.md](./docs/REALTIME_NOTIFICATIONS.md))
 - Advanced reporting and analytics dashboards
 - Multi-clinic support with clinic management
 - External API integrations (labs, pharmacies)
@@ -630,7 +644,7 @@ The application includes comprehensive demo data for testing:
 - ✅ ~~Database integration (Neon PostgreSQL)~~ **COMPLETED**
 - ✅ ~~JWT authentication~~ **COMPLETED**
 - ✅ ~~Serverless API with Netlify~~ **COMPLETED**
-- ✅ ~~Real-time updates with Pusher WebSockets~~ **COMPLETED** (see [REALTIME_NOTIFICATIONS.md](./REALTIME_NOTIFICATIONS.md))
+-- ✅ ~~Real-time updates with Pusher WebSockets~~ **COMPLETED** (see [REALTIME_NOTIFICATIONS.md](./docs/REALTIME_NOTIFICATIONS.md))
 - ✅ ~~Advanced caching strategies (Edge Functions)~~ **COMPLETED** (Edge cache for `GET /api/*`)
 - Performance optimizations (lazy loading, code splitting)
 - Comprehensive test coverage (Jest, React Testing Library, Playwright)
@@ -648,6 +662,20 @@ The application includes comprehensive demo data for testing:
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+### Environment & secrets (IMPORTANT)
+
+Do NOT commit `.env` files or any secrets to the repository. If you accidentally staged a `.env` file, remove it from the index and rotate the secret immediately:
+
+```bash
+# Remove from git index but keep the file locally
+git rm --cached .env || true
+# Commit the removal
+git commit -m "chore: remove accidentally staged .env"
+# Rotate any secrets that may have been exposed
+```
+
+Ensure `.gitignore` contains entries for `.env`, `.env.local`, and `.env.*.local` (this repo includes them by default).
 
 ## 📄 License
 
