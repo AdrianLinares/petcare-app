@@ -300,20 +300,58 @@ All major code files include detailed inline comments explaining:
    > **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [DEPENDENCY_FIX.md](./DEPENDENCY_FIX.md) for details.
 
 3. **Configure environment variables**
-   
-  Copy the example file and adjust values for your environment:
-  ```bash
-  cp .env.example .env
-  ```
-   
-  The `.env.example` file documents the required variables.
-  Keep `.env.example` in sync whenever new variables are added.
+
+   This project uses multiple environment scopes:
+
+- Root (`.env`) — variables used by serverless functions and tools (DATABASE_URL, JWT_SECRET, etc.)
+- Netlify functions (`netlify/functions/.env`) — variables available to serverless functions at runtime when running locally with Netlify Dev
+- Frontend (`frontend/.env`) — client-side config for Vite (VITE_* variables)
+
+   Example files are provided. Copy the appropriate example to create your local `.env` files and DO NOT commit them.
+
+   ```bash
+   # Root env (server / functions)
+   cp .env.example .env
+
+   # Functions-specific env (local dev)
+   cp netlify/functions/.env.example netlify/functions/.env || true
+
+   # Frontend env (client-side Vite variables)
+   cp frontend/.env.example frontend/.env || true
+   ```
+
+Notes:
+- Never commit `.env` files. They are gitignored by default.
+- `frontend/.env` values starting with `VITE_` are safe to expose in client bundles if they contain non-sensitive values.
+- If you add a new environment variable to code, update the corresponding `.env.example` file immediately.
+
+If you want to check that `.env` is ignored:
+
+```bash
+grep -E "^\.env(\b|\.|$)" .gitignore || true
+```
 
 4. **Start development server**
    ```bash
    npm run dev
-  # Runs Netlify Dev via npx on http://localhost:8888
+   # Runs Netlify Dev via npx on http://localhost:8888 (functions available at /.netlify/functions/*)
    ```
+
+Quick verification (after installing deps and copying env files):
+
+```bash
+# Check node/npm versions
+node -v && npm -v
+
+# Run Netlify Dev
+npm run dev
+
+# (Optional) In a separate terminal: run frontend only
+npm --prefix frontend run dev
+
+# (Optional) Typecheck or build functions
+npm --prefix netlify/functions run typecheck || npm --prefix netlify/functions run build
+```
 
 5. **Open your browser**
    Navigate to `http://localhost:8888`
