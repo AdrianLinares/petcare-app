@@ -276,6 +276,27 @@ All major code files include detailed inline comments explaining:
 
 ## 🚀 Quick Start
 
+## Environment Setup
+
+1. **Use Node.js 20.x** (>=20 <21).
+2. **Run the setup script**:
+   ```bash
+   npm run setup
+   ```
+   If you want to run it directly, do this once:
+   ```bash
+   chmod +x setup.sh
+   ./setup.sh
+   ```
+3. **Configure DATABASE_URL** in `.env` (Neon or a local Postgres).
+4. **JWT_SECRET**: `setup.sh` auto-generates it if the placeholder is present.
+5. **Start dev**:
+   ```bash
+   npm run dev
+   ```
+
+### Prerequisites
+
 ### Prerequisites
 - Node.js 20 LTS
 - npm 10+
