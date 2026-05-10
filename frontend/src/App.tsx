@@ -45,6 +45,7 @@ import { User, AuthState } from './types';
 
 // Utility imports - Helper functions
 import { getResetTokenFromURL } from './utils/passwordRecovery';    // Gets password reset token from URL
+import { useTranslation } from 'react-i18next';                         // Internationalization
 import { toast } from 'sonner';                                      // Function to show popup messages
 import { authAPI, userAPI } from './lib/api';                        // Backend API service
 
@@ -54,6 +55,7 @@ import { authAPI, userAPI } from './lib/api';                        // Backend 
  * Think of it as the "main()" function in other programming languages.
  */
 const App = () => {
+  const { t } = useTranslation();
   
   // ==================== STATE VARIABLES ====================
   // State is data that can change and will cause the component to re-render
@@ -161,7 +163,7 @@ const App = () => {
   const handleLogout = () => {
     authAPI.logout();                          // Clear token and saved data
     setCurrentUser(null);                      // Clear state: no one is logged in
-    toast.success('Logged out successfully');  // Show goodbye message
+    toast.success(t('toast.loggedOut'));  // Show goodbye message
   };
 
   /**

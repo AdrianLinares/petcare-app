@@ -33,6 +33,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,7 +47,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Plus, Calendar as CalendarIcon, Clock, User as UserIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { Pet, Appointment, User } from '../../types';
-import { appointmentAPI, userAPI } from '@/lib/api';
+import { appointmentAPI, userAPI, translateApiError } from '@/lib/api';
 import { toast } from 'sonner';
 
 interface AppointmentSchedulingProps {
@@ -57,6 +58,8 @@ interface AppointmentSchedulingProps {
 }
 
 export default function AppointmentScheduling({ user, pets, appointments, setAppointments }: AppointmentSchedulingProps) {
+  const { t } = useTranslation();
+
   // STATE: Controls whether appointment dialog is open
   const [isScheduling, setIsScheduling] = useState(false);
 
@@ -137,13 +140,13 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     e.preventDefault();
 
     if (!selectedDate) {
-      toast.error('Please select a date');
+      toast.error(t('appointment.selectDateError'));
       return;
     }
 
     const pet = pets.find(p => p.id === formData.petId);
     if (!pet) {
-      toast.error('Please select a pet');
+      toast.error(t('appointment.selectPetError'));
       return;
     }
 
@@ -161,12 +164,12 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
 
       const newAppointment = await appointmentAPI.createAppointment(appointmentData);
       setAppointments([...appointments, newAppointment]);
-      toast.success('Appointment scheduled successfully!');
+      toast.success(t('appointment.scheduledSuccess'));
 
       setIsScheduling(false);
       resetForm();
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to schedule appointment';
+      const message = translateApiError(error, t, 'appointment.failedSchedule');
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -189,7 +192,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
    */
   const handleCancelAppointment = async (appointmentId: string) => {
     // Browser confirmation dialog (returns true if user clicks OK)
-    if (!confirm('Are you sure you want to cancel this appointment?')) {
+    if (!confirm(t('appointment.confirmCancel'))) {
       return;
     }
 
@@ -204,9 +207,9 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
       );
       setAppointments(updatedAppointments);
 
-      toast.success('Appointment cancelled successfully');
+      toast.success(t('appointment.cancelledSuccess'));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to cancel appointment';
+      const message = translateApiError(error, t, 'appointment.failedCancel');
       toast.error(message);
     }
   };
@@ -235,7 +238,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Appointments</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t('appointment.title')}</h2>
         <Dialog open={isScheduling} onOpenChange={(open) => {
           setIsScheduling(open);
           if (!open) {
@@ -245,28 +248,28 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
           <DialogTrigger asChild>
             <Button disabled={pets.length === 0}>
               <Plus className="h-4 w-4 mr-2" />
-              Schedule Appointment
+              {t('appointment.scheduleAppointment')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Schedule New Appointment</DialogTitle>
+              <DialogTitle>{t('appointment.newAppointment')}</DialogTitle>
               <DialogDescription>
-                Book an appointment for your pet with our veterinarians
+                {t('appointment.newAppointmentDesc')}
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="petId">Select Pet *</Label>
+                  <Label htmlFor="petId">{t('appointment.selectPet')}</Label>
                   <Select
                     value={formData.petId}
                     onValueChange={(value) => setFormData({ ...formData, petId: value })}
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose your pet" />
+                      <SelectValue placeholder={t('appointment.selectPetPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {pets.map((pet) => (
@@ -279,19 +282,19 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="veterinarian">Veterinarian *</Label>
+                  <Label htmlFor="veterinarian">{t('appointment.veterinarian')}</Label>
                   <Select
                     value={formData.veterinarianId}
                     onValueChange={(value) => setFormData({ ...formData, veterinarianId: value })}
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select veterinarian" />
+                      <SelectValue placeholder={t('appointment.selectVeterinarianPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {veterinarians.map((vet) => (
                         <SelectItem key={vet.id} value={vet.id}>
-                          Dr. {vet.fullName}
+                          {t('appointment.doctorPrefix', { name: vet.fullName })}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -301,7 +304,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Date *</Label>
+                  <Label>{t('appointment.date')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -309,7 +312,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                         className="w-full justify-start text-left font-normal"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                        {selectedDate ? format(selectedDate, 'PPP') : t('appointment.pickDate')}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -325,14 +328,14 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="time">Time *</Label>
+                  <Label htmlFor="time">{t('appointment.time')}</Label>
                   <Select
                     value={formData.time}
                     onValueChange={(value) => setFormData({ ...formData, time: value })}
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select time" />
+                      <SelectValue placeholder={t('appointment.selectTime')} />
                     </SelectTrigger>
                     <SelectContent>
                       {timeSlots.map((time) => (
@@ -346,19 +349,19 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="type">Appointment Type *</Label>
+                <Label htmlFor="type">{t('appointment.appointmentType')}</Label>
                 <Select
                   value={formData.type}
                   onValueChange={(value) => setFormData({ ...formData, type: value })}
                   required
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select appointment type" />
+                    <SelectValue placeholder={t('appointment.selectTypePlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {appointmentTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type}
+                        {t(`appointment.types.${type}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -366,34 +369,34 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="reason">Reason for Visit *</Label>
+                <Label htmlFor="reason">{t('appointment.reasonForVisit')}</Label>
                 <Textarea
                   id="reason"
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                   required
-                  placeholder="Brief description of the reason for this visit"
+                  placeholder={t('appointment.reasonPlaceholder')}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Additional Notes</Label>
+                <Label htmlFor="notes">{t('appointment.additionalNotes')}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Any additional information or special requests"
+                  placeholder={t('appointment.notesPlaceholder')}
                   rows={2}
                 />
               </div>
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsScheduling(false)} disabled={isLoading}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Scheduling...' : 'Schedule Appointment'}
+                  {isLoading ? t('appointment.scheduling') : t('appointment.scheduleAppointment')}
                 </Button>
               </div>
             </form>
@@ -405,8 +408,8 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
         <Card>
           <CardContent className="py-8 text-center">
             <UserIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No pets registered</h3>
-            <p className="text-gray-600">You need to add at least one pet before scheduling appointments.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('appointment.noPetsRegistered')}</h3>
+            <p className="text-gray-600">{t('appointment.noPetsDesc')}</p>
           </CardContent>
         </Card>
       )}
@@ -416,7 +419,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
         <CardHeader>
           <CardTitle className="flex items-center">
             <CalendarIcon className="h-5 w-5 mr-2" />
-            Upcoming Appointments
+            {t('appointment.upcomingAppointments')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -436,14 +439,14 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                       <p className="text-sm text-gray-600">
                         {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                       </p>
-                      <p className="text-sm text-gray-600">Dr. {appointment.veterinarian}</p>
+                      <p className="text-sm text-gray-600">{t('appointment.doctorPrefix', { name: appointment.veterinarian })}</p>
                       <p className="text-sm text-gray-500">{appointment.reason}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{appointment.type}</Badge>
+                    <Badge variant="outline">{t(`appointment.types.${appointment.type}`)}</Badge>
                     <Badge className={getStatusColor(appointment.status)}>
-                      {appointment.status}
+                      {t(`appointment.status.${appointment.status}`)}
                     </Badge>
                     <Button
                       size="sm"
@@ -457,7 +460,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No upcoming appointments</p>
+            <p className="text-gray-500 text-center py-8">{t('appointment.noUpcomingAppointments')}</p>
           )}
         </CardContent>
       </Card>
@@ -467,7 +470,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
         <CardHeader>
           <CardTitle className="flex items-center">
             <Clock className="h-5 w-5 mr-2" />
-            Past Appointments
+            {t('appointment.pastAppointments')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -487,21 +490,21 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                       <p className="text-sm text-gray-600">
                         {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                       </p>
-                      <p className="text-sm text-gray-600">Dr. {appointment.veterinarian}</p>
+                      <p className="text-sm text-gray-600">{t('appointment.doctorPrefix', { name: appointment.veterinarian })}</p>
                       <p className="text-sm text-gray-500">{appointment.reason}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{appointment.type}</Badge>
+                    <Badge variant="outline">{t(`appointment.types.${appointment.type}`)}</Badge>
                     <Badge className={getStatusColor(appointment.status)}>
-                      {appointment.status}
+                      {t(`appointment.status.${appointment.status}`)}
                     </Badge>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No past appointments</p>
+            <p className="text-gray-500 text-center py-8">{t('appointment.noPastAppointments')}</p>
           )}
         </CardContent>
       </Card>

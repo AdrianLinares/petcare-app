@@ -1441,4 +1441,81 @@ export const clinicalRecordAPI = {
  * 5. Follow the existing naming patterns (getById, create, update, delete)
  */
 
+/**
+ * ==================== API ERROR TRANSLATION ====================
+ */
+
+/**
+ * Maps known server error messages to i18next translation keys.
+ * Falls back to original message or generic error when no mapping exists.
+ *
+ * @param error - The error object from axios/API call
+ * @param t - i18next translation function
+ * @param fallbackKey - Optional fallback translation key (defaults to 'errors.generic')
+ * @returns Translated error string
+ */
+export function translateApiError(
+  error: unknown,
+  t: (key: string, options?: Record<string, unknown>) => string,
+  fallbackKey?: string
+): string {
+  const serverMessage: string | undefined =
+    (error as any)?.response?.data?.error ||
+    (error as any)?.response?.data?.message;
+
+  if (!serverMessage) {
+    return t(fallbackKey || "errors.generic");
+  }
+
+  const lower = serverMessage.toLowerCase();
+
+  // Auth-related errors
+  if (lower.includes("invalid email or password") || lower.includes("invalid credentials")) {
+    return t("api.invalidCredentials");
+  }
+  if (lower.includes("token expired") || lower.includes("token invalid")) {
+    return t("api.tokenExpired");
+  }
+  if (lower.includes("user already exists")) {
+    return t("api.userAlreadyExists");
+  }
+  if (lower.includes("email already registered") || lower.includes("email already exists")) {
+    return t("api.emailAlreadyRegistered");
+  }
+  if (lower.includes("not authorized") || lower.includes("unauthorized")) {
+    return t("api.notAuthorized");
+  }
+
+  // Not found errors
+  if (
+    lower.includes("not found") &&
+    (lower.includes("pet") ||
+      lower.includes("appointment") ||
+      lower.includes("user") ||
+      lower.includes("record"))
+  ) {
+    return t("api.notFound");
+  }
+
+  // Network errors
+  if (
+    lower.includes("network error") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("econnrefused")
+  ) {
+    return t("api.networkError");
+  }
+
+  // Server errors
+  if (
+    lower.includes("internal server error") ||
+    lower.includes("service unavailable")
+  ) {
+    return t("api.serverError");
+  }
+
+  // Return original message as-is (it might be a dynamic server message)
+  return serverMessage;
+}
+
 export default api;

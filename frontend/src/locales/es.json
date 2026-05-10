@@ -109,7 +109,8 @@
         "allMarkedRead": "Todas las notificaciones marcadas como leídas",
         "failedMarkAllRead": "Error al marcar todas como leídas",
         "notificationDeleted": "Notificación eliminada",
-        "failedDeleteNotification": "Error al eliminar notificación"
+        "failedDeleteNotification": "Error al eliminar notificación",
+        "loggedOut": "Sesión cerrada exitosamente"
     },
     "common": {
         "save": "Guardar",
@@ -259,6 +260,66 @@
         "failedLoadDashboard": "Error al cargar datos del panel. Por favor actualiza la página.",
         "vaccinesCount": "{{count}} Vacunas",
         "medsCount": "{{count}} Medicamentos"
+    },
+    "appointment": {
+        "title": "Citas",
+        "scheduleAppointment": "Agendar Cita",
+        "newAppointment": "Agendar Nueva Cita",
+        "newAppointmentDesc": "Reserva una cita para tu mascota con nuestros veterinarios",
+        "selectPet": "Seleccionar Mascota *",
+        "selectPetPlaceholder": "Elige tu mascota",
+        "veterinarian": "Veterinario/a *",
+        "selectVeterinarianPlaceholder": "Seleccionar veterinario/a",
+        "date": "Fecha *",
+        "pickDate": "Elige una fecha",
+        "time": "Horario *",
+        "selectTime": "Seleccionar horario",
+        "appointmentType": "Tipo de Cita *",
+        "selectTypePlaceholder": "Seleccionar tipo de cita",
+        "reasonForVisit": "Motivo de Consulta *",
+        "reasonPlaceholder": "Breve descripción del motivo de esta consulta",
+        "additionalNotes": "Notas Adicionales",
+        "notesPlaceholder": "Cualquier información adicional o solicitudes especiales",
+        "scheduling": "Agendando...",
+        "noPetsRegistered": "No hay mascotas registradas",
+        "noPetsDesc": "Necesitas agregar al menos una mascota antes de agendar citas.",
+        "upcomingAppointments": "Próximas Citas",
+        "pastAppointments": "Citas Anteriores",
+        "noUpcomingAppointments": "No hay citas próximas",
+        "noPastAppointments": "No hay citas anteriores",
+        "selectDateError": "Por favor selecciona una fecha",
+        "selectPetError": "Por favor selecciona una mascota",
+        "scheduledSuccess": "¡Cita agendada exitosamente!",
+        "failedSchedule": "Error al agendar cita",
+        "confirmCancel": "¿Estás seguro de que quieres cancelar esta cita?",
+        "cancelledSuccess": "Cita cancelada exitosamente",
+        "failedCancel": "Error al cancelar cita",
+        "doctorPrefix": "Dr./Dra. {{name}}",
+        "types": {
+            "Routine Checkup": "Revisión de Rutina",
+            "Vaccination": "Vacunación",
+            "Emergency": "Emergencia",
+            "Surgery": "Cirugía",
+            "Dental Care": "Cuidado Dental",
+            "Grooming": "Peluquería",
+            "Follow-up": "Seguimiento",
+            "Consultation": "Consulta"
+        },
+        "status": {
+            "scheduled": "Programada",
+            "completed": "Completada",
+            "cancelled": "Cancelada"
+        }
+    },
+    "api": {
+        "invalidCredentials": "Correo o contraseña inválidos",
+        "tokenExpired": "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
+        "userAlreadyExists": "Ya existe un usuario con este correo electrónico",
+        "emailAlreadyRegistered": "Este correo ya está registrado",
+        "notAuthorized": "No tienes permiso para realizar esta acción",
+        "notFound": "El recurso solicitado no fue encontrado",
+        "networkError": "Error de red. Por favor verifica tu conexión.",
+        "serverError": "Error del servidor. Por favor intenta más tarde."
     },
     "pets": {
         "title": "Mis Mascotas",
