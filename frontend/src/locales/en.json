@@ -9,5 +9,10 @@
     "common": {
         "save": "Save",
         "cancel": "Cancel"
+    },
+    "language": {
+        "label": "Change language",
+        "en": "English",
+        "es": "Spanish"
     }
 }

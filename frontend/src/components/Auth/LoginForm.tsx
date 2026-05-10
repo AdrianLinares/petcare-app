@@ -42,6 +42,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Footer from '@/components/ui/footer';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 import { authAPI } from '@/lib/api';
 import { toast } from 'sonner';
@@ -161,6 +162,9 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
+            <div className="flex justify-end">
+              <LanguageSwitcher />
+            </div>
             <div className="flex justify-center mb-4">
               <img
                 src="/petcare-logo.png"

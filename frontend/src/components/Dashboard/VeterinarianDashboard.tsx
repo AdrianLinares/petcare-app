@@ -42,6 +42,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import Footer from '@/components/ui/footer';
 import { Calendar, Clock, Users, FileText, Bell, User as UserIcon, Edit, Save, X, Search, Filter, Trash2 } from 'lucide-react';
 import NotificationBell from '../Notification/NotificationBell';
+import LanguageSwitcher from '../LanguageSwitcher';
 import { Appointment, User, Pet } from '../../types';
 import { appointmentAPI, petAPI } from '@/lib/api';
 import { toast } from 'sonner';
@@ -279,6 +280,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
                 Sign Out

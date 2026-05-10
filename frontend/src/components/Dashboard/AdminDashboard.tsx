@@ -37,6 +37,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import Footer from '@/components/ui/footer';
 import { Users, Calendar, FileText, TrendingUp, Bell, Search, Shield, Edit, Trash2, Eye, Filter, AlertTriangle, X } from 'lucide-react';
 import NotificationBell from '../Notification/NotificationBell';
+import LanguageSwitcher from '../LanguageSwitcher';
 import { Appointment, User, Pet } from '../../types';
 import UserManagementDialogs from '../Admin/UserManagementDialogs';
 import { userAPI, petAPI, appointmentAPI } from '@/lib/api';
@@ -248,6 +249,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
                 Sign Out

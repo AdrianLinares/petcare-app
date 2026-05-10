@@ -38,6 +38,7 @@ import PetManagement from '../Pet/PetManagement';
 import AppointmentScheduling from '../Appointment/AppointmentScheduling';
 import PetMedicalRecords from '../Medical/PetMedicalRecords';
 import NotificationBell from '../Notification/NotificationBell';
+import LanguageSwitcher from '../LanguageSwitcher';
 import { Pet, Appointment, User } from '../../types';
 import { petAPI, appointmentAPI, vaccinationAPI } from '@/lib/api';
 import { toast } from 'sonner';
@@ -127,6 +128,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
                 Sign Out
