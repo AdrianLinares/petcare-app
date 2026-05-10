@@ -28,6 +28,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +56,7 @@ interface VeterinarianDashboardProps {
 }
 
 export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDashboardProps) {
+  const { t } = useTranslation();
   // ============================================
   // STATE MANAGEMENT
   // ============================================
@@ -101,7 +103,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       setAppointments(vetAppointments);
     } catch (error: any) {
       console.error('Failed to load appointments:', error);
-      toast.error('Failed to load appointments');
+      toast.error(t('dashboard.failedLoadAppointments'));
     }
   };
 
@@ -111,7 +113,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       setAllPets(petsData);
     } catch (error: any) {
       console.error('Failed to load pets:', error);
-      toast.error('Failed to load pets');
+      toast.error(t('dashboard.failedLoadPets'));
     }
   };
 
@@ -141,30 +143,30 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     try {
       await appointmentAPI.updateAppointment(appointmentId, { status: 'completed' });
       await loadAppointments();
-      toast.success('Appointment marked as completed');
+      toast.success(t('dashboard.appointmentCompleted'));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to update appointment';
+      const message = error.response?.data?.error || t('dashboard.failedUpdateAppointment');
       toast.error(message);
     }
   };
 
   const handleCancelAppointment = async (appointmentId: string) => {
-    if (!confirm('Are you sure you want to cancel this appointment?')) {
+    if (!confirm(t('dashboard.confirmCancelAppointment'))) {
       return;
     }
 
     try {
       await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
       await loadAppointments();
-      toast.success('Appointment cancelled');
+      toast.success(t('dashboard.appointmentCancelled'));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to cancel appointment';
+      const message = error.response?.data?.error || t('dashboard.failedCancelAppointment');
       toast.error(message);
     }
   };
 
   const handleDeleteAppointment = async (appointmentId: string) => {
-    if (!confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+    if (!confirm(t('dashboard.confirmDeleteAppointment'))) {
       return;
     }
 
@@ -172,9 +174,9 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       // Note: Backend doesn't have delete endpoint, so we just mark as cancelled
       await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
       await loadAppointments();
-      toast.success('Appointment cancelled');
+      toast.success(t('dashboard.appointmentCancelled'));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to delete appointment';
+      const message = error.response?.data?.error || t('dashboard.failedDeleteAppointment');
       toast.error(message);
     }
   };
@@ -201,9 +203,9 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       });
       await loadAppointments();
       setEditingAppointment(null);
-      toast.success('Medical History Correctly Updated');
+      toast.success(t('dashboard.medicalHistoryUpdated'));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to update medical history';
+      const message = error.response?.data?.error || t('dashboard.failedUpdateMedicalHistory');
       toast.error(message);
     }
   };
@@ -230,9 +232,9 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       });
       await loadAppointments();
       setReschedulingAppointment(null);
-      toast.success('Appointment marked for rescheduling. Please create a new appointment with the desired date/time.');
+      toast.success(t('dashboard.rescheduleNote'));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to reschedule appointment';
+      const message = error.response?.data?.error || t('dashboard.failedReschedule');
       toast.error(message);
     }
   };
@@ -276,14 +278,14 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                 <h1 className="text-xl font-bold text-blue-600">PetCare</h1>
               </div>
               <div className="ml-4">
-                <h2 className="text-lg font-medium text-gray-900">Dr. {user.fullName}</h2>
+                <h2 className="text-lg font-medium text-gray-900">{t('dashboard.doctorPrefix', { name: user.fullName })}</h2>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
-                Sign Out
+                {t('dashboard.signOut')}
               </Button>
             </div>
           </div>
@@ -293,10 +295,10 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="today">Today's Schedule</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-            <TabsTrigger value="manage">Manage Appointments</TabsTrigger>
-            <TabsTrigger value="medical">Medical History</TabsTrigger>
+            <TabsTrigger value="today">{t('dashboard.todaySchedule')}</TabsTrigger>
+            <TabsTrigger value="upcoming">{t('dashboard.upcomingTab')}</TabsTrigger>
+            <TabsTrigger value="manage">{t('dashboard.manageAppointments')}</TabsTrigger>
+            <TabsTrigger value="medical">{t('dashboard.medicalHistory')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="today" className="space-y-6">
@@ -307,7 +309,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                   <div className="flex items-center">
                     <Calendar className="h-8 w-8 text-blue-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Today's Appointments</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.todayAppointments')}</p>
                       <p className="text-2xl font-bold text-gray-900">{todayAppointments.length}</p>
                     </div>
                   </div>
@@ -319,7 +321,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-green-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Completed Today</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.completedToday')}</p>
                       <p className="text-2xl font-bold text-gray-900">{completedToday}</p>
                     </div>
                   </div>
@@ -331,7 +333,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                   <div className="flex items-center">
                     <Clock className="h-8 w-8 text-yellow-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Pending</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.pending')}</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {todayAppointments.filter(apt => apt.status === 'scheduled').length}
                       </p>
@@ -345,7 +347,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                   <div className="flex items-center">
                     <Users className="h-8 w-8 text-purple-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Total Patients</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.totalPatients')}</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {new Set(appointments.map(apt => apt.petId)).size}
                       </p>
@@ -358,7 +360,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
             {/* Today's Schedule */}
             <Card>
               <CardHeader>
-                <CardTitle>Today's Schedule - {new Date().toLocaleDateString()}</CardTitle>
+                <CardTitle>{t('dashboard.todaySchedule')} - {new Date().toLocaleDateString()}</CardTitle>
               </CardHeader>
               <CardContent>
                 {todayAppointments.length > 0 ? (
@@ -388,7 +390,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                               size="sm"
                               onClick={() => handleCompleteAppointment(appointment.id)}
                             >
-                              Mark Complete
+                              {t('dashboard.markComplete')}
                             </Button>
                           )}
                         </div>
@@ -396,7 +398,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No appointments scheduled for today</p>
+                  <p className="text-gray-500 text-center py-8">{t('dashboard.noAppointmentsToday')}</p>
                 )}
               </CardContent>
             </Card>
@@ -405,7 +407,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
           <TabsContent value="upcoming" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Upcoming Appointments</CardTitle>
+                <CardTitle>{t('dashboard.upcomingAppointments')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {upcomingAppointments.length > 0 ? (
@@ -433,7 +435,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No upcoming appointments</p>
+                  <p className="text-gray-500 text-center py-8">{t('dashboard.noUpcomingAppointments')}</p>
                 )}
               </CardContent>
             </Card>
@@ -448,7 +450,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="Search by pet name, owner, or appointment type..."
+                        placeholder={t('dashboard.searchByPetOwnerType')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10"
@@ -459,13 +461,13 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
                       <SelectTrigger>
                         <Filter className="h-4 w-4 mr-2" />
-                        <SelectValue placeholder="Filter by status" />
+                        <SelectValue placeholder={t('dashboard.filterByStatus')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Appointments</SelectItem>
-                        <SelectItem value="scheduled">Scheduled</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                        <SelectItem value="all">{t('dashboard.allAppointmentsOption')}</SelectItem>
+                        <SelectItem value="scheduled">{t('dashboard.scheduled')}</SelectItem>
+                        <SelectItem value="completed">{t('dashboard.completed')}</SelectItem>
+                        <SelectItem value="cancelled">{t('dashboard.cancelled')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -476,7 +478,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
             {/* All Appointments Management */}
             <Card>
               <CardHeader>
-                <CardTitle>All Appointments</CardTitle>
+                <CardTitle>{t('dashboard.allAppointments')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {(() => {
@@ -529,13 +531,13 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                                   onClick={() => handleRescheduleAppointment(appointment)}
                                 >
                                   <Clock className="h-4 w-4 mr-1" />
-                                  Reschedule
+                                  {t('dashboard.reschedule')}
                                 </Button>
                                 <Button
                                   size="sm"
                                   onClick={() => handleCompleteAppointment(appointment.id)}
                                 >
-                                  Complete
+                                  {t('dashboard.complete')}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -553,7 +555,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                                 onClick={() => handleEditMedicalHistory(appointment)}
                               >
                                 <Edit className="h-4 w-4 mr-1" />
-                                Edit History
+                                {t('dashboard.editHistory')}
                               </Button>
                             )}
                             {(appointment.status === 'cancelled' || appointment.status === 'completed') && (
@@ -572,8 +574,8 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                   ) : (
                     <p className="text-gray-500 text-center py-8">
                       {searchTerm || statusFilter !== 'all'
-                        ? 'No appointments match your filters'
-                        : 'No appointments available'}
+                        ? t('dashboard.noAppointmentsMatch')
+                        : t('dashboard.noAppointmentsAvailable')}
                     </p>
                   );
                 })()}
@@ -589,7 +591,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                   onClick={() => setSelectedPet(null)}
                   className="mb-4"
                 >
-                  ← Back to Patient List
+                  {t('dashboard.backToPatientList')}
                 </Button>
                 <MedicalHistoryManagement
                   pet={selectedPet}
@@ -601,11 +603,11 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Patient Medical History</CardTitle>
+                    <CardTitle>{t('dashboard.patientMedicalHistory')}</CardTitle>
                     <div className="flex items-center space-x-2">
                       <Search className="h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="Search patients..."
+                        placeholder={t('dashboard.searchPatients')}
                         value={petSearchTerm}
                         onChange={(e) => setPetSearchTerm(e.target.value)}
                         className="w-64"
@@ -635,19 +637,19 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                                 <h3 className="font-bold text-lg">{pet.name}</h3>
                                 <Badge variant="secondary">{pet.species}</Badge>
                               </div>
-                              <p className="text-sm text-gray-600">Breed: {pet.breed}</p>
-                              <p className="text-sm text-gray-600">Age: {pet.age} years</p>
-                              <p className="text-sm text-gray-600">Weight: {pet.weight} kg</p>
-                              <p className="text-xs text-gray-500 mt-2">Owner: {pet.ownerId}</p>
+                              <p className="text-sm text-gray-600">{t('dashboard.breed')}: {pet.breed}</p>
+                              <p className="text-sm text-gray-600">{t('dashboard.age')}: {pet.age} years</p>
+                              <p className="text-sm text-gray-600">{t('dashboard.weight')}: {pet.weight} kg</p>
+                              <p className="text-xs text-gray-500 mt-2">{t('dashboard.owner')}: {pet.ownerId}</p>
                               <div className="mt-3 flex gap-2">
                                 {pet.medicalHistory && pet.medicalHistory.length > 0 && (
                                   <Badge variant="outline" className="text-xs">
-                                    {pet.medicalHistory.length} Records
+                                    {t('dashboard.recordsCount', { count: pet.medicalHistory.length })}
                                   </Badge>
                                 )}
                                 {pet.allergies && pet.allergies.length > 0 && (
                                   <Badge variant="destructive" className="text-xs">
-                                    {pet.allergies.length} Allergies
+                                    {t('dashboard.allergiesCount', { count: pet.allergies.length })}
                                   </Badge>
                                 )}
                               </div>
@@ -657,7 +659,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                       </div>
                     ) : (
                       <p className="text-center text-gray-500 py-8">
-                        {petSearchTerm ? 'No patients match your search' : 'No patients available'}
+                        {petSearchTerm ? t('dashboard.noPatientsMatch') : t('dashboard.noPatientsAvailable')}
                       </p>
                     );
                   })()}
@@ -672,12 +674,12 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       <Dialog open={!!reschedulingAppointment} onOpenChange={(open) => !open && handleCancelReschedule()}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Reschedule Appointment</DialogTitle>
+            <DialogTitle>{t('dashboard.rescheduleTitle')}</DialogTitle>
             <DialogDescription>
               {reschedulingAppointment && (
                 <>
-                  Patient: <strong>{reschedulingAppointment.petName}</strong> -
-                  Type: <strong>{reschedulingAppointment.type}</strong>
+                  {t('dashboard.patient')}: <strong>{reschedulingAppointment.petName}</strong> -
+                  {t('dashboard.type')}: <strong>{reschedulingAppointment.type}</strong>
                 </>
               )}
             </DialogDescription>
@@ -686,7 +688,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
           {reschedulingAppointment && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>New Date</Label>
+                <Label>{t('dashboard.newDate')}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -710,13 +712,13 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="reschedule-time">New Time</Label>
+                <Label htmlFor="reschedule-time">{t('dashboard.newTime')}</Label>
                 <Select
                   value={rescheduleForm.time}
                   onValueChange={(value) => setRescheduleForm({ ...rescheduleForm, time: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select time" />
+                    <SelectValue placeholder={t('dashboard.selectTime')} />
                   </SelectTrigger>
                   <SelectContent>
                     {['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'].map((time) => (
@@ -730,11 +732,11 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
 
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={handleCancelReschedule}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button onClick={handleSaveReschedule}>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+                  {t('dashboard.saveChanges')}
                 </Button>
               </div>
             </div>
@@ -746,12 +748,12 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
       <Dialog open={!!editingAppointment} onOpenChange={(open) => !open && handleCancelEdit()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Medical History</DialogTitle>
+            <DialogTitle>{t('dashboard.editMedicalHistoryTitle')}</DialogTitle>
             <DialogDescription>
               {editingAppointment && (
                 <>
-                  Patient: <strong>{editingAppointment.petName}</strong> -
-                  Date: <strong>{new Date(editingAppointment.date).toLocaleDateString()}</strong>
+                  {t('dashboard.patient')}: <strong>{editingAppointment.petName}</strong> -
+                  {t('dashboard.appointmentDate')}: <strong>{new Date(editingAppointment.date).toLocaleDateString()}</strong>
                 </>
               )}
             </DialogDescription>
@@ -761,55 +763,55 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Type of Appointment</Label>
+                  <Label>{t('dashboard.typeOfAppointment')}</Label>
                   <Input value={editingAppointment.type} disabled />
                 </div>
                 <div className="space-y-2">
-                  <Label>Reason for Visit</Label>
+                  <Label>{t('dashboard.reasonForVisit')}</Label>
                   <Input value={editingAppointment.reason || ''} disabled />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="diagnosis">Diagnosis</Label>
+                <Label htmlFor="diagnosis">{t('dashboard.diagnosis')}</Label>
                 <Textarea
                   id="diagnosis"
                   value={medicalForm.diagnosis}
                   onChange={(e) => setMedicalForm({ ...medicalForm, diagnosis: e.target.value })}
-                  placeholder="Ingrese el diagnóstico del paciente"
+                  placeholder={t('dashboard.diagnosisPlaceholder')}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="treatment">Treatment</Label>
+                <Label htmlFor="treatment">{t('dashboard.treatment')}</Label>
                 <Textarea
                   id="treatment"
                   value={medicalForm.treatment}
                   onChange={(e) => setMedicalForm({ ...medicalForm, treatment: e.target.value })}
-                  placeholder="Describa el tratamiento aplicado o recomendado"
+                  placeholder={t('dashboard.treatmentPlaceholder')}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Additional Notes</Label>
+                <Label htmlFor="notes">{t('dashboard.additionalNotes')}</Label>
                 <Textarea
                   id="notes"
                   value={medicalForm.notes}
                   onChange={(e) => setMedicalForm({ ...medicalForm, notes: e.target.value })}
-                  placeholder="Observaciones, recomendaciones o notas importantes"
+                  placeholder={t('dashboard.notesPlaceholder')}
                   rows={2}
                 />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={handleCancelEdit}>
                   <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button onClick={handleSaveMedicalHistory}>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Medical History
+                  {t('dashboard.saveMedicalHistory')}
                 </Button>
               </div>
             </div>

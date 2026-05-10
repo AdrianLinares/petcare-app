@@ -26,6 +26,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +51,7 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
+  const { t } = useTranslation();
   // ============================================
   // STATE MANAGEMENT
   // ============================================
@@ -110,7 +112,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       setAllPets(pets);
     } catch (error: any) {
       console.error('Failed to load admin dashboard data:', error);
-      toast.error('Failed to load dashboard data. Please refresh the page.');
+      toast.error(t('dashboard.failedLoadDashboard'));
     } finally {
       // Always turn off loading, even if there was an error
       setIsLoading(false);
@@ -155,11 +157,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       // Reload data
       await loadData();
 
-      toast.success('Appointment cancelled successfully');
+      toast.success(t('dashboard.appointmentCancelledSuccess'));
       setDeleteDialogOpen(false);
       setSelectedAppointment(null);
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Error deleting appointment';
+      const message = error.response?.data?.error || t('dashboard.errorDeletingAppointment');
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -173,9 +175,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       // Reload data
       await loadData();
 
-      toast.success(`Appointment status updated to ${newStatus}`);
+      toast.success(t('dashboard.appointmentStatusUpdated', { status: newStatus }));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Error updating appointment status';
+      const message = error.response?.data?.error || t('dashboard.errorUpdatingStatus');
       toast.error(message);
     }
   };
@@ -242,17 +244,17 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   className="h-8 w-auto mr-3"
                 />
                 <Shield className="h-8 w-8 text-red-600 mr-2" />
-                <h1 className="text-xl font-bold text-red-600">PetCare Admin</h1>
+                <h1 className="text-xl font-bold text-red-600">{t('dashboard.adminTitle')}</h1>
               </div>
               <div className="ml-4">
-                <h2 className="text-lg font-medium text-gray-900">Administrator: {user.fullName}</h2>
+                <h2 className="text-lg font-medium text-gray-900">{t('dashboard.administrator')}: {user.fullName}</h2>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
-                Sign Out
+                {t('dashboard.signOut')}
               </Button>
             </div>
           </div>
@@ -262,11 +264,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="appointments">Appointments</TabsTrigger>
-            <TabsTrigger value="medical">Medical History</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
+            <TabsTrigger value="overview">{t('dashboard.overview')}</TabsTrigger>
+            <TabsTrigger value="users">{t('dashboard.userManagement')}</TabsTrigger>
+            <TabsTrigger value="appointments">{t('dashboard.appointments')}</TabsTrigger>
+            <TabsTrigger value="medical">{t('dashboard.medicalHistory')}</TabsTrigger>
+            <TabsTrigger value="reports">{t('dashboard.reports')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -277,7 +279,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   <div className="flex items-center">
                     <Users className="h-8 w-8 text-blue-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Total Users</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.totalUsers')}</p>
                       <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
                     </div>
                   </div>
@@ -289,7 +291,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   <div className="flex items-center">
                     <Calendar className="h-8 w-8 text-green-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Total Appointments</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.totalAppointments')}</p>
                       <p className="text-2xl font-bold text-gray-900">{totalAppointments}</p>
                     </div>
                   </div>
@@ -301,7 +303,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-purple-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Completed</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.completed')}</p>
                       <p className="text-2xl font-bold text-gray-900">{completedAppointments}</p>
                     </div>
                   </div>
@@ -313,7 +315,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   <div className="flex items-center">
                     <TrendingUp className="h-8 w-8 text-yellow-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Today</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.today')}</p>
                       <p className="text-2xl font-bold text-gray-900">{todayAppointments}</p>
                     </div>
                   </div>
@@ -325,12 +327,12 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>User Distribution</CardTitle>
+                  <CardTitle>{t('dashboard.userDistribution')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Pet Owners</span>
+                      <span className="text-sm font-medium">{t('dashboard.petOwners')}</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
                           <div
@@ -342,7 +344,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Veterinarians</span>
+                      <span className="text-sm font-medium">{t('dashboard.veterinarians')}</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
                           <div
@@ -359,12 +361,12 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Appointment Statistics</CardTitle>
+                  <CardTitle>{t('dashboard.appointmentStatistics')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Completed</span>
+                      <span className="text-sm font-medium">{t('dashboard.completed')}</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
                           <div
@@ -376,7 +378,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Cancelled</span>
+                      <span className="text-sm font-medium">{t('dashboard.cancelled')}</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-32 bg-gray-200 rounded-full h-2">
                           <div
@@ -395,7 +397,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             {/* Recent Activity */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Appointments</CardTitle>
+                <CardTitle>{t('dashboard.recentAppointments')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {recentAppointments.length > 0 ? (
@@ -424,7 +426,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No recent appointments</p>
+                  <p className="text-gray-500 text-center py-8">{t('dashboard.noRecentAppointments')}</p>
                 )}
               </CardContent>
             </Card>
@@ -434,11 +436,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>User Management</CardTitle>
+                  <CardTitle>{t('dashboard.userManagement')}</CardTitle>
                   <div className="flex items-center space-x-2">
                     <Search className="h-4 w-4 text-gray-400" />
                     <Input
-                      placeholder="Search users..."
+                      placeholder={t('dashboard.searchUsers')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-64"
@@ -453,7 +455,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   currentUser={user}
                 />
                 {filteredUsers.length === 0 && (
-                  <p className="text-gray-500 text-center py-8">No users found</p>
+                  <p className="text-gray-500 text-center py-8">{t('dashboard.noUsersFound')}</p>
                 )}
               </CardContent>
             </Card>
@@ -463,12 +465,12 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>Medical Appointments Management</CardTitle>
+                  <CardTitle>{t('dashboard.medicalAppointmentsManagement')}</CardTitle>
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
                       <Search className="h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="Search appointments..."
+                        placeholder={t('dashboard.searchAppointments')}
                         value={appointmentSearchTerm}
                         onChange={(e) => setAppointmentSearchTerm(e.target.value)}
                         className="w-64"
@@ -478,13 +480,13 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                       <Filter className="h-4 w-4 text-gray-400" />
                       <Select value={statusFilter} onValueChange={setStatusFilter}>
                         <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Filter by status" />
+                          <SelectValue placeholder={t('dashboard.filterByStatus')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="scheduled">Scheduled</SelectItem>
-                          <SelectItem value="completed">Completed</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                          <SelectItem value="all">{t('dashboard.allStatusFilter')}</SelectItem>
+                          <SelectItem value="scheduled">{t('dashboard.scheduled')}</SelectItem>
+                          <SelectItem value="completed">{t('dashboard.completed')}</SelectItem>
+                          <SelectItem value="cancelled">{t('dashboard.cancelled')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -493,7 +495,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
               </CardHeader>
               <CardContent>
                 <div className="mb-4 text-sm text-gray-600">
-                  Showing {filteredAppointments.length} of {allAppointments.length} appointments
+                  {t('dashboard.showingAppointments', { filtered: filteredAppointments.length, total: allAppointments.length })}
                 </div>
                 {filteredAppointments.length > 0 ? (
                   <div className="space-y-4">
@@ -515,7 +517,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                               </p>
                               <p className="text-sm text-gray-600">Dr. {appointment.veterinarian}</p>
                               <p className="text-sm text-gray-500">{appointment.type}</p>
-                              <p className="text-xs text-gray-400">Owner: {appointment.ownerId}</p>
+                              <p className="text-xs text-gray-400">{t('dashboard.owner')}: {appointment.ownerId}</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -570,11 +572,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                 ) : (
                   <div className="text-center py-12">
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No appointments found</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t('dashboard.noAppointmentsFound')}</h3>
                     <p className="text-gray-600">
                       {appointmentSearchTerm || statusFilter !== 'all'
-                        ? 'Try adjusting your search or filter criteria'
-                        : 'No medical appointments have been scheduled yet'}
+                        ? t('dashboard.tryAdjustingFilters')
+                        : t('dashboard.noAppointmentsScheduled')}
                     </p>
                   </div>
                 )}
@@ -590,7 +592,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   onClick={() => setSelectedPet(null)}
                   className="mb-4"
                 >
-                  ← Back to Pet List
+                  {t('dashboard.backToPetList')}
                 </Button>
                 <MedicalHistoryManagement
                   pet={selectedPet}
@@ -602,11 +604,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Pet Medical History Management</CardTitle>
+                    <CardTitle>{t('dashboard.petMedicalHistoryManagement')}</CardTitle>
                     <div className="flex items-center space-x-2">
                       <Search className="h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="Search pets by name, species, or owner..."
+                        placeholder={t('dashboard.searchPetsBy')}
                         value={petSearchTerm}
                         onChange={(e) => setPetSearchTerm(e.target.value)}
                         className="w-64"
@@ -626,7 +628,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                     return filteredPets.length > 0 ? (
                       <div>
                         <div className="mb-4 text-sm text-gray-600">
-                          Showing {filteredPets.length} of {allPets.length} pets
+                          {t('dashboard.showingPets', { filtered: filteredPets.length, total: allPets.length })}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {filteredPets.map((pet) => (
@@ -640,31 +642,31 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                                   <h3 className="font-bold text-lg">{pet.name}</h3>
                                   <Badge variant="secondary">{pet.species}</Badge>
                                 </div>
-                                <p className="text-sm text-gray-600">Breed: {pet.breed}</p>
-                                <p className="text-sm text-gray-600">Age: {pet.age} years</p>
-                                <p className="text-sm text-gray-600">Weight: {pet.weight} kg</p>
-                                <p className="text-xs text-gray-500 mt-2">Owner: {pet.ownerId}</p>
+                                <p className="text-sm text-gray-600">{t('dashboard.breed')}: {pet.breed}</p>
+                                <p className="text-sm text-gray-600">{t('dashboard.age')}: {pet.age} years</p>
+                                <p className="text-sm text-gray-600">{t('dashboard.weight')}: {pet.weight} kg</p>
+                                <p className="text-xs text-gray-500 mt-2">{t('dashboard.owner')}: {pet.ownerId}</p>
                                 <div className="mt-3 flex gap-2 flex-wrap">
                                   {pet.medicalHistory && pet.medicalHistory.length > 0 && (
                                     <Badge variant="outline" className="text-xs">
                                       <FileText className="h-3 w-3 mr-1" />
-                                      {pet.medicalHistory.length} Records
+                                      {t('dashboard.recordsCount', { count: pet.medicalHistory.length })}
                                     </Badge>
                                   )}
                                   {pet.vaccinations && pet.vaccinations.length > 0 && (
                                     <Badge variant="outline" className="text-xs">
-                                      {pet.vaccinations.length} Vaccines
+                                      {t('dashboard.vaccinesCount', { count: pet.vaccinations.length })}
                                     </Badge>
                                   )}
                                   {pet.medications && pet.medications.length > 0 && (
                                     <Badge variant="outline" className="text-xs">
-                                      {pet.medications.length} Meds
+                                      {t('dashboard.medsCount', { count: pet.medications.length })}
                                     </Badge>
                                   )}
                                   {pet.allergies && pet.allergies.length > 0 && (
                                     <Badge variant="destructive" className="text-xs">
                                       <AlertTriangle className="h-3 w-3 mr-1" />
-                                      {pet.allergies.length} Allergies
+                                      {t('dashboard.allergiesCount', { count: pet.allergies.length })}
                                     </Badge>
                                   )}
                                 </div>
@@ -676,11 +678,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                     ) : (
                       <div className="text-center py-12">
                         <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No pets found</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t('dashboard.noPetsFound')}</h3>
                         <p className="text-gray-600">
                           {petSearchTerm
-                            ? 'Try adjusting your search criteria'
-                            : 'No pets have been registered yet'}
+                            ? t('dashboard.tryAdjustingSearch')
+                            : t('dashboard.noPetsRegistered')}
                         </p>
                       </div>
                     );
@@ -694,32 +696,32 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>System Summary</CardTitle>
+                  <CardTitle>{t('dashboard.systemSummary')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span>Total Users:</span>
+                      <span>{t('dashboard.totalUsersLabel')}</span>
                       <span className="font-bold">{totalUsers}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Pet Owners:</span>
+                      <span>{t('dashboard.petOwnersLabel')}</span>
                       <span className="font-bold">{petOwners}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Veterinarians:</span>
+                      <span>{t('dashboard.veterinariansLabel')}</span>
                       <span className="font-bold">{veterinarians}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Total Appointments:</span>
+                      <span>{t('dashboard.totalAppointmentsLabel')}</span>
                       <span className="font-bold">{totalAppointments}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Completed Appointments:</span>
+                      <span>{t('dashboard.completedAppointmentsLabel')}</span>
                       <span className="font-bold text-green-600">{completedAppointments}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Cancelled Appointments:</span>
+                      <span>{t('dashboard.cancelledAppointmentsLabel')}</span>
                       <span className="font-bold text-red-600">{cancelledAppointments}</span>
                     </div>
                   </div>
@@ -728,28 +730,28 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Performance Metrics</CardTitle>
+                  <CardTitle>{t('dashboard.performanceMetrics')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span>Completion Rate:</span>
+                      <span>{t('dashboard.completionRate')}:</span>
                       <span className="font-bold">
                         {totalAppointments > 0 ? Math.round((completedAppointments / totalAppointments) * 100) : 0}%
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Cancellation Rate:</span>
+                      <span>{t('dashboard.cancellationRate')}:</span>
                       <span className="font-bold">
                         {totalAppointments > 0 ? Math.round((cancelledAppointments / totalAppointments) * 100) : 0}%
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Today's Appointments:</span>
+                      <span>{t('dashboard.todaysAppointments')}:</span>
                       <span className="font-bold">{todayAppointments}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Average Pets per Owner:</span>
+                      <span>{t('dashboard.averagePetsPerOwner')}:</span>
                       <span className="font-bold">
                         {petOwners > 0 ? Math.round((Object.keys(localStorage).filter(key => key.startsWith('pets_')).length / petOwners) * 10) / 10 : 0}
                       </span>
@@ -766,9 +768,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Appointment Details</DialogTitle>
+            <DialogTitle>{t('dashboard.appointmentDetails')}</DialogTitle>
             <DialogDescription>
-              Complete information about the medical appointment
+              {t('dashboard.completeAppointmentInfo')}
             </DialogDescription>
           </DialogHeader>
 
@@ -776,11 +778,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Patient</h4>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.patient')}</h4>
                   <p className="font-medium">{selectedAppointment.petName}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Owner</h4>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.owner')}</h4>
                   <p>{selectedAppointment.ownerId}</p>
                 </div>
               </div>
@@ -791,14 +793,13 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   <p>{new Date(selectedAppointment.date).toLocaleDateString()} at {selectedAppointment.time}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Veterinarian</h4>
-                  <p>Dr. {selectedAppointment.veterinarian}</p>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.doctorPrefix', { name: selectedAppointment.veterinarian })}</h4>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Type</h4>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.type')}</h4>
                   <p>{selectedAppointment.type}</p>
                 </div>
                 <div>
@@ -811,34 +812,34 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
               {selectedAppointment.reason && (
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Reason for Visit</h4>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.reasonForVisit')}</h4>
                   <p className="text-sm bg-gray-50 p-3 rounded">{selectedAppointment.reason}</p>
                 </div>
               )}
 
               {selectedAppointment.diagnosis && (
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Diagnosis</h4>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.diagnosis')}</h4>
                   <p className="text-sm bg-green-50 p-3 rounded">{selectedAppointment.diagnosis}</p>
                 </div>
               )}
 
               {selectedAppointment.treatment && (
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Treatment</h4>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.treatment')}</h4>
                   <p className="text-sm bg-blue-50 p-3 rounded">{selectedAppointment.treatment}</p>
                 </div>
               )}
 
               {selectedAppointment.notes && (
                 <div>
-                  <h4 className="font-semibold text-sm text-gray-600">Additional Notes</h4>
+                  <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.additionalNotes')}</h4>
                   <p className="text-sm bg-gray-50 p-3 rounded">{selectedAppointment.notes}</p>
                 </div>
               )}
 
               <div className="text-xs text-gray-500 pt-4 border-t">
-                Created: {new Date(selectedAppointment.createdAt).toLocaleString()}
+                {t('dashboard.appointmentDate')}: {new Date(selectedAppointment.createdAt).toLocaleString()}
               </div>
             </div>
           )}
@@ -851,10 +852,10 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center space-x-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              <span>Delete Appointment</span>
+              <span>{t('dashboard.deleteAppointment')}</span>
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this appointment? This action cannot be undone.
+              {t('dashboard.confirmDeleteAppointmentDesc')}
               {selectedAppointment && (
                 <div className="mt-3 p-3 bg-gray-50 rounded-md">
                   <p className="font-medium">{selectedAppointment.petName}</p>
@@ -868,13 +869,13 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteAppointment}
               disabled={isLoading}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isLoading ? 'Deleting...' : 'Delete Appointment'}
+              {isLoading ? t('dashboard.deleting') : t('dashboard.deleteAppointmentBtn')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

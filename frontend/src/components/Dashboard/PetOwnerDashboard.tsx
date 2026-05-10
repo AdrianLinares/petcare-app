@@ -28,6 +28,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +50,7 @@ interface PetOwnerDashboardProps {
 }
 
 export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardProps) {
+  const { t } = useTranslation();
   // ============================================
   // STATE MANAGEMENT
   // ============================================
@@ -89,7 +91,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
         setOverdueVaccines(overdue);
       } catch (error: any) {
         console.error('Failed to load dashboard data:', error);
-        toast.error('Failed to load some data. Please refresh the page.');
+        toast.error(t('dashboard.loadError'));
       } finally {
         setIsLoading(false);
       }
@@ -124,14 +126,14 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                 <h1 className="text-xl font-bold text-blue-600">PetCare</h1>
               </div>
               <div className="ml-4">
-                <h2 className="text-lg font-medium text-gray-900">Welcome, {user.fullName}</h2>
+                <h2 className="text-lg font-medium text-gray-900">{t('dashboard.welcome', { name: user.fullName })}</h2>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               <NotificationBell userId={user.id} />
               <Button variant="outline" onClick={onLogout}>
-                Sign Out
+                {t('dashboard.signOut')}
               </Button>
             </div>
           </div>
@@ -141,10 +143,10 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="pets">My Pets</TabsTrigger>
-            <TabsTrigger value="appointments">Appointments</TabsTrigger>
-            <TabsTrigger value="medical">Medical Records</TabsTrigger>
+            <TabsTrigger value="overview">{t('dashboard.overview')}</TabsTrigger>
+            <TabsTrigger value="pets">{t('dashboard.myPets')}</TabsTrigger>
+            <TabsTrigger value="appointments">{t('dashboard.appointments')}</TabsTrigger>
+            <TabsTrigger value="medical">{t('dashboard.medicalRecords')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -155,7 +157,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                   <div className="flex items-center">
                     <Heart className="h-8 w-8 text-red-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">My Pets</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.myPets')}</p>
                       <p className="text-2xl font-bold text-gray-900">{pets.length}</p>
                     </div>
                   </div>
@@ -167,7 +169,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                   <div className="flex items-center">
                     <Calendar className="h-8 w-8 text-blue-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Upcoming</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.upcoming')}</p>
                       <p className="text-2xl font-bold text-gray-900">{upcomingAppointments.length}</p>
                     </div>
                   </div>
@@ -179,7 +181,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-green-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Completed</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.completed')}</p>
                       <p className="text-2xl font-bold text-gray-900">{recentAppointments.length}</p>
                     </div>
                   </div>
@@ -191,7 +193,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                   <div className="flex items-center">
                     <Bell className="h-8 w-8 text-yellow-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Overdue Vaccines</p>
+                      <p className="text-sm font-medium text-gray-600">{t('dashboard.overdueVaccines')}</p>
                       <p className="text-2xl font-bold text-gray-900">{overdueVaccines}</p>
                     </div>
                   </div>
@@ -203,10 +205,10 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Upcoming Appointments</span>
+                  <span>{t('dashboard.upcomingAppointments')}</span>
                   <Button onClick={() => setActiveTab('appointments')}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Schedule New
+                    {t('dashboard.scheduleNew')}
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -227,7 +229,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                             <p className="text-sm text-gray-600">
                               {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                             </p>
-                            <p className="text-sm text-gray-600">Dr. {appointment.veterinarian}</p>
+                            <p className="text-sm text-gray-600">{t('dashboard.doctorPrefix', { name: appointment.veterinarian })}</p>
                           </div>
                         </div>
                         <Badge variant="outline">{appointment.type}</Badge>
@@ -235,7 +237,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No upcoming appointments</p>
+                  <p className="text-gray-500 text-center py-8">{t('dashboard.noUpcomingAppointments')}</p>
                 )}
               </CardContent>
             </Card>
@@ -243,7 +245,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
             {/* Recent Medical History */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Medical History</CardTitle>
+                <CardTitle>{t('dashboard.recentMedicalHistory')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {recentAppointments.length > 0 ? (
@@ -262,15 +264,15 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                             <p className="text-sm text-gray-600">
                               {new Date(appointment.date).toLocaleDateString()}
                             </p>
-                            <p className="text-sm text-gray-600">{appointment.diagnosis || 'Routine checkup'}</p>
+                            <p className="text-sm text-gray-600">{appointment.diagnosis || t('dashboard.routineCheckup')}</p>
                           </div>
                         </div>
-                        <Badge variant="secondary">Completed</Badge>
+                        <Badge variant="secondary">{t('dashboard.completed_badge')}</Badge>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No medical history available</p>
+                  <p className="text-gray-500 text-center py-8">{t('dashboard.noMedicalHistory')}</p>
                 )}
               </CardContent>
             </Card>
@@ -294,7 +296,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
               <Card>
                 <CardContent className="p-6">
                   <p className="text-center text-muted-foreground">
-                    No pets added yet. Add a pet to view medical records.
+                    {t('dashboard.noPetsMedicalRecords')}
                   </p>
                 </CardContent>
               </Card>
@@ -305,7 +307,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                   onClick={() => setSelectedPetId(null)}
                   className="mb-4"
                 >
-                  ← Back to Pet Selection
+                  {t('dashboard.backToPetSelection')}
                 </Button>
                 <PetMedicalRecords
                   petId={selectedPetId}
@@ -316,7 +318,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>Select a Pet to View Medical Records</CardTitle>
+                  <CardTitle>{t('dashboard.selectPetMedical')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

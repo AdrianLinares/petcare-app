@@ -45,6 +45,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,6 +66,7 @@ interface PetManagementProps {
 }
 
 export default function PetManagement({ user, pets, setPets }: PetManagementProps) {
+  const { t } = useTranslation();
   // ============================================
   // STATE MANAGEMENT
   // ============================================
@@ -143,19 +145,19 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
         // Update existing pet
         const updatedPet = await petAPI.updatePet(editingPet.id, petData);
         setPets(pets.map(pet => pet.id === editingPet.id ? updatedPet : pet));
-        toast.success('Pet updated successfully!');
+        toast.success(t('pets.petUpdated'));
       } else {
         // Create new pet
         const newPet = await petAPI.createPet(petData);
         setPets([...pets, newPet]);
-        toast.success('Pet added successfully!');
+        toast.success(t('pets.petAdded'));
       }
 
       setIsAddingPet(false);
       setEditingPet(null);
       resetForm();
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to save pet';
+      const message = error.response?.data?.error || t('pets.failedSavePet');
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -180,16 +182,16 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
   };
 
   const handleDelete = async (petId: string) => {
-    if (!confirm('Are you sure you want to delete this pet? This will also delete all associated medical records.')) {
+    if (!confirm(t('pets.confirmDeletePet'))) {
       return;
     }
 
     try {
       await petAPI.deletePet(petId);
       setPets(pets.filter(pet => pet.id !== petId));
-      toast.success('Pet deleted successfully');
+      toast.success(t('pets.petDeleted'));
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Failed to delete pet';
+      const message = error.response?.data?.error || t('pets.failedDeletePet');
       toast.error(message);
     }
   };
@@ -197,7 +199,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">My Pets</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t('pets.title')}</h2>
         <Dialog open={isAddingPet} onOpenChange={(open) => {
           setIsAddingPet(open);
           if (!open) {
@@ -208,49 +210,49 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Pet
+              {t('pets.addPet')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingPet ? 'Edit Pet' : 'Add New Pet'}</DialogTitle>
+              <DialogTitle>{editingPet ? t('pets.editPet') : t('pets.addNewPet')}</DialogTitle>
               <DialogDescription>
-                {editingPet ? 'Update your pet\'s information' : 'Add your pet\'s information to manage their healthcare'}
+                {editingPet ? t('pets.updatePetInfo') : t('pets.addNewPetDesc')}
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Pet Name *</Label>
+                  <Label htmlFor="name">{t('pets.petName')}</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
-                    placeholder="e.g., Buddy"
+                    placeholder={t('pets.petNamePlaceholder')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="species">Species *</Label>
+                  <Label htmlFor="species">{t('pets.species')}</Label>
                   <Select
                     value={formData.species}
                     onValueChange={(value) => setFormData({ ...formData, species: value })}
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select species" />
+                      <SelectValue placeholder={t('pets.selectSpecies')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="dog">Dog</SelectItem>
-                      <SelectItem value="cat">Cat</SelectItem>
-                      <SelectItem value="bird">Bird</SelectItem>
-                      <SelectItem value="rabbit">Rabbit</SelectItem>
-                      <SelectItem value="hamster">Hamster</SelectItem>
-                      <SelectItem value="fish">Fish</SelectItem>
-                      <SelectItem value="reptile">Reptile</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="dog">{t('pets.dog')}</SelectItem>
+                      <SelectItem value="cat">{t('pets.cat')}</SelectItem>
+                      <SelectItem value="bird">{t('pets.bird')}</SelectItem>
+                      <SelectItem value="rabbit">{t('pets.rabbit')}</SelectItem>
+                      <SelectItem value="hamster">{t('pets.hamster')}</SelectItem>
+                      <SelectItem value="fish">{t('pets.fish')}</SelectItem>
+                      <SelectItem value="reptile">{t('pets.reptile')}</SelectItem>
+                      <SelectItem value="other">{t('pets.other')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -258,27 +260,27 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="breed">Breed</Label>
+                  <Label htmlFor="breed">{t('pets.breedLabel')}</Label>
                   <Input
                     id="breed"
                     value={formData.breed}
                     onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-                    placeholder="e.g., Golden Retriever"
+                    placeholder={t('pets.breedPlaceholder')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Gender</Label>
+                  <Label htmlFor="gender">{t('pets.gender')}</Label>
                   <Select
                     value={formData.gender}
                     onValueChange={(value) => setFormData({ ...formData, gender: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select gender" />
+                      <SelectValue placeholder={t('pets.selectGender')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="male">{t('pets.male')}</SelectItem>
+                      <SelectItem value="female">{t('pets.female')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -286,7 +288,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="age">Age (years) *</Label>
+                  <Label htmlFor="age">{t('pets.ageYears')}</Label>
                   <Input
                     id="age"
                     type="number"
@@ -295,12 +297,12 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                     value={formData.age}
                     onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                     required
-                    placeholder="e.g., 3"
+                    placeholder={t('pets.agePlaceholder')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="weight">Weight (kg) *</Label>
+                  <Label htmlFor="weight">{t('pets.weightKg')}</Label>
                   <Input
                     id="weight"
                     type="number"
@@ -309,58 +311,58 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                     value={formData.weight}
                     onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                     required
-                    placeholder="e.g., 25.5"
+                    placeholder={t('pets.weightPlaceholder')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="color">Color</Label>
+                  <Label htmlFor="color">{t('pets.color')}</Label>
                   <Input
                     id="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    placeholder="e.g., Golden"
+                    placeholder={t('pets.colorPlaceholder')}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="conditions">Pre-existing Conditions</Label>
+                <Label htmlFor="conditions">{t('pets.conditions')}</Label>
                 <Input
                   id="conditions"
                   value={formData.conditions}
                   onChange={(e) => setFormData({ ...formData, conditions: e.target.value })}
-                  placeholder="Separate multiple conditions with commas"
+                  placeholder={t('pets.conditionsPlaceholder')}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="vaccinations">Vaccinations</Label>
+                <Label htmlFor="vaccinations">{t('pets.vaccinations')}</Label>
                 <Input
                   id="vaccinations"
                   value={formData.vaccinations}
                   onChange={(e) => setFormData({ ...formData, vaccinations: e.target.value })}
-                  placeholder="Separate multiple vaccinations with commas"
+                  placeholder={t('pets.vaccinationsPlaceholder')}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Additional Notes</Label>
+                <Label htmlFor="notes">{t('pets.notesLabel')}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Any additional information about your pet"
+                  placeholder={t('pets.notesPlaceholder')}
                   rows={3}
                 />
               </div>
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsAddingPet(false)} disabled={isLoading}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Saving...' : (editingPet ? 'Update Pet' : 'Add Pet')}
+                  {isLoading ? t('pets.saving') : (editingPet ? t('pets.updatePet') : t('pets.addPetBtn'))}
                 </Button>
               </div>
             </form>
@@ -391,33 +393,33 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Species:</span>
+                    <span className="text-sm font-medium">{t('pets.speciesDisplay')}</span>
                     <Badge variant="secondary">{pet.species}</Badge>
                   </div>
                   {pet.breed && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium">Breed:</span>
+                      <span className="text-sm font-medium">{t('pets.breedDisplay')}</span>
                       <span className="text-sm">{pet.breed}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Age:</span>
-                    <span className="text-sm">{pet.age} years</span>
+                    <span className="text-sm font-medium">{t('pets.ageDisplay')}</span>
+                    <span className="text-sm">{t('pets.years', { age: pet.age })}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Weight:</span>
-                    <span className="text-sm">{pet.weight} kg</span>
+                    <span className="text-sm font-medium">{t('pets.weightDisplay')}</span>
+                    <span className="text-sm">{t('pets.kg', { weight: pet.weight })}</span>
                   </div>
                   {pet.gender && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium">Gender:</span>
+                      <span className="text-sm font-medium">{t('pets.genderDisplay')}</span>
                       <span className="text-sm capitalize">{pet.gender}</span>
                     </div>
                   )}
                   {/* Conditions field removed - not part of Pet type. Consider using notes field instead. */}
                   {pet.notes && (
                     <div className="mt-3">
-                      <span className="text-sm font-medium">Notes:</span>
+                      <span className="text-sm font-medium">{t('pets.notesDisplay')}</span>
                       <p className="text-xs text-gray-600 mt-1">{pet.notes}</p>
                     </div>
                   )}
@@ -430,11 +432,11 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
         <Card>
           <CardContent className="py-12 text-center">
             <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No pets registered</h3>
-            <p className="text-gray-600 mb-4">Add your first pet to get started with managing their healthcare.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('pets.noPetsRegistered')}</h3>
+            <p className="text-gray-600 mb-4">{t('pets.addFirstPet')}</p>
             <Button onClick={() => setIsAddingPet(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Your First Pet
+              {t('pets.addYourFirstPet')}
             </Button>
           </CardContent>
         </Card>
