@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import NotificationBell from "@/components/Notification/NotificationBell";
 import { __TESTING__ } from "react-i18next";
 
@@ -37,14 +38,22 @@ describe("NotificationBell — translated strings", () => {
   const renderBell = () =>
     render(<NotificationBell userId="user-1" />);
 
-  it("renders the notifications header label via translation key when opened", async () => {
+  it("renders translated notification title and empty state when opened", async () => {
     renderBell();
-    // The dropdown menu renders the header as part of the content,
-    // but in DropdownMenu it's only in the DOM when opened.
-    // The title attribute is on the bell button itself.
-    // For now, just verify the component renders without crashing
-    // and that the loading text uses a translation key.
     const bellBtn = screen.getByRole("button");
     expect(bellBtn).toBeInTheDocument();
+
+    // Open the dropdown
+    await userEvent.click(bellBtn);
+
+    // The dropdown renders translated keys via the mock (prefix format: [en] key)
+    await waitFor(() => {
+      expect(screen.getByText("[en] notification.title")).toBeInTheDocument();
+    });
+
+    // After loading resolves (mock returns []), empty state appears
+    await waitFor(() => {
+      expect(screen.getByText("[en] notification.empty")).toBeInTheDocument();
+    });
   });
 });

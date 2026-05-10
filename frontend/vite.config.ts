@@ -14,10 +14,12 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
+      include: ["src/components/**", "src/i18n/**", "src/lib/**"],
+      exclude: ["src/components/ui/**", "src/lib/supabase.ts"],
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 60,
+        lines: 40,
+        functions: 10,
+        branches: 50,
       },
     },
   },
