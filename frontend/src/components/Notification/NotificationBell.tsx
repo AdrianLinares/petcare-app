@@ -25,6 +25,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, X, Check, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,6 +46,7 @@ interface NotificationBellProps {
 }
 
 export default function NotificationBell({ userId }: NotificationBellProps) {
+    const { t } = useTranslation();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
@@ -122,7 +124,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             setUnreadCount(prev => Math.max(0, prev - 1));
         } catch (error) {
             console.error('Failed to mark notification as read:', error);
-            toast.error('Failed to mark as read');
+            toast.error(t('toast.failedMarkAsRead'));
         }
     };
 
@@ -139,10 +141,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             setNotifications(prev => prev.map(n => ({ ...n, read: true })));
             setUnreadCount(0);
 
-            toast.success('All notifications marked as read');
+            toast.success(t('toast.allMarkedRead'));
         } catch (error) {
             console.error('Failed to mark all as read:', error);
-            toast.error('Failed to mark all as read');
+            toast.error(t('toast.failedMarkAllRead'));
         }
     };
 
@@ -161,10 +163,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                 setUnreadCount(prev => Math.max(0, prev - 1));
             }
 
-            toast.success('Notification deleted');
+            toast.success(t('toast.notificationDeleted'));
         } catch (error) {
             console.error('Failed to delete notification:', error);
-            toast.error('Failed to delete notification');
+            toast.error(t('toast.failedDeleteNotification'));
         }
     };
 
@@ -201,10 +203,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
 
-        if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
-        if (diffDays < 7) return `${diffDays}d ago`;
+        if (diffMins < 1) return t('notification.justNow');
+        if (diffMins < 60) return t('notification.minutesAgo', { minutes: diffMins });
+        if (diffHours < 24) return t('notification.hoursAgo', { hours: diffHours });
+        if (diffDays < 7) return t('notification.daysAgo', { days: diffDays });
         return date.toLocaleDateString();
     };
 
@@ -227,7 +229,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             <DropdownMenuContent align="end" className="w-80 md:w-96">
                 {/* Header */}
                 <div className="flex items-center justify-between p-3 pb-2">
-                    <h3 className="font-semibold text-sm">Notifications</h3>
+                    <h3 className="font-semibold text-sm">{t('notification.title')}</h3>
                     {unreadCount > 0 && (
                         <Button
                             variant="ghost"
@@ -235,7 +237,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                             onClick={handleMarkAllAsRead}
                             className="text-xs h-7"
                         >
-                            Mark all read
+                            {t('notification.markAllRead')}
                         </Button>
                     )}
                 </div>
@@ -246,12 +248,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                 <ScrollArea className="h-[400px]">
                     {loading ? (
                         <div className="p-8 text-center text-sm text-muted-foreground">
-                            Loading notifications...
+                            {t('notification.loading')}
                         </div>
                     ) : notifications.length === 0 ? (
                         <div className="p-8 text-center">
                             <Bell className="h-12 w-12 mx-auto text-muted-foreground/50 mb-2" />
-                            <p className="text-sm text-muted-foreground">No notifications yet</p>
+                            <p className="text-sm text-muted-foreground">{t('notification.empty')}</p>
                         </div>
                     ) : (
                         <div className="divide-y">

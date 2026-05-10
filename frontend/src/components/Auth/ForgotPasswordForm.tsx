@@ -23,6 +23,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,6 +37,8 @@ interface ForgotPasswordFormProps {
 }
 
 export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
+  const { t } = useTranslation();
+
   // STATE: Email address entered by user
   const [email, setEmail] = useState('');
 
@@ -74,23 +77,23 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
 
     try {
       if (!email.trim()) {
-        setError('Please enter your email address.');
+        setError(t('errors.enterEmail'));
         return;
       }
 
       // Basic email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.trim())) {
-        setError('Please enter a valid email address.');
+        setError(t('errors.invalidEmail'));
         return;
       }
 
       const response = await authAPI.forgotPassword(email.trim());
-      setSuccess(response.message || 'If that email exists, a password reset link has been sent.');
+      setSuccess(response.message || t('forgotPassword.instructionsSent'));
       setSubmitted(true);
     } catch (err) {
       console.error('Password reset error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('errors.unexpected'));
     } finally {
       setLoading(false);
     }
@@ -115,10 +118,10 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                 </div>
               </div>
               <CardTitle className="text-2xl font-bold text-petcare-navy">
-                Check Your Email
+                {t('forgotPassword.checkEmail')}
               </CardTitle>
               <CardDescription>
-                Password reset instructions sent
+                {t('forgotPassword.instructionsSent')}
               </CardDescription>
             </CardHeader>
 
@@ -131,11 +134,11 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
               </Alert>
 
               <div className="text-sm text-gray-600 space-y-2">
-                <p>If you don't see the email in your inbox, please check:</p>
+                <p>{t('forgotPassword.checkSpam')}</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
-                  <li>Your spam or junk folder</li>
-                  <li>That you entered the correct email address</li>
-                  <li>That the email isn't being blocked by your email provider</li>
+                  <li>{t('forgotPassword.spamFolder')}</li>
+                  <li>{t('forgotPassword.correctEmail')}</li>
+                  <li>{t('forgotPassword.emailBlocked')}</li>
                 </ul>
               </div>
 
@@ -145,7 +148,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                   variant="outline"
                   className="w-full"
                 >
-                  Send Another Email
+                  {t('forgotPassword.sendAnother')}
                 </Button>
 
                 <Button
@@ -154,7 +157,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                   className="w-full"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Login
+                  {t('forgotPassword.backToLogin')}
                 </Button>
               </div>
             </CardContent>
@@ -177,17 +180,17 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
               />
             </div>
             <CardTitle className="text-2xl font-bold text-petcare-navy">
-              Reset Your Password
+              {t('forgotPassword.title')}
             </CardTitle>
             <CardDescription>
-              Enter your email address and we'll send you a link to reset your password
+              {t('forgotPassword.subtitle')}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">{t('forgotPassword.emailLabel')}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -197,7 +200,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="pl-10"
-                    placeholder="Enter your email address"
+                    placeholder={t('forgotPassword.emailPlaceholder')}
                     autoComplete="email"
                   />
                 </div>
@@ -219,12 +222,12 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      Sending...
+                      {t('forgotPassword.sending')}
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4 mr-2" />
-                      Send Reset Link
+                      {t('forgotPassword.sendLink')}
                     </>
                   )}
                 </Button>
@@ -237,7 +240,7 @@ export default function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) 
                   disabled={loading}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Login
+                  {t('forgotPassword.backToLogin')}
                 </Button>
               </div>
             </form>

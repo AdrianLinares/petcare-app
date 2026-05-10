@@ -35,6 +35,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,6 +55,8 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgotPassword }: LoginFormProps) {
+  const { t } = useTranslation();
+
   // STATE: Toggle between login (true) and register (false) modes
   const [isLogin, setIsLogin] = useState(true);
 
@@ -116,22 +119,22 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
       if (isLogin) {
         // Login with backend API
         const { user } = await authAPI.login(email, password);
-        toast.success(`Welcome back, ${user.fullName}!`);
+        toast.success(t('toast.welcomeBack', { name: user.fullName }));
         onLoginSuccess(user);
       } else {
         // Registration logic
         if (password !== confirmPassword) {
-          setError('Passwords do not match');
+          setError(t('validation.passwordsNotMatch'));
           setLoading(false);
           return;
         }
         if (!userType) {
-          setError('Please select a user type');
+          setError(t('validation.selectUserType'));
           setLoading(false);
           return;
         }
         if (password.length < 8) {
-          setError('Password must be at least 8 characters long');
+          setError(t('validation.passwordTooShort'));
           setLoading(false);
           return;
         }
@@ -145,11 +148,11 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
           userType,
         });
 
-        toast.success(`Welcome to PetCare, ${user.fullName}!`);
+        toast.success(t('toast.welcomeToPetcare', { name: user.fullName }));
         onLoginSuccess(user);
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'An error occurred. Please try again.';
+      const errorMessage = err.response?.data?.error || t('errors.generic');
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -173,21 +176,21 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
               />
             </div>
             <CardTitle className="text-2xl font-bold text-petcare-navy">
-              {isLogin ? 'Welcome to PetCare' : 'Join PetCare'}
+              {isLogin ? t('auth.loginTitle') : t('auth.registerTitle')}
             </CardTitle>
             <CardDescription>
               {isLogin
-                ? 'Sign in to manage your pet\'s healthcare'
-                : 'Create your account to get started'
+                ? t('auth.loginSubtitle')
+                : t('auth.registerSubtitle')
               }
             </CardDescription>
             {isLogin && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
-                <p className="font-medium text-blue-900 mb-2">Demo Credentials:</p>
+                <p className="font-medium text-blue-900 mb-2">{t('auth.demoCredentials')}</p>
                 <div className="space-y-1 text-blue-800">
-                  <p><strong>Pet Owner:</strong> owner@petcare.com / password123</p>
-                  <p><strong>Veterinarian:</strong> vet@petcare.com / password123</p>
-                  <p><strong>Administrator:</strong> admin@petcare.com / password123</p>
+                  <p><strong>{t('auth.petOwner')}:</strong> owner@petcare.com / password123</p>
+                  <p><strong>{t('auth.veterinarian')}:</strong> vet@petcare.com / password123</p>
+                  <p><strong>{t('auth.administrator')}:</strong> admin@petcare.com / password123</p>
                 </div>
               </div>
             )}
@@ -197,20 +200,20 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="fullName">{t('auth.fullName')}</Label>
                   <Input
                     id="fullName"
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
-                    placeholder="Enter your full name"
+                    placeholder={t('auth.fullNamePlaceholder')}
                   />
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -220,14 +223,14 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="pl-10"
-                    placeholder="Enter your email"
+                    placeholder={t('auth.emailPlaceholder')}
                   />
                 </div>
               </div>
 
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">{t('auth.phoneNumber')}</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -237,7 +240,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
                       onChange={(e) => setPhone(e.target.value)}
                       required
                       className="pl-10"
-                      placeholder="Enter your phone number"
+                      placeholder={t('auth.phoneNumberPlaceholder')}
                     />
                   </div>
                 </div>
@@ -245,22 +248,22 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
 
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="userType">I am a...</Label>
+                  <Label htmlFor="userType">{t('auth.userType')}</Label>
                   <Select value={userType} onValueChange={setUserType} required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select user type" />
+                      <SelectValue placeholder={t('auth.userTypePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pet_owner">Pet Owner</SelectItem>
-                      <SelectItem value="veterinarian">Veterinarian</SelectItem>
-                      <SelectItem value="administrator">Administrator</SelectItem>
+                      <SelectItem value="pet_owner">{t('auth.petOwner')}</SelectItem>
+                      <SelectItem value="veterinarian">{t('auth.veterinarian')}</SelectItem>
+                      <SelectItem value="administrator">{t('auth.administrator')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -270,7 +273,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="pl-10 pr-10"
-                    placeholder="Enter your password"
+                    placeholder={t('auth.passwordPlaceholder')}
                   />
                   <button
                     type="button"
@@ -284,7 +287,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
 
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -294,7 +297,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       className="pl-10"
-                      placeholder="Confirm your password"
+                      placeholder={t('auth.confirmPasswordPlaceholder')}
                     />
                   </div>
                 </div>
@@ -307,7 +310,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
               )}
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
+                {loading ? t('auth.processing') : (isLogin ? t('auth.signIn') : t('auth.createAccount'))}
               </Button>
             </form>
 
@@ -319,7 +322,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
                     onClick={onForgotPassword}
                     className="text-petcare-primary hover:text-petcare-navy text-sm transition-colors"
                   >
-                    Forgot your password?
+                    {t('auth.forgotPassword')}
                   </button>
                 </div>
               )}
@@ -340,8 +343,8 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
                   className="text-petcare-primary hover:text-petcare-navy text-sm transition-colors"
                 >
                   {isLogin
-                    ? "Don't have an account? Sign up"
-                    : "Already have an account? Sign in"
+                    ? t('auth.noAccount')
+                    : t('auth.hasAccount')
                   }
                 </button>
               </div>

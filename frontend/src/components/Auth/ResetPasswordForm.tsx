@@ -30,6 +30,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,6 +47,8 @@ interface ResetPasswordFormProps {
 }
 
 export default function ResetPasswordForm({ resetToken: propToken, onSuccess, onBack }: ResetPasswordFormProps) {
+  const { t } = useTranslation();
+
   // STATE: New password entered by user
   const [password, setPassword] = useState('');
 
@@ -86,7 +89,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
    */
   useEffect(() => {
     if (!token) {
-      setError('No reset token provided.');
+      setError(t('errors.noResetToken'));
     }
   }, [token]);
 
@@ -99,38 +102,38 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
 
     try {
       if (!token) {
-        setError('No reset token available.');
+        setError(t('errors.noResetTokenAvailable'));
         setLoading(false);
         return;
       }
 
       if (!password.trim()) {
-        setError('Please enter a new password.');
+        setError(t('errors.enterNewPassword'));
         setLoading(false);
         return;
       }
 
       if (password !== confirmPassword) {
-        setError('Passwords do not match.');
+        setError(t('errors.passwordsNotMatch'));
         setLoading(false);
         return;
       }
 
       if (password.length < 8) {
-        setError('Password must be at least 8 characters long.');
+        setError(t('errors.passwordTooShort'));
         setLoading(false);
         return;
       }
 
       const result = await authAPI.resetPassword(token, password);
-      setSuccess(result.message || 'Password reset successful!');
+      setSuccess(result.message || t('errors.resetSuccess'));
       // Auto-redirect after a short delay
       setTimeout(() => {
         onSuccess();
       }, 2000);
     } catch (err) {
       console.error('Password reset error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('errors.unexpected'));
     } finally {
       setLoading(false);
     }
@@ -144,7 +147,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
           <Card className="w-full max-w-md">
             <CardContent className="flex flex-col items-center space-y-4 pt-6">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-              <p className="text-gray-600">Validating reset token...</p>
+              <p className="text-gray-600">{t('resetPassword.validating')}</p>
             </CardContent>
           </Card>
         </div>
@@ -152,8 +155,8 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
     );
   }
 
-  // Show error if token is invalid
-  if (error.includes('invalid') || error.includes('expired') || error.includes('No reset token')) {
+  // Show error if token is invalid or missing
+  if (!token || error.includes('invalid') || error.includes('expired') || error.includes('No reset token')) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-petcare-beige to-petcare-golden/20">
         <div className="flex-1 flex items-center justify-center p-4">
@@ -165,10 +168,10 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                 </div>
               </div>
               <CardTitle className="text-2xl font-bold text-petcare-navy">
-                Invalid Reset Link
+                {t('resetPassword.invalidLink')}
               </CardTitle>
               <CardDescription>
-                This password reset link is invalid or has expired
+                {t('resetPassword.linkExpired')}
               </CardDescription>
             </CardHeader>
 
@@ -181,11 +184,11 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
               </Alert>
 
               <div className="text-sm text-gray-600">
-                <p>This could happen if:</p>
+                <p>{t('resetPassword.whyInvalid')}</p>
                 <ul className="list-disc list-inside space-y-1 text-xs mt-2">
-                  <li>The link has expired (links are valid for 1 hour)</li>
-                  <li>The link has already been used</li>
-                  <li>The link was copied incorrectly</li>
+                  <li>{t('resetPassword.whyExpired')}</li>
+                  <li>{t('resetPassword.whyUsed')}</li>
+                  <li>{t('resetPassword.whyCopied')}</li>
                 </ul>
               </div>
 
@@ -194,7 +197,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                 className="w-full"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Request New Reset Link
+                {t('resetPassword.requestNew')}
               </Button>
             </CardContent>
           </Card>
@@ -216,10 +219,10 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                 </div>
               </div>
               <CardTitle className="text-2xl font-bold text-petcare-navy">
-                Password Reset Successful
+                {t('resetPassword.success')}
               </CardTitle>
               <CardDescription>
-                Your password has been updated successfully
+                {t('resetPassword.successMessage')}
               </CardDescription>
             </CardHeader>
 
@@ -232,14 +235,14 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
               </Alert>
 
               <p className="text-sm text-gray-600 text-center">
-                Redirecting to login page...
+                {t('resetPassword.redirecting')}
               </p>
 
               <Button
                 onClick={onSuccess}
                 className="w-full"
               >
-                Continue to Login
+                {t('resetPassword.continue')}
               </Button>
             </CardContent>
           </Card>
@@ -261,17 +264,17 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
               />
             </div>
             <CardTitle className="text-2xl font-bold text-petcare-navy">
-              Set New Password
+              {t('resetPassword.title')}
             </CardTitle>
             <CardDescription>
-              Enter a new password to secure your account
+              {t('resetPassword.subtitle')}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password">{t('resetPassword.newPassword')}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -281,7 +284,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="pl-10 pr-10"
-                    placeholder="Enter your new password"
+                    placeholder={t('resetPassword.newPasswordPlaceholder')}
                   />
                   <button
                     type="button"
@@ -294,7 +297,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Label htmlFor="confirmPassword">{t('resetPassword.confirmPassword')}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -304,7 +307,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     className="pl-10 pr-10"
-                    placeholder="Confirm your new password"
+                    placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                   />
                   <button
                     type="button"
@@ -318,12 +321,12 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
 
               {/* Password requirements */}
               <div className="text-xs text-gray-600">
-                <p className="font-medium mb-1">Password must contain:</p>
+                <p className="font-medium mb-1">{t('resetPassword.requirements')}</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>At least 8 characters</li>
-                  <li>One uppercase letter</li>
-                  <li>One lowercase letter</li>
-                  <li>One number</li>
+                  <li>{t('resetPassword.reqLength')}</li>
+                  <li>{t('resetPassword.reqUppercase')}</li>
+                  <li>{t('resetPassword.reqLowercase')}</li>
+                  <li>{t('resetPassword.reqNumber')}</li>
                 </ul>
               </div>
 
@@ -343,10 +346,10 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      Updating Password...
+                      {t('resetPassword.updating')}
                     </>
                   ) : (
-                    'Update Password'
+                    t('resetPassword.updateButton')
                   )}
                 </Button>
 
@@ -358,7 +361,7 @@ export default function ResetPasswordForm({ resetToken: propToken, onSuccess, on
                   disabled={loading}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Login
+                  {t('resetPassword.backToLogin')}
                 </Button>
               </div>
             </form>
