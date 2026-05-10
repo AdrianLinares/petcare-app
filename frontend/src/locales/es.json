@@ -1,0 +1,13 @@
+{
+    "app": {
+        "title": "PetCare"
+    },
+    "auth": {
+        "login": "Iniciar sesión",
+        "password": "Contraseña"
+    },
+    "common": {
+        "save": "Guardar",
+        "cancel": "Cancelar"
+    }
+}

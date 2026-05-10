@@ -24,6 +24,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "i18next": path.resolve(__dirname, "./src/test/mocks/i18next.ts"),
+      "react-i18next": path.resolve(__dirname, "./src/test/mocks/react-i18next.ts"),
+      "i18next-browser-languagedetector": path.resolve(
+        __dirname,
+        "./src/test/mocks/i18next-browser-languagedetector.ts"
+      ),
     },
   },
   build: {
