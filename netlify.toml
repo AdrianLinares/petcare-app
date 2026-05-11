@@ -19,9 +19,9 @@
   framework = "#custom"
   functions = "netlify/functions"
 
-[[edge_functions]]
-  path = "/api/*"
-  function = "api-cache"
+# [[edge_functions]]
+#   path = "/api/*"
+#   function = "api-cache"
 
 # [context.dev.environment]
 #   # WARNING: Do NOT commit sensitive credentials here
