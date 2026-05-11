@@ -296,14 +296,14 @@
         "failedCancel": "Error al cancelar cita",
         "doctorPrefix": "Dr./Dra. {{name}}",
         "types": {
-            "Routine Checkup": "Revisión de Rutina",
-            "Vaccination": "Vacunación",
-            "Emergency": "Emergencia",
-            "Surgery": "Cirugía",
-            "Dental Care": "Cuidado Dental",
-            "Grooming": "Peluquería",
-            "Follow-up": "Seguimiento",
-            "Consultation": "Consulta"
+            "checkup": "Chequeo de Rutina",
+            "vaccination": "Vacunación",
+            "emergency": "Emergencia",
+            "surgery": "Cirugía",
+            "dental": "Cuidado Dental",
+            "grooming": "Peluquería",
+            "followup": "Seguimiento",
+            "consultation": "Consulta"
         },
         "status": {
             "scheduled": "Programada",
