@@ -52,7 +52,7 @@ import { User, Pet, Appointment } from '../types';
 export const initializeTestData = () => {
   // Version tracking prevents re-initializing if data already exists
   // BEGINNER NOTE: Change version number when you update test data structure
-  const currentVersion = '2024-12-17-v5';
+  const currentVersion = '2024-12-17-v6';
 
   // Verificar si ya están inicializados
   if (localStorage.getItem('testDataInitialized') === currentVersion) {
@@ -108,14 +108,14 @@ export const initializeTestData = () => {
       address: '789 Maple Drive, Santa Monica, CA 90401'
     },
     {
-      id: 'user_004',
+      id: '550e8400-e29b-41d4-a716-446655440001',
       email: 'owner@petcare.com',
-      password: 'owner123',
-      fullName: 'Demo Pet Owner',
-      phone: '+1 (555) 111-2222',
+      password: 'password123',
+      fullName: 'John Smith',
+      phone: '+1-555-0101',
       userType: 'pet_owner',
       createdAt: '2024-01-01T12:00:00Z',
-      address: '999 Demo Street, Test City, CA 90000'
+      address: '123 Pet Street, Boston, MA 02101'
     }
   ];
 
@@ -144,29 +144,29 @@ export const initializeTestData = () => {
       licenseNumber: 'VET-CA-67890'
     },
     {
-      id: 'vet_003',
+      id: '550e8400-e29b-41d4-a716-446655440002',
       email: 'vet@petcare.com',
-      password: 'vet123',
-      fullName: 'Dr. Sarah Johnson',
-      phone: '+1 (555) 333-4444',
+      password: 'password123',
+      fullName: 'Sarah Johnson',
+      phone: '+1-555-0102',
       userType: 'veterinarian',
       createdAt: '2024-01-01T08:00:00Z',
-      specialization: 'Internal Medicine',
-      licenseNumber: 'VET-CA-11111'
+      specialization: 'General Practice',
+      licenseNumber: 'VET-CA-12345'
     }
   ];
 
   // Administradores
   const administrators: User[] = [
     {
-      id: 'admin_001',
+      id: '550e8400-e29b-41d4-a716-446655440003',
       email: 'admin@petcare.com',
-      password: 'adminpass123',
-      fullName: 'System Administrator',
-      phone: '+1 (555) 999-0000',
+      password: 'password123',
+      fullName: 'Admin User',
+      phone: '+1-555-0103',
       userType: 'administrator',
       createdAt: '2024-01-01T00:00:00Z',
-      accessLevel: 'super_admin'
+      accessLevel: 'elevated'
     },
     {
       id: 'admin_002',

@@ -188,9 +188,9 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
               <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
                 <p className="font-medium text-blue-900 mb-2">{t('auth.demoCredentials')}</p>
                 <div className="space-y-1 text-blue-800">
-                  <p><strong>{t('auth.petOwner')}:</strong> owner@petcare.com / owner123</p>
-                  <p><strong>{t('auth.veterinarian')}:</strong> vet@petcare.com / vet123</p>
-                  <p><strong>{t('auth.administrator')}:</strong> admin@petcare.com / adminpass123</p>
+                  <p><strong>{t('auth.petOwner')}:</strong> owner@petcare.com / password123</p>
+                  <p><strong>{t('auth.veterinarian')}:</strong> vet@petcare.com / password123</p>
+                  <p><strong>{t('auth.administrator')}:</strong> admin@petcare.com / password123</p>
                 </div>
               </div>
             )}
