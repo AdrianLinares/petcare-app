@@ -182,10 +182,10 @@ export default function PasswordRecoveryDemo() {
                   </AlertDescription>
                 </Alert>
               ) : (
-                emails
+                [...emails]
                   .sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
                   .map((email, index) => (
-                    <Card key={index} className="border-l-4 border-l-blue-500">
+                    <Card key={`${email.to}-${email.sentAt}`} className="border-l-4 border-l-blue-500">
                       <CardContent className="pt-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">

@@ -164,7 +164,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
       };
 
       const newAppointment = await appointmentAPI.createAppointment(appointmentData);
-      setAppointments([...appointments, newAppointment]);
+      setAppointments(prev => [...prev, newAppointment]);
       toast.success(t('appointment.scheduledSuccess'));
 
       setIsScheduling(false);
@@ -266,7 +266,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                   <Label htmlFor="petId">{t('appointment.selectPet')}</Label>
                   <Select
                     value={formData.petId}
-                    onValueChange={(value) => setFormData({ ...formData, petId: value })}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, petId: value }))}
                     required
                   >
                     <SelectTrigger>
@@ -286,7 +286,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                   <Label htmlFor="veterinarian">{t('appointment.veterinarian')}</Label>
                   <Select
                     value={formData.veterinarianId}
-                    onValueChange={(value) => setFormData({ ...formData, veterinarianId: value })}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, veterinarianId: value }))}
                     required
                   >
                     <SelectTrigger>
@@ -332,7 +332,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                   <Label htmlFor="time">{t('appointment.time')}</Label>
                   <Select
                     value={formData.time}
-                    onValueChange={(value) => setFormData({ ...formData, time: value })}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, time: value }))}
                     required
                   >
                     <SelectTrigger>
@@ -353,7 +353,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 <Label htmlFor="type">{t('appointment.appointmentType')}</Label>
                 <Select
                   value={formData.type}
-                  onValueChange={(value) => setFormData({ ...formData, type: value })}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
                   required
                 >
                   <SelectTrigger>
@@ -374,7 +374,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 <Textarea
                   id="reason"
                   value={formData.reason}
-                  onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, reason: e.target.value }))}
                   required
                   placeholder={t('appointment.reasonPlaceholder')}
                   rows={3}
@@ -386,7 +386,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder={t('appointment.notesPlaceholder')}
                   rows={2}
                 />

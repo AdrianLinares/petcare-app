@@ -99,7 +99,7 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
               id="date"
               type="date"
               value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
               required
             />
           </div>
@@ -109,7 +109,7 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
             <Textarea
               id="symptoms"
               value={formData.symptoms}
-              onChange={(e) => setFormData({ ...formData, symptoms: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, symptoms: e.target.value }))}
               placeholder={t('medical.symptomsPlaceholder')}
               rows={3}
               required
@@ -121,7 +121,7 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
             <Textarea
               id="diagnosis"
               value={formData.diagnosis}
-              onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, diagnosis: e.target.value }))}
               placeholder={t('medical.diagnosisPlaceholder')}
               rows={3}
               required
@@ -133,7 +133,7 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
             <Textarea
               id="treatment"
               value={formData.treatment}
-              onChange={(e) => setFormData({ ...formData, treatment: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, treatment: e.target.value }))}
               placeholder={t('medical.treatmentPlaceholder')}
               rows={3}
               required
@@ -145,7 +145,7 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
             <Input
               id="medications"
               value={formData.medications}
-              onChange={(e) => setFormData({ ...formData, medications: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, medications: e.target.value }))}
               placeholder={t('medical.medicationsPlaceholder')}
             />
           </div>
@@ -155,7 +155,7 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
             <Textarea
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
               placeholder={t('medical.notesPlaceholder')}
               rows={2}
             />
@@ -167,7 +167,7 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
               id="followUpDate"
               type="date"
               value={formData.followUpDate}
-              onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, followUpDate: e.target.value }))}
             />
           </div>
 

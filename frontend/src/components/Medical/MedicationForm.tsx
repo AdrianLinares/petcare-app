@@ -92,7 +92,7 @@ export default function MedicationForm({ petId, onClose, onSuccess }: Medication
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               placeholder={t('medical.medicationNamePlaceholder')}
               required
             />
@@ -103,7 +103,7 @@ export default function MedicationForm({ petId, onClose, onSuccess }: Medication
             <Input
               id="dosage"
               value={formData.dosage}
-              onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
               placeholder={t('medical.dosagePlaceholder')}
               required
             />
@@ -115,7 +115,7 @@ export default function MedicationForm({ petId, onClose, onSuccess }: Medication
               id="startDate"
               type="date"
               value={formData.startDate}
-              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
               required
             />
           </div>
@@ -126,7 +126,7 @@ export default function MedicationForm({ petId, onClose, onSuccess }: Medication
               id="endDate"
               type="date"
               value={formData.endDate}
-              onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
             />
           </div>
 
@@ -134,7 +134,7 @@ export default function MedicationForm({ petId, onClose, onSuccess }: Medication
             <Checkbox
               id="active"
               checked={formData.active}
-              onCheckedChange={(checked) => setFormData({ ...formData, active: checked as boolean })}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, active: checked as boolean }))}
             />
             <Label htmlFor="active" className="cursor-pointer">
               {t('medical.activeMedication')}

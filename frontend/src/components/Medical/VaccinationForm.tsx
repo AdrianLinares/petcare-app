@@ -93,7 +93,7 @@ export default function VaccinationForm({ petId, onClose, onSuccess }: Vaccinati
             <Input
               id="vaccine"
               value={formData.vaccine}
-              onChange={(e) => setFormData({ ...formData, vaccine: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, vaccine: e.target.value }))}
               placeholder={t('medical.vaccineNamePlaceholder')}
               required
             />
@@ -105,7 +105,7 @@ export default function VaccinationForm({ petId, onClose, onSuccess }: Vaccinati
               id="date"
               type="date"
               value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
               required
             />
           </div>
@@ -116,7 +116,7 @@ export default function VaccinationForm({ petId, onClose, onSuccess }: Vaccinati
               id="nextDue"
               type="date"
               value={formData.nextDue}
-              onChange={(e) => setFormData({ ...formData, nextDue: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, nextDue: e.target.value }))}
             />
           </div>
 

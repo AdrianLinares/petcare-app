@@ -150,7 +150,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
       } else {
         // Create new pet
         const newPet = await petAPI.createPet(petData);
-        setPets([...pets, newPet]);
+        setPets(prev => [...prev, newPet]);
         toast.success(t('pets.petAdded'));
       }
 
@@ -229,7 +229,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     required
                     placeholder={t('pets.petNamePlaceholder')}
                   />
@@ -239,7 +239,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                   <Label htmlFor="species">{t('pets.species')}</Label>
                   <Select
                     value={formData.species}
-                    onValueChange={(value) => setFormData({ ...formData, species: value })}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, species: value }))}
                     required
                   >
                     <SelectTrigger>
@@ -265,7 +265,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                   <Input
                     id="breed"
                     value={formData.breed}
-                    onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, breed: e.target.value }))}
                     placeholder={t('pets.breedPlaceholder')}
                   />
                 </div>
@@ -274,7 +274,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                   <Label htmlFor="gender">{t('pets.gender')}</Label>
                   <Select
                     value={formData.gender}
-                    onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={t('pets.selectGender')} />
@@ -296,7 +296,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                     min="0"
                     max="30"
                     value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
                     required
                     placeholder={t('pets.agePlaceholder')}
                   />
@@ -310,7 +310,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                     min="0"
                     step="0.1"
                     value={formData.weight}
-                    onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, weight: e.target.value }))}
                     required
                     placeholder={t('pets.weightPlaceholder')}
                   />
@@ -321,7 +321,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                   <Input
                     id="color"
                     value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
                     placeholder={t('pets.colorPlaceholder')}
                   />
                 </div>
@@ -332,7 +332,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                 <Input
                   id="conditions"
                   value={formData.conditions}
-                  onChange={(e) => setFormData({ ...formData, conditions: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, conditions: e.target.value }))}
                   placeholder={t('pets.conditionsPlaceholder')}
                 />
               </div>
@@ -342,7 +342,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                 <Input
                   id="vaccinations"
                   value={formData.vaccinations}
-                  onChange={(e) => setFormData({ ...formData, vaccinations: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, vaccinations: e.target.value }))}
                   placeholder={t('pets.vaccinationsPlaceholder')}
                 />
               </div>
@@ -352,7 +352,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder={t('pets.notesPlaceholder')}
                   rows={3}
                 />

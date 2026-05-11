@@ -408,7 +408,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             {pet.allergies && pet.allergies.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
                 {pet.allergies.map((allergy, idx) => (
-                  <Badge key={idx} variant="destructive" className="text-xs">{allergy}</Badge>
+                  <Badge key={`${allergy}-${idx}`} variant="destructive" className="text-xs">{allergy}</Badge>
                 ))}
               </div>
             )}
@@ -690,7 +690,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 type="date"
                 value={medicalForm.date}
-                onChange={(e) => setMedicalForm({ ...medicalForm, date: e.target.value })}
+                onChange={(e) => setMedicalForm(prev => ({ ...prev, date: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -698,7 +698,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 placeholder={t('medical.recordTypePlaceholder')}
                 value={medicalForm.recordType}
-                onChange={(e) => setMedicalForm({ ...medicalForm, recordType: e.target.value })}
+                onChange={(e) => setMedicalForm(prev => ({ ...prev, recordType: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -706,7 +706,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Textarea
                 placeholder={t('medical.descriptionPlaceholder')}
                 value={medicalForm.description}
-                onChange={(e) => setMedicalForm({ ...medicalForm, description: e.target.value })}
+                onChange={(e) => setMedicalForm(prev => ({ ...prev, description: e.target.value }))}
                 rows={3}
               />
             </div>
@@ -731,7 +731,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 placeholder={t('medical.vaccineNamePlaceholder')}
                 value={vaccinationForm.vaccine}
-                onChange={(e) => setVaccinationForm({ ...vaccinationForm, vaccine: e.target.value })}
+                onChange={(e) => setVaccinationForm(prev => ({ ...prev, vaccine: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -739,7 +739,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 type="date"
                 value={vaccinationForm.date}
-                onChange={(e) => setVaccinationForm({ ...vaccinationForm, date: e.target.value })}
+                onChange={(e) => setVaccinationForm(prev => ({ ...prev, date: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -747,7 +747,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 type="date"
                 value={vaccinationForm.nextDue}
-                onChange={(e) => setVaccinationForm({ ...vaccinationForm, nextDue: e.target.value })}
+                onChange={(e) => setVaccinationForm(prev => ({ ...prev, nextDue: e.target.value }))}
               />
             </div>
             <div className="flex justify-end gap-2">
@@ -771,7 +771,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 placeholder={t('medical.medicationNamePlaceholder')}
                 value={medicationForm.name}
-                onChange={(e) => setMedicationForm({ ...medicationForm, name: e.target.value })}
+                onChange={(e) => setMedicationForm(prev => ({ ...prev, name: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -779,7 +779,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 placeholder={t('medical.dosagePlaceholder')}
                 value={medicationForm.dosage}
-                onChange={(e) => setMedicationForm({ ...medicationForm, dosage: e.target.value })}
+                onChange={(e) => setMedicationForm(prev => ({ ...prev, dosage: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -787,7 +787,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 type="date"
                 value={medicationForm.startDate}
-                onChange={(e) => setMedicationForm({ ...medicationForm, startDate: e.target.value })}
+                onChange={(e) => setMedicationForm(prev => ({ ...prev, startDate: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -795,7 +795,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <Input
                 type="date"
                 value={medicationForm.endDate || ''}
-                onChange={(e) => setMedicationForm({ ...medicationForm, endDate: e.target.value })}
+                onChange={(e) => setMedicationForm(prev => ({ ...prev, endDate: e.target.value }))}
               />
             </div>
             <div className="flex justify-end gap-2">

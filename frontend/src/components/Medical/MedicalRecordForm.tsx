@@ -94,7 +94,7 @@ export default function MedicalRecordForm({
               id="date"
               type="date"
               value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
               required
             />
           </div>
@@ -104,7 +104,7 @@ export default function MedicalRecordForm({
             <Input
               id="recordType"
               value={formData.recordType}
-              onChange={(e) => setFormData({ ...formData, recordType: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, recordType: e.target.value }))}
               placeholder={t('medical.recordTypePlaceholder')}
               required
             />
@@ -115,7 +115,7 @@ export default function MedicalRecordForm({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               placeholder={t('medical.descriptionPlaceholder')}
               rows={4}
               required

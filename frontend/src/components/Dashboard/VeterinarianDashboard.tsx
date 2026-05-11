@@ -705,7 +705,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                     <CalendarComponent
                       mode="single"
                       selected={rescheduleForm.date}
-                      onSelect={(date) => date && setRescheduleForm({ ...rescheduleForm, date })}
+                      onSelect={(date) => date && setRescheduleForm(prev => ({ ...prev, date }))}
                       disabled={(date) => date < new Date()}
                       initialFocus
                     />
@@ -717,7 +717,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                 <Label htmlFor="reschedule-time">{t('dashboard.newTime')}</Label>
                 <Select
                   value={rescheduleForm.time}
-                  onValueChange={(value) => setRescheduleForm({ ...rescheduleForm, time: value })}
+                  onValueChange={(value) => setRescheduleForm(prev => ({ ...prev, time: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder={t('dashboard.selectTime')} />
@@ -779,7 +779,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                 <Textarea
                   id="diagnosis"
                   value={medicalForm.diagnosis}
-                  onChange={(e) => setMedicalForm({ ...medicalForm, diagnosis: e.target.value })}
+                  onChange={(e) => setMedicalForm(prev => ({ ...prev, diagnosis: e.target.value }))}
                   placeholder={t('dashboard.diagnosisPlaceholder')}
                   rows={3}
                 />
@@ -790,7 +790,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                 <Textarea
                   id="treatment"
                   value={medicalForm.treatment}
-                  onChange={(e) => setMedicalForm({ ...medicalForm, treatment: e.target.value })}
+                  onChange={(e) => setMedicalForm(prev => ({ ...prev, treatment: e.target.value }))}
                   placeholder={t('dashboard.treatmentPlaceholder')}
                   rows={3}
                 />
@@ -801,7 +801,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                 <Textarea
                   id="notes"
                   value={medicalForm.notes}
-                  onChange={(e) => setMedicalForm({ ...medicalForm, notes: e.target.value })}
+                  onChange={(e) => setMedicalForm(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder={t('dashboard.notesPlaceholder')}
                   rows={2}
                 />
