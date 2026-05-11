@@ -296,14 +296,14 @@
         "failedCancel": "Failed to cancel appointment",
         "doctorPrefix": "Dr. {{name}}",
         "types": {
-            "Routine Checkup": "Routine Checkup",
-            "Vaccination": "Vaccination",
-            "Emergency": "Emergency",
-            "Surgery": "Surgery",
-            "Dental Care": "Dental Care",
-            "Grooming": "Grooming",
-            "Follow-up": "Follow-up",
-            "Consultation": "Consultation"
+            "checkup": "Routine Checkup",
+            "vaccination": "Vaccination",
+            "emergency": "Emergency",
+            "surgery": "Surgery",
+            "dental": "Dental Care",
+            "grooming": "Grooming",
+            "followup": "Follow-up",
+            "consultation": "Consultation"
         },
         "status": {
             "scheduled": "Scheduled",

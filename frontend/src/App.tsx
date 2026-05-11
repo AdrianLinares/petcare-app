@@ -22,6 +22,7 @@
 
 // React imports - The core framework we're using
 import React, { useState, useEffect } from 'react';
+import { Agentation } from 'agentation';
 // - useState: Creates state variables (data that can change)
 // - useEffect: Runs code when component loads or data changes
 
@@ -262,6 +263,7 @@ const App = () => {
         {(authState as any).view === 'demo' && (
           <PasswordRecoveryDemo />  // Demo page for testing password recovery
         )}
+        {import.meta.env.DEV && <Agentation />}
       </TooltipProvider>
     );
   }
@@ -300,9 +302,9 @@ const App = () => {
           onLogout={handleLogout}
         />
       )}
+      {import.meta.env.DEV && <Agentation />}
     </TooltipProvider>
   );
 };
 
-// Export this component so other files can import and use it
 export default App;

@@ -256,7 +256,7 @@ export default function PetMedicalRecords({
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <Badge>{record.recordType}</Badge>
+                              <Badge className="capitalize">{record.recordType}</Badge>
                               <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 {new Date(record.date).toLocaleDateString()}

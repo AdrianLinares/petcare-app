@@ -49,6 +49,7 @@ import { format } from 'date-fns';
 import { Pet, Appointment, User } from '../../types';
 import { appointmentAPI, userAPI, translateApiError } from '@/lib/api';
 import { toast } from 'sonner';
+import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
 
 interface AppointmentSchedulingProps {
   user: User;
@@ -108,14 +109,14 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
   }, []); // Empty dependency array = run once on mount
 
   const appointmentTypes = [
-    'Routine Checkup',
-    'Vaccination',
-    'Emergency',
-    'Surgery',
-    'Dental Care',
-    'Grooming',
-    'Follow-up',
-    'Consultation'
+    'checkup',
+    'vaccination',
+    'emergency',
+    'surgery',
+    'dental',
+    'grooming',
+    'followup',
+    'consultation'
   ];
 
   const timeSlots = [
@@ -444,9 +445,9 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{t(`appointment.types.${appointment.type}`)}</Badge>
+                    <Badge variant="outline">{translateAppointmentType(t, appointment.type)}</Badge>
                     <Badge className={getStatusColor(appointment.status)}>
-                      {t(`appointment.status.${appointment.status}`)}
+                      {translateAppointmentStatus(t, appointment.status)}
                     </Badge>
                     <Button
                       size="sm"
@@ -495,9 +496,9 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{t(`appointment.types.${appointment.type}`)}</Badge>
+                    <Badge variant="outline">{translateAppointmentType(t, appointment.type)}</Badge>
                     <Badge className={getStatusColor(appointment.status)}>
-                      {t(`appointment.status.${appointment.status}`)}
+                      {translateAppointmentStatus(t, appointment.status)}
                     </Badge>
                   </div>
                 </div>

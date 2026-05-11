@@ -43,6 +43,7 @@ import { Appointment, User, Pet } from '../../types';
 import UserManagementDialogs from '../Admin/UserManagementDialogs';
 import { userAPI, petAPI, appointmentAPI } from '@/lib/api';
 import { toast } from 'sonner';
+import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
 
 interface AdminDashboardProps {
@@ -416,11 +417,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                             <p className="text-sm text-gray-600">
                               {new Date(appointment.date).toLocaleDateString()} - Dr. {appointment.veterinarian}
                             </p>
-                            <p className="text-sm text-gray-500">{appointment.type}</p>
+                            <p className="text-sm text-gray-500">{translateAppointmentType(t, appointment.type)}</p>
                           </div>
                         </div>
                         <Badge className={getStatusColor(appointment.status)}>
-                          {appointment.status}
+                          {translateAppointmentStatus(t, appointment.status)}
                         </Badge>
                       </div>
                     ))}
@@ -516,13 +517,13 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                                 {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                               </p>
                               <p className="text-sm text-gray-600">Dr. {appointment.veterinarian}</p>
-                              <p className="text-sm text-gray-500">{appointment.type}</p>
+                              <p className="text-sm text-gray-500">{translateAppointmentType(t, appointment.type)}</p>
                               <p className="text-xs text-gray-400">{t('dashboard.owner')}: {appointment.ownerId}</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Badge className={getStatusColor(appointment.status)}>
-                              {appointment.status}
+                              {translateAppointmentStatus(t, appointment.status)}
                             </Badge>
                             <div className="flex space-x-1">
                               <Button
@@ -640,7 +641,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                               <CardContent className="p-4">
                                 <div className="flex items-center justify-between mb-2">
                                   <h3 className="font-bold text-lg">{pet.name}</h3>
-                                  <Badge variant="secondary">{pet.species}</Badge>
+                                  <Badge variant="secondary">{t(`pets.${pet.species}`)}</Badge>
                                 </div>
                                 <p className="text-sm text-gray-600">{t('dashboard.breed')}: {pet.breed}</p>
                                 <p className="text-sm text-gray-600">{t('dashboard.age')}: {pet.age} years</p>
@@ -800,12 +801,12 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">{t('dashboard.type')}</h4>
-                  <p>{selectedAppointment.type}</p>
+                  <p>{translateAppointmentType(t, selectedAppointment.type)}</p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-sm text-gray-600">Status</h4>
                   <Badge className={getStatusColor(selectedAppointment.status)}>
-                    {selectedAppointment.status}
+                    {translateAppointmentStatus(t, selectedAppointment.status)}
                   </Badge>
                 </div>
               </div>
@@ -863,7 +864,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                     {new Date(selectedAppointment.date).toLocaleDateString()} at {selectedAppointment.time}
                   </p>
                   <p className="text-sm text-gray-600">Dr. {selectedAppointment.veterinarian}</p>
-                  <p className="text-sm text-gray-500">{selectedAppointment.type}</p>
+                  <p className="text-sm text-gray-500">{translateAppointmentType(t, selectedAppointment.type)}</p>
                 </div>
               )}
             </AlertDialogDescription>

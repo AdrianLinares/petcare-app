@@ -43,6 +43,7 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import { Pet, Appointment, User } from '../../types';
 import { petAPI, appointmentAPI, vaccinationAPI } from '@/lib/api';
 import { toast } from 'sonner';
+import { translateAppointmentType } from '@/i18n/appointment';
 
 interface PetOwnerDashboardProps {
   user: User;
@@ -232,7 +233,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                             <p className="text-sm text-gray-600">{t('dashboard.doctorPrefix', { name: appointment.veterinarian })}</p>
                           </div>
                         </div>
-                        <Badge variant="outline">{appointment.type}</Badge>
+                        <Badge variant="outline">{translateAppointmentType(t, appointment.type)}</Badge>
                       </div>
                     ))}
                   </div>
@@ -334,7 +335,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                             <div>
                               <p className="font-semibold">{pet.name}</p>
                               <p className="text-sm text-gray-600">
-                                {pet.species} • {pet.breed}
+                                {t(`pets.${pet.species}`)} • {pet.breed}
                               </p>
                             </div>
                           </div>

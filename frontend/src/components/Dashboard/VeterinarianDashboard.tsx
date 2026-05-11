@@ -47,6 +47,7 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import { Appointment, User, Pet } from '../../types';
 import { appointmentAPI, petAPI } from '@/lib/api';
 import { toast } from 'sonner';
+import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
 import { format } from 'date-fns';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
 
@@ -377,13 +378,13 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                           <div>
                             <p className="font-medium">{appointment.time}</p>
                             <p className="text-sm text-gray-600">{appointment.petName}</p>
-                            <p className="text-sm text-gray-600">{appointment.type}</p>
+                            <p className="text-sm text-gray-600">{translateAppointmentType(t, appointment.type)}</p>
                             <p className="text-sm text-gray-500">{appointment.reason}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge className={getStatusColor(appointment.status)}>
-                            {appointment.status}
+                            {translateAppointmentStatus(t, appointment.status)}
                           </Badge>
                           {appointment.status === 'scheduled' && (
                             <Button
@@ -426,11 +427,11 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                             <p className="text-sm text-gray-600">
                               {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                             </p>
-                            <p className="text-sm text-gray-600">{appointment.type}</p>
+                            <p className="text-sm text-gray-600">{translateAppointmentType(t, appointment.type)}</p>
                             <p className="text-sm text-gray-500">{appointment.reason}</p>
                           </div>
                         </div>
-                        <Badge variant="outline">{appointment.status}</Badge>
+                        <Badge variant="outline">{translateAppointmentStatus(t, appointment.status)}</Badge>
                       </div>
                     ))}
                   </div>
@@ -510,13 +511,13 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                               <div className="flex items-center gap-2">
                                 <p className="font-medium">{appointment.petName}</p>
                                 <Badge className={getStatusColor(appointment.status)}>
-                                  {appointment.status}
+                                  {translateAppointmentStatus(t, appointment.status)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-gray-600">
                                 {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                               </p>
-                              <p className="text-sm text-gray-600">{appointment.type}</p>
+                              <p className="text-sm text-gray-600">{translateAppointmentType(t, appointment.type)}</p>
                               {appointment.reason && (
                                 <p className="text-sm text-gray-500">{appointment.reason}</p>
                               )}
@@ -635,7 +636,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                             <CardContent className="p-4">
                               <div className="flex items-center justify-between mb-2">
                                 <h3 className="font-bold text-lg">{pet.name}</h3>
-                                <Badge variant="secondary">{pet.species}</Badge>
+                                <Badge variant="secondary">{t(`pets.${pet.species}`)}</Badge>
                               </div>
                               <p className="text-sm text-gray-600">{t('dashboard.breed')}: {pet.breed}</p>
                               <p className="text-sm text-gray-600">{t('dashboard.age')}: {pet.age} years</p>

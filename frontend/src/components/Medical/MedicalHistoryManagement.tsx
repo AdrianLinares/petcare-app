@@ -492,7 +492,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline">{record.recordType}</Badge>
+                            <Badge variant="outline" className="capitalize">{record.recordType}</Badge>
                             <span className="text-sm text-gray-600">
                               {new Date(record.date).toLocaleDateString()}
                             </span>

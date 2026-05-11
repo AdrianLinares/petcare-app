@@ -32,3 +32,4 @@ yarn.lock
 WARP.md
 # Local Netlify folder
 .netlify
+frontend/coverage/
