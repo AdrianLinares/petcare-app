@@ -204,7 +204,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
       // Update local state to reflect cancellation
       // Cast status to correct type to satisfy TypeScript
       const updatedAppointments = appointments.map(apt =>
-        apt.id === appointmentId ? { ...apt, status: 'cancelled' as 'cancelled' } : apt
+        apt.id === appointmentId ? { ...apt, status: 'cancelled' as const } : apt
       );
       setAppointments(updatedAppointments);
 

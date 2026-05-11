@@ -49,6 +49,7 @@ import { getResetTokenFromURL } from './utils/passwordRecovery';    // Gets pass
 import { useTranslation } from 'react-i18next';                         // Internationalization
 import { toast } from 'sonner';                                      // Function to show popup messages
 import { authAPI, userAPI } from './lib/api';                        // Backend API service
+import { initializeTestData } from './utils/testData';               // Demo data for development
 
 // ==================== MAIN APP COMPONENT ====================
 /**
@@ -95,6 +96,9 @@ const App = () => {
    * when the app first opens.
    */
   useEffect(() => {
+    // STEP 0: Initialize demo data in localStorage for development/demo
+    initializeTestData();
+
     // STEP 1: Check if user has valid token and restore session
     const checkAuth = async () => {
       const token = localStorage.getItem('token');

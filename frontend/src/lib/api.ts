@@ -194,16 +194,35 @@ export const authAPI = {
    * console.log(result.user.fullName); // "John Smith"
    */
   async login(email: string, password: string) {
-    // POST request to /auth/login endpoint
-    const { data } = await api.post('/auth/login', { email, password });
+    try {
+      // POST request to /auth/login endpoint
+      const { data } = await api.post('/auth/login', { email, password });
 
-    // If backend sent a token, save it (successful login)
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      // If backend sent a token, save it (successful login)
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+      }
+
+      return data; // Return full response { user, token }
+    } catch (error: any) {
+      // If backend is not available, try localStorage demo users
+      if (!error.response || error.code === 'ERR_NETWORK') {
+        const userKey = `user_${email}`;
+        const storedUser = localStorage.getItem(userKey);
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          if (user.password === password) {
+            const token = 'demo-token-' + Date.now();
+            localStorage.setItem('token', token);
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            return { user, token };
+          }
+        }
+      }
+      // Re-throw original error if localStorage login also fails
+      throw error;
     }
-
-    return data; // Return full response { user, token }
   },
 
   /**
@@ -347,8 +366,19 @@ export const userAPI = {
    * console.log(user.email); // "owner@petcare.com"
    */
   async getCurrentUser() {
-    const { data } = await api.get('/users/me');
-    return data;
+    try {
+      const { data } = await api.get('/users/me');
+      return data;
+    } catch (error: any) {
+      // If backend is unavailable, try restoring from localStorage
+      if (!error.response || error.code === 'ERR_NETWORK') {
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          return JSON.parse(storedUser);
+        }
+      }
+      throw error;
+    }
   },
 
   /**

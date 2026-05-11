@@ -126,7 +126,7 @@ export class RoleManager {
           canEditClinicalRecords: true
         };
 
-      case 'administrator':
+      case 'administrator': {
         // Base administrator permissions
         const baseAdminPermissions: RolePermissions = {
           canCreateUsers: true,
@@ -161,6 +161,7 @@ export class RoleManager {
           default: // 'standard'
             return baseAdminPermissions;
         }
+      }
 
       default:
         // No permissions for unknown roles

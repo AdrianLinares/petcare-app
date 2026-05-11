@@ -58,7 +58,7 @@ export const userFormSchema = z.object({
   // This handles international formats like +1-555-1234 or local formats like 555-1234
   phone: z.string()
     .min(1, 'Phone number is required')
-    .regex(/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number')
+    .regex(/^[+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number')
     .max(20, 'Phone number must not exceed 20 characters'),
 
   // Password Field
