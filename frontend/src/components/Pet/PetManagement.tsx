@@ -58,6 +58,7 @@ import { Plus, Heart, Edit, Trash2, Calendar } from 'lucide-react';
 import { Pet, User } from '../../types';
 import { petAPI } from '@/lib/api';
 import { toast } from 'sonner';
+import { translateSpecies, translateGender } from '@/i18n/pets';
 
 interface PetManagementProps {
   user: User;
@@ -394,7 +395,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm font-medium">{t('pets.speciesDisplay')}</span>
-                    <Badge variant="secondary">{t(`pets.${pet.species}`)}</Badge>
+                    <Badge variant="secondary">{translateSpecies(t, pet.species)}</Badge>
                   </div>
                   {pet.breed && (
                     <div className="flex justify-between">
@@ -413,7 +414,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                   {pet.gender && (
                     <div className="flex justify-between">
                       <span className="text-sm font-medium">{t('pets.genderDisplay')}</span>
-                      <span className="text-sm">{t(`pets.${pet.gender}`)}</span>
+                      <span className="text-sm">{translateGender(t, pet.gender)}</span>
                     </div>
                   )}
                   {/* Conditions field removed - not part of Pet type. Consider using notes field instead. */}

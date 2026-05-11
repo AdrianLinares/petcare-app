@@ -44,6 +44,7 @@ import UserManagementDialogs from '../Admin/UserManagementDialogs';
 import { userAPI, petAPI, appointmentAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
+import { translateSpecies } from '@/i18n/pets';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
 
 interface AdminDashboardProps {
@@ -641,7 +642,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                               <CardContent className="p-4">
                                 <div className="flex items-center justify-between mb-2">
                                   <h3 className="font-bold text-lg">{pet.name}</h3>
-                                  <Badge variant="secondary">{t(`pets.${pet.species}`)}</Badge>
+                                  <Badge variant="secondary">{translateSpecies(t, pet.species)}</Badge>
                                 </div>
                                 <p className="text-sm text-gray-600">{t('dashboard.breed')}: {pet.breed}</p>
                                 <p className="text-sm text-gray-600">{t('dashboard.age')}: {pet.age} years</p>

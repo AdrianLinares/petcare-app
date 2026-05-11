@@ -44,6 +44,7 @@ import { Pet, Appointment, User } from '../../types';
 import { petAPI, appointmentAPI, vaccinationAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { translateAppointmentType } from '@/i18n/appointment';
+import { translateSpecies } from '@/i18n/pets';
 
 interface PetOwnerDashboardProps {
   user: User;
@@ -335,7 +336,7 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
                             <div>
                               <p className="font-semibold">{pet.name}</p>
                               <p className="text-sm text-gray-600">
-                                {t(`pets.${pet.species}`)} • {pet.breed}
+                                {translateSpecies(t, pet.species)} • {pet.breed}
                               </p>
                             </div>
                           </div>

@@ -48,6 +48,7 @@ import { Appointment, User, Pet } from '../../types';
 import { appointmentAPI, petAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
+import { translateSpecies } from '@/i18n/pets';
 import { format } from 'date-fns';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
 
@@ -636,7 +637,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                             <CardContent className="p-4">
                               <div className="flex items-center justify-between mb-2">
                                 <h3 className="font-bold text-lg">{pet.name}</h3>
-                                <Badge variant="secondary">{t(`pets.${pet.species}`)}</Badge>
+                                <Badge variant="secondary">{translateSpecies(t, pet.species)}</Badge>
                               </div>
                               <p className="text-sm text-gray-600">{t('dashboard.breed')}: {pet.breed}</p>
                               <p className="text-sm text-gray-600">{t('dashboard.age')}: {pet.age} years</p>
