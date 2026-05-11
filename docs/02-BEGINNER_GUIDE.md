@@ -33,7 +33,7 @@ Don't worry if you're still learning! This guide will explain concepts as we go.
 
 **Recommended Reading Order:**
 1. Start here (BEGINNER_GUIDE.md)
-2. Read [ARCHITECTURE.md](./ARCHITECTURE.md) for big-picture understanding
+2. Read [01-ARCHITECTURE.md](./01-ARCHITECTURE.md) for big-picture understanding
 3. Follow the code examples below
 4. Look at the actual code files with comments
 5. Try the practice exercises at the end
@@ -777,7 +777,7 @@ JSX looks like HTML but has some differences:
 ## Next Steps
 
 1. ✅ Read through this guide
-2. ✅ Read [ARCHITECTURE.md](./ARCHITECTURE.md)
+2. ✅ Read [01-ARCHITECTURE.md](./01-ARCHITECTURE.md)
 3. 📖 Start reading the actual code files (they now have comments!)
 4. 💻 Try the practice exercises
 5. 🔧 Make small changes and see what happens

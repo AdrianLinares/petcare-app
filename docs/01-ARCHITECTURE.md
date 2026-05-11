@@ -425,7 +425,7 @@ const handleLogin = (email: string, password: string) => {
 
 ## Next Steps
 
-1. Read the [BEGINNER_GUIDE.md](./BEGINNER_GUIDE.md) for a step-by-step walkthrough
+1. Read the [02-BEGINNER_GUIDE.md](./02-BEGINNER_GUIDE.md) for a step-by-step walkthrough
 2. Look at the inline comments in the code files
 3. Try making small changes and see what happens
 4. Use the browser's Developer Tools (F12) to see console logs and inspect elements

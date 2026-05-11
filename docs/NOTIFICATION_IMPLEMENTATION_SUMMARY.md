@@ -52,7 +52,7 @@
 - ✅ TypeScript compilation verified (no errors)
 
 ### 4. Documentation
-- ✅ Created comprehensive guide: `REALTIME_NOTIFICATIONS.md`
+- ✅ Created comprehensive guide: `06-REALTIME-NOTIFICATIONS.md`
   - Setup instructions (Pusher account, env vars)
   - Architecture explanation
   - Developer usage guide
@@ -69,7 +69,7 @@
 1. `frontend/src/components/Notification/NotificationBell.tsx` - NotificationBell UI component
 2. `frontend/src/hooks/use-pusher.ts` - Pusher connection hook
 3. `netlify/functions/utils/notifications.ts` - Notification helper functions
-4. `REALTIME_NOTIFICATIONS.md` - Complete setup and usage guide
+4. `06-REALTIME-NOTIFICATIONS.md` - Complete setup and usage guide
 5. `NOTIFICATION_IMPLEMENTATION_SUMMARY.md` - This file
 
 ### Modified (8 files):
@@ -216,7 +216,7 @@ Notification system is extensible. Easy to add:
 
 ## 📚 Resources
 
-- **Setup Guide:** [REALTIME_NOTIFICATIONS.md](./REALTIME_NOTIFICATIONS.md)
+- **Setup Guide:** [06-REALTIME-NOTIFICATIONS.md](./06-REALTIME-NOTIFICATIONS.md)
 - **Pusher Docs:** https://pusher.com/docs/channels
 - **Code Example:** See `netlify/functions/auth.ts` line 116 for integration pattern
 

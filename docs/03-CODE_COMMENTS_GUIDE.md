@@ -328,14 +328,14 @@ These files have comprehensive comments:
   - Rendering logic fully commented
 
 ### 📝 Files That Have Inline Comments
-These files are documented in BEGINNER_GUIDE.md with code examples:
+These files are documented in 02-BEGINNER_GUIDE.md with code examples:
 
 - **src/types.ts** - All TypeScript interfaces explained
 - **src/lib/api.ts** - API client and all API modules explained
 - **Components** - React components with inline comments
 
 ### 📚 Referenced in Guides
-These are explained in ARCHITECTURE.md and BEGINNER_GUIDE.md:
+These are explained in 01-ARCHITECTURE.md and 02-BEGINNER_GUIDE.md:
 
 - All component files
 - All utility files
@@ -465,8 +465,8 @@ Open `src/App.tsx` and try this:
 ### If a Comment Doesn't Make Sense
 
 1. **Read the surrounding code** - Context helps!
-2. **Check BEGINNER_GUIDE.md** - Might be explained there
-3. **Check ARCHITECTURE.md** - Might explain the concept
+2. **Check 02-BEGINNER_GUIDE.md** - Might be explained there
+3. **Check 01-ARCHITECTURE.md** - Might explain the concept
 4. **Google the term** - Many programming terms have good explanations online
 5. **Add a note** - Write "Don't understand this yet" and come back later
 

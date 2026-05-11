@@ -54,7 +54,7 @@ Visit **http://localhost:8888**
 
 Check that schema is correct:
 - See [schema.sql](./schema.sql) for complete table definitions
-- See [DATABASE_SCHEMA_VERIFICATION.md](./DATABASE_SCHEMA_VERIFICATION.md) for verification report
+- See [schema.sql](../schema.sql) for complete table definitions
 
 ## Demo Credentials
 
@@ -95,7 +95,7 @@ frontend/              # React app
 
 ## Need Help?
 
-- 📖 **Full deployment guide:** `NETLIFY_DEPLOYMENT.md`
+- 📖 **Full deployment guide:** [`05-DEPLOYMENT.md`](./05-DEPLOYMENT.md)
 
 ## Troubleshooting
 

@@ -8,6 +8,68 @@ This guide will help you deploy the PetCare application to Netlify using serverl
 - A PostgreSQL database (you can use services like Neon, Supabase, or Railway)
 - Node.js 20 LTS and npm 10+
 
+## Setting Up Neon PostgreSQL
+
+Neon is a serverless PostgreSQL database that works great with Netlify. Here's how to set it up:
+
+### 1. Create a Neon Account
+
+1. Go to [https://console.neon.tech](https://console.neon.tech)
+2. Sign up with GitHub, Google, or email (free tier includes 0.5 GB storage)
+3. Verify your email address
+
+### 2. Create Your First Database
+
+1. Click **"Create a project"**
+2. Give it a name (e.g., `petcare-db`)
+3. Select a region close to your Netlify deployment (e.g., `US East` for `us-east-1`)
+4. Click **"Create project"**
+5. Wait a few seconds while Neon provisions your database
+
+### 3. Get Your Connection String
+
+1. In your project dashboard, look for **"Connection Details"**
+2. Copy the connection string. It looks like:
+   ```
+   postgresql://username:password@ep-xyz.us-east-2.aws.neon.tech/petcare-db?sslmode=require
+   ```
+3. Use this as your `DATABASE_URL` in `.env` or Netlify environment variables
+
+### 4. Apply the Schema
+
+Once you have your connection string, apply the schema:
+
+```bash
+# Using psql (install via `brew install libpq` on Mac or `apt install postgresql-client` on Linux)
+psql "postgresql://username:password@ep-xyz.us-east-2.aws.neon.tech/petcare-db?sslmode=require" -f schema.sql
+
+# Or use the Neon SQL Editor:
+# 1. Go to https://console.neon.tech
+# 2. Select your project
+# 3. Click "SQL Editor" in the sidebar
+# 4. Paste the contents of schema.sql
+# 5. Click "Run"
+```
+
+### 5. Seed Demo Data (Optional)
+
+```bash
+psql "$DATABASE_URL" -f seed-database-fixed.sql
+```
+
+> **Important:** Always run `schema.sql` BEFORE `seed-database-fixed.sql`
+
+### 6. Verify Your Connection
+
+Test that everything is working:
+
+```bash
+psql "$DATABASE_URL" -c "SELECT COUNT(*) FROM users;"
+# Should return: 3 (John Smith, Sarah Johnson, Admin User)
+```
+
+---
+
 ## Local Development
 
 ### 1. Install Dependencies
@@ -182,6 +244,43 @@ psql "$PRODUCTION_DATABASE_URL" -f seed-database-fixed.sql
 ```
 
 After deployment, the application will use the `DATABASE_URL` environment variable to connect.
+
+### 6. Configure a Custom Domain (Optional)
+
+You can use your own domain (e.g., `petcare.yourname.com`) instead of the default `your-site.netlify.app`:
+
+1. **Buy or transfer a domain** from a registrar like Namecheap, Google Domains, or GoDaddy
+
+2. **Add your domain in Netlify**:
+   ```bash
+   npx netlify deploy --prod
+   # Then go to Site settings → Domain management → Add custom domain
+   ```
+   Or via the dashboard:
+   - Go to your site's **Site settings** → **Domain management**
+   - Click **"Add custom domain"**
+   - Enter your domain (e.g., `petcare.yourname.com`)
+   - Click **"Verify"**
+
+3. **Update DNS records** (at your domain registrar):
+   - **Option A — Netlify DNS (easiest):** Let Netlify manage your DNS. Follow the instructions to set Netlify's nameservers at your registrar.
+   - **Option B — External DNS:** Add a CNAME record pointing your domain to `your-site.netlify.app`
+
+4. **Update environment variables** to match your domain:
+   ```bash
+   npx netlify env:set FRONTEND_URL "https://petcare.yourname.com"
+   ```
+
+5. **Enable HTTPS** — Netlify automatically provisions free SSL certificates via Let's Encrypt. It may take a few minutes after adding the domain.
+
+6. **Verify everything works**:
+   - Visit `https://petcare.yourname.com`
+   - Log in with demo credentials
+   - Check that API calls work (open DevTools → Network tab)
+
+> **Note:** If your custom domain doesn't have the `FRONTEND_URL` matching, CORS errors may appear. Always update `FRONTEND_URL` after changing domains.
+
+---
 
 ## API Routes
 

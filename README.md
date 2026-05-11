@@ -217,52 +217,36 @@ petcare-app/
 └── netlify.toml              # Netlify configuration
 ```
 
-## 📚 Documentation for Beginners
+## 📚 Documentation
 
-**New to programming or React? I've got comprehensive guides for you!**
+All guides are in the [`docs/`](./docs/) folder, numbered in the recommended reading order:
 
-### 🎯 Start Here: 
+### 📖 For Beginners (Start Here)
 
-Note: Documentation moved to the docs/ directory — links below point there.
+| # | Document | What It Covers | Reading Time |
+|---|----------|---------------|:------------:|
+| 01 | **[01-ARCHITECTURE.md](./docs/01-ARCHITECTURE.md)** | Big-picture overview, tech stack, project structure, data flow | ~30 min |
+| 02 | **[02-BEGINNER_GUIDE.md](./docs/02-BEGINNER_GUIDE.md)** | Step-by-step code walkthrough with examples and exercises | ~60 min |
+| 03 | **[03-CODE_COMMENTS_GUIDE.md](./docs/03-CODE_COMMENTS_GUIDE.md)** | How to read the inline code comments throughout the project | ~20 min |
 
-- **[BEGINNER_GUIDE.md](./docs/BEGINNER_GUIDE.md)** - Step-by-step guide to understanding the codebase
-  - Explains React, TypeScript, and all core concepts
-  - Includes code examples and practice exercises
-  - ~60 minutes reading time
+### 🚀 Getting Started
 
--- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Overview of how the application is structured  
-  - Big-picture view of the system
-  - Technology explanations
-  - Common patterns used throughout
-  - ~30 minutes reading time
+| # | Document | What It Covers |
+|---|----------|----------------|
+| 04 | **[04-QUICK-START.md](./docs/04-QUICK-START.md)** | Get the app running in 5 steps |
+| 05 | **[05-DEPLOYMENT.md](./docs/05-DEPLOYMENT.md)** | Full deployment guide: Netlify, Neon PostgreSQL, custom domains |
 
--- **[CODE_COMMENTS_GUIDE.md](./docs/CODE_COMMENTS_GUIDE.md)** - How to read code comments
-  - Explains comment types and styles
-  - Navigation strategies
-  - Tips for learning from comments
-  - ~20 minutes reading time
+### 🔌 Services & Troubleshooting
 
-### 🗄️ Database & Deployment
+| # | Document | What It Covers |
+|---|----------|----------------|
+| 06 | **[06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md)** | Pusher real-time notification setup and usage |
+| 07 | **[07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md)** | Fix npm installation issues |
 
-- **[schema.sql](./schema.sql)** - Complete database schema definition
-  - All tables with correct columns
-  - Includes soft delete pattern (`deleted_at`)
-  - Create this BEFORE loading seed data
-  
-- **[seed-database-fixed.sql](./seed-database-fixed.sql)** - Demo data
-  - Test users, pets, appointments, and medical records
-  - Run AFTER schema.sql is applied
+### 🗄️ Database Files
 
-### ✨ What You'll Learn
-
-- What React, TypeScript, and Tailwind CSS are and how they work
-- How components, props, and state work
-- How data flows through the application
-- Common React patterns used in the code
-- Step-by-step explanations of key features (login, pet management, appointments)
-- How to read and navigate code comments
-- Debugging tips and best practices
-- Database schema and how it connects to the API
+- **[schema.sql](./schema.sql)** — Complete table definitions (run this FIRST)
+- **[seed-database-fixed.sql](./seed-database-fixed.sql)** — Demo data (run AFTER schema)
 
 ### 📝 Code Comments
 
@@ -296,8 +280,6 @@ All major code files include detailed inline comments explaining:
    ```
 
 ### Prerequisites
-
-### Prerequisites
 - Node.js 20 LTS
 - npm 10+
 - Netlify CLI (optional for local development)
@@ -320,7 +302,7 @@ All major code files include detailed inline comments explaining:
    # This installs dependencies for frontend and serverless functions
    ```
    
-> **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [DEPENDENCY_FIX.md](./docs/DEPENDENCY_FIX.md) for details.
+> **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md) for details.
 
 3. **Configure environment variables**
 
@@ -410,21 +392,21 @@ npm --prefix netlify/functions run typecheck || npm --prefix netlify/functions r
 
 ## Getting Started
 
-For complete installation and deployment instructions, see [docs/installation_and_deploy.md](./docs/installation_and_deploy.md).
+For complete installation and deployment instructions, see [docs/05-DEPLOYMENT.md](./docs/05-DEPLOYMENT.md).
 
-Learn how to read the codebase comments in [docs/CODE_COMMENTS_GUIDE.md](./docs/CODE_COMMENTS_GUIDE.md).
+Learn how to read the codebase comments in [docs/03-CODE_COMMENTS_GUIDE.md](./docs/03-CODE_COMMENTS_GUIDE.md).
 
 ## Documentation links
 
 The full documentation set is in the docs/ folder. Relevant files:
 
-- [docs/BEGINNER_GUIDE.md](./docs/BEGINNER_GUIDE.md)
-- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
-- [docs/CODE_COMMENTS_GUIDE.md](./docs/CODE_COMMENTS_GUIDE.md)
-- [docs/installation_and_deploy.md](./docs/installation_and_deploy.md)
-- [docs/DEPENDENCY_FIX.md](./docs/DEPENDENCY_FIX.md)
-- [docs/QUICK_START_NETLIFY.md](./docs/QUICK_START_NETLIFY.md)
-- [docs/NETLIFY_DEPLOYMENT.md](./docs/NETLIFY_DEPLOYMENT.md)
+- [01-ARCHITECTURE.md](./docs/01-ARCHITECTURE.md)
+- [02-BEGINNER_GUIDE.md](./docs/02-BEGINNER_GUIDE.md)
+- [03-CODE_COMMENTS_GUIDE.md](./docs/03-CODE_COMMENTS_GUIDE.md)
+- [04-QUICK-START.md](./docs/04-QUICK-START.md)
+- [05-DEPLOYMENT.md](./docs/05-DEPLOYMENT.md)
+- [06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md)
+- [07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md)
 
 ## 🔑 Demo Credentials
 
@@ -648,7 +630,7 @@ The application includes comprehensive demo data for testing:
 ## 🔮 Future Enhancements
 
 ### **Planned Features**
--- ✅ ~~Real-time notifications with WebSockets~~ **COMPLETED** (see [REALTIME_NOTIFICATIONS.md](./docs/REALTIME_NOTIFICATIONS.md))
+-- ✅ ~~Real-time notifications with WebSockets~~ **COMPLETED** (see [06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md))
 - Advanced reporting and analytics dashboards
 - Multi-clinic support with clinic management
 - External API integrations (labs, pharmacies)
@@ -665,7 +647,7 @@ The application includes comprehensive demo data for testing:
 - ✅ ~~Database integration (Neon PostgreSQL)~~ **COMPLETED**
 - ✅ ~~JWT authentication~~ **COMPLETED**
 - ✅ ~~Serverless API with Netlify~~ **COMPLETED**
--- ✅ ~~Real-time updates with Pusher WebSockets~~ **COMPLETED** (see [REALTIME_NOTIFICATIONS.md](./docs/REALTIME_NOTIFICATIONS.md))
+-- ✅ ~~Real-time updates with Pusher WebSockets~~ **COMPLETED** (see [06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md))
 - ✅ ~~Advanced caching strategies (Edge Functions)~~ **COMPLETED** (Edge cache for `GET /api/*`)
 - Performance optimizations (lazy loading, code splitting)
 - Comprehensive test coverage (Jest, React Testing Library, Playwright)
