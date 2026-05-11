@@ -960,8 +960,12 @@ export const medicalRecordAPI = {
    * console.log(records[0].recordType); // "checkup"
    */
   async getByPet(petId: string) {
-    const { data } = await api.get(`/medical-records/pet/${petId}`);
-    return data as MedicalRecord[];
+    try {
+      const { data } = await api.get(`/medical-records/pet/${petId}`);
+      return data as MedicalRecord[];
+    } catch {
+      return [];
+    }
   },
 
   /**
@@ -1076,8 +1080,12 @@ export const vaccinationAPI = {
    * vaccines.forEach(v => console.log(v.vaccine, v.date));
    */
   async getByPet(petId: string) {
-    const { data } = await api.get(`/vaccinations/pet/${petId}`);
-    return data as VaccinationRecord[];
+    try {
+      const { data } = await api.get(`/vaccinations/pet/${petId}`);
+      return data as VaccinationRecord[];
+    } catch {
+      return [];
+    }
   },
 
   /**
@@ -1216,8 +1224,12 @@ export const medicationAPI = {
    * const meds = await medicationAPI.getByPet('pet123');
    */
   async getByPet(petId: string) {
-    const { data } = await api.get(`/medications/pet/${petId}`);
-    return data as MedicationRecord[];
+    try {
+      const { data } = await api.get(`/medications/pet/${petId}`);
+      return data as MedicationRecord[];
+    } catch {
+      return [];
+    }
   },
 
   /**
@@ -1381,8 +1393,12 @@ export const clinicalRecordAPI = {
    * const clinicals = await clinicalRecordAPI.getByPet('pet123');
    */
   async getByPet(petId: string) {
-    const { data } = await api.get(`/clinical-records/pet/${petId}`);
-    return data as ClinicalRecord[];
+    try {
+      const { data } = await api.get(`/clinical-records/pet/${petId}`);
+      return data as ClinicalRecord[];
+    } catch {
+      return [];
+    }
   },
 
   /**
