@@ -180,6 +180,191 @@ State is like the application's memory. It remembers things while the app is run
 
 ---
 
+## Component Hierarchy & Interaction
+
+Understanding how components connect is key to reading the code. Here's how they interact:
+
+### **Parent → Child Communication (Props)**
+
+Data flows DOWN from parent to child via **props**:
+
+```
+App.tsx                         ← Parent (owns currentUser state)
+├── LoginForm                   ← Child — receives onLoginSuccess callback
+│   └── Input, Button           ← UI primitives (receive value, onChange)
+│
+└── PetOwnerDashboard           ← Child — receives user object as prop
+    ├── NotificationBell         ← Child — receives userId
+    ├── LanguageSwitcher         ← Child — standalone
+    └── [Feature Components]     ← PetManagement, AppointmentScheduling, etc.
+```
+
+**How it works in code:**
+```tsx
+// Parent (App.tsx) passes data DOWN
+<PetOwnerDashboard
+  user={currentUser}         // prop: user data
+  onLogout={handleLogout}    // prop: callback function
+/>
+
+// Child (PetOwnerDashboard) receives props
+function PetOwnerDashboard({ user, onLogout }: {
+  user: User;
+  onLogout: () => void;
+}) {
+  // Use user.fullName, user.id, etc.
+  // Call onLogout() when user clicks "Sign Out"
+}
+```
+
+### **Child → Parent Communication (Callbacks)**
+
+Data flows UP via **callback functions** passed as props:
+
+```
+User clicks "Schedule" in AppointmentScheduling
+  → calls onCreateAppointment(data)     ← callback UP
+  → PetOwnerDashboard receives the data
+  → setsAppointments([...prev, newAppt])  ← state update
+  → React re-renders UI
+```
+
+### **Sibling Communication**
+
+Sibling components don't talk directly. They communicate through their **common parent**:
+
+```
+App.tsx                    ← shared state lives here
+├── LoginForm              ← sets currentUser via onLoginSuccess
+└── PetOwnerDashboard      ← reads currentUser from props
+```
+
+When `LoginForm` calls `onLoginSuccess(user)`, `App.tsx` updates `currentUser`, which causes `PetOwnerDashboard` to render.
+
+### **Service Layer Communication**
+
+Components don't talk to the database directly. They go through the **API service layer**:
+
+```
+Component → petAPI.getPets() → Axios HTTP call → Serverless Function → PostgreSQL
+     ↑                                                                       │
+     └──────────────────── JSON response ←───────────────────────────────────┘
+```
+
+---
+
+## Global State Glossary
+
+These are the **shared state variables** that multiple parts of the app depend on. Knowing them helps you trace how data flows through the application.
+
+| State Variable | Location | Type | Purpose | Updated By |
+|---------------|----------|------|---------|------------|
+| `currentUser` | `App.tsx:72` | `User \| null` | Who is logged in (`null` = not authenticated) | `handleLoginSuccess()`, `handleLogout()`, `checkAuth()` |
+| `loading` | `App.tsx:79` | `boolean` | Is the app still initializing? | `useEffect` on mount, `setLoading(false)` at end |
+| `authState` | `App.tsx:87` | `AuthState` | Which auth screen to show (login, forgot-password, reset-password) | URL hash changes, user actions |
+| `pets` | Each dashboard | `Pet[]` | Current user's pets | `petAPI.getPets()` in `useEffect` |
+| `appointments` | Each dashboard | `Appointment[]` | Current user's appointments | `appointmentAPI.getAppointments()` in `useEffect` |
+| Token | `localStorage` | `string \| null` | JWT for API authentication | `authAPI.login()`, `authAPI.logout()` |
+
+**Rule of thumb:** State that affects multiple components lives in `App.tsx` (or `localStorage`). State used by only one component lives in that component.
+
+---
+
+## Visual Consistency — How the Design Stays Consistent
+
+The app uses a **design system** built on three layers:
+
+### **Layer 1: Tailwind CSS Theme** (`tailwind.config.js`)
+
+A shared theme file defines colors, spacing, and fonts used everywhere:
+
+```js
+// Simplified example — colors used throughout the app
+theme: {
+  extend: {
+    colors: {
+      'petcare-navy': '#1e3a5f',      // Headings, primary text
+      'petcare-golden': '#c9a84c',    // Accents, highlights
+      'petcare-beige': '#f5f0e8',     // Backgrounds
+    }
+  }
+}
+```
+
+**Why this matters:** Changing `petcare-navy` in one file updates it everywhere. No more hunting down hardcoded colors.
+
+### **Layer 2: Shared UI Components** (`src/components/ui/`)
+
+These are **pre-built, reusable components** based on [shadcn/ui](https://ui.shadcn.com/):
+
+| Component | Purpose | Used In |
+|-----------|---------|---------|
+| `Button` | All clickable actions | Every dashboard |
+| `Card` | Content containers | Pet cards, appointment cards |
+| `Dialog` | Popup forms | Schedule appointment, add pet |
+| `Badge` | Status labels | Appointment status, allergies |
+| `Input` | Text fields | All forms |
+| `Table` | Data tables | Admin user list |
+| `Toast` | Notification popups | Success/error messages |
+
+**Example — every form dialog follows the same pattern:**
+
+```tsx
+<Dialog open={isOpen} onOpenChange={setIsOpen}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Title</DialogTitle>
+    </DialogHeader>
+    {/* Form fields */}
+    <Button onClick={handleSave}>Save</Button>
+  </DialogContent>
+</Dialog>
+```
+
+This means users see **consistent layouts, spacing, and interactions** whether they're adding a pet, scheduling an appointment, or editing medical records.
+
+### **Layer 3: Composition Patterns**
+
+All feature pages follow the same layout pattern:
+
+```
+Card (container)
+├── CardHeader (title + actions)
+├── CardContent (main data)
+│   ├── Data display (text, badges, images)
+│   └── Action buttons (edit, delete, schedule)
+└── CardFooter (optional: pagination, summary)
+```
+
+---
+
+## Responsibility Matrix by Role
+
+Each user role has specific permissions. This matrix shows exactly what each role can do:
+
+| Feature | Pet Owner | Veterinarian | Standard Admin | Elevated Admin | Super Admin |
+|---------|:---------:|:------------:|:--------------:|:--------------:|:-----------:|
+| View own pets | ✅ | — | — | — | — |
+| View all pets | — | ✅ | ✅ | ✅ | ✅ |
+| Add/edit own pets | ✅ | — | — | — | — |
+| Add/edit any pet | — | ✅ | ✅ | ✅ | ✅ |
+| Delete pets | — | — | ✅ | ✅ | ✅ |
+| View own appointments | ✅ | — | — | — | — |
+| View all appointments | — | ✅ | ✅ | ✅ | ✅ |
+| Schedule appointments | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Cancel appointments | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Add medical records | — | ✅ | — | ✅ | ✅ |
+| View medical records | Own pets | All pets | All pets | All pets | All pets |
+| Manage users (CRUD) | — | — | Pet owners + Vets | All except admins | All users |
+| Manage administrators | — | — | — | — | ✅ |
+| Access admin dashboard | — | — | ✅ | ✅ | ✅ |
+| System settings | — | — | — | ✅ | ✅ |
+| View reports/analytics | — | ✅ | ✅ | ✅ | ✅ |
+
+> **Source:** This matrix is implemented in [`frontend/src/utils/roleManagement.ts`](../frontend/src/utils/roleManagement.ts). The `getRolePermissions()` function returns the exact permissions for each role and access level.
+
+---
+
 ## Key Concepts
 
 ### 1. **Components**
