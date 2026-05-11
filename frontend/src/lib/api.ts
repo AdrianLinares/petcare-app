@@ -143,18 +143,30 @@ api.interceptors.response.use(
 
   // ERROR: Request failed (status 400+)
   (error) => {
-    // Check if error is "401 Unauthorized"
-    if (error.response?.status === 401) {
-      // Token expired or invalid - clean up and redirect
-      localStorage.removeItem('token');
-      localStorage.removeItem('currentUser');
-      window.location.href = '/'; // Send user back to login
-    }
+    // If backend returned 401 (invalid/expired token), let calling code handle it.
+    // We intentionally do NOT clear session or reload the page here because:
+    // - Demo users authenticate via localStorage fallback, not a real backend JWT
+    // - `checkAuth()` in App.tsx already handles session restoration on reload
+    // - Calling code (individual components) shows appropriate error messages
 
     // Pass error along so calling code can handle it
     return Promise.reject(error);
   }
 );
+
+// ==================== LOCALSTORAGE HELPER ====================
+// When the backend is unavailable, read demo data seeded by initializeTestData()
+function getLocalData<T>(keyPrefix: string): T[] {
+  try {
+    const stored = localStorage.getItem('currentUser');
+    if (!stored) return [];
+    const user = JSON.parse(stored);
+    const data = localStorage.getItem(`${keyPrefix}_${user.email}`);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
 
 // ==================== AUTH API ====================
 
@@ -205,22 +217,21 @@ export const authAPI = {
       }
 
       return data; // Return full response { user, token }
-    } catch (error: any) {
-      // If backend is not available, try localStorage demo users
-      if (!error.response || error.code === 'ERR_NETWORK') {
-        const userKey = `user_${email}`;
-        const storedUser = localStorage.getItem(userKey);
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
-          if (user.password === password) {
-            const token = 'demo-token-' + Date.now();
-            localStorage.setItem('token', token);
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            return { user, token };
-          }
+    } catch (error) {
+      // Fallback: si el backend no está disponible o los datos no están en BD,
+      // intentar con usuarios de demo en localStorage
+      const userKey = `user_${email}`;
+      const storedUser = localStorage.getItem(userKey);
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        if (user.password === password) {
+          const token = 'demo-token-' + Date.now();
+          localStorage.setItem('token', token);
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          return { user, token };
         }
       }
-      // Re-throw original error if localStorage login also fails
+      // Re-lanzar error original si localStorage tampoco tiene el usuario
       throw error;
     }
   },
@@ -369,13 +380,11 @@ export const userAPI = {
     try {
       const { data } = await api.get('/users/me');
       return data;
-    } catch (error: any) {
-      // If backend is unavailable, try restoring from localStorage
-      if (!error.response || error.code === 'ERR_NETWORK') {
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-          return JSON.parse(storedUser);
-        }
+    } catch (error) {
+      // Fallback: restaurar usuario desde localStorage si el backend no responde
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        return JSON.parse(storedUser);
       }
       throw error;
     }
@@ -432,8 +441,23 @@ export const userAPI = {
    * const owners = await userAPI.listUsers({ userType: 'pet_owner', limit: 10 });
    */
   async listUsers(params?: { userType?: string; page?: number; limit?: number }) {
-    const { data } = await api.get('/users', { params });
-    return data;
+    try {
+      const { data } = await api.get('/users', { params });
+      return data;
+    } catch {
+      // Fallback: read all users from localStorage
+      const users: User[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('user_')) {
+          try {
+            const user = JSON.parse(localStorage.getItem(key)!);
+            users.push(user);
+          } catch {}
+        }
+      }
+      return users;
+    }
   },
 
   /**
@@ -562,8 +586,12 @@ export const petAPI = {
    * console.log(myPets.length); // Number of pets
    */
   async getPets() {
-    const { data } = await api.get('/pets');
-    return data as Pet[];
+    try {
+      const { data } = await api.get('/pets');
+      return data as Pet[];
+    } catch {
+      return getLocalData<Pet>('pets');
+    }
   },
 
   /**
@@ -688,8 +716,12 @@ export const appointmentAPI = {
     date?: string;
     petId?: string;
   }) {
-    const { data } = await api.get('/appointments', { params });
-    return data as Appointment[];
+    try {
+      const { data } = await api.get('/appointments', { params });
+      return data as Appointment[];
+    } catch {
+      return getLocalData<Appointment>('appointments');
+    }
   },
 
   /**
@@ -1061,8 +1093,12 @@ export const vaccinationAPI = {
    * // Returns vaccines due within next 30 days
    */
   async getUpcoming() {
-    const { data } = await api.get('/vaccinations/upcoming');
-    return data as VaccinationRecord[];
+    try {
+      const { data } = await api.get('/vaccinations/upcoming');
+      return data as VaccinationRecord[];
+    } catch {
+      return [];
+    }
   },
 
   /**
