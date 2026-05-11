@@ -34,6 +34,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { clinicalRecordAPI } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -49,6 +50,7 @@ interface ClinicalRecordFormProps {
 }
 
 export default function ClinicalRecordForm({ petId, onClose, onSuccess }: ClinicalRecordFormProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -75,10 +77,10 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
         notes: formData.notes || undefined,
         followUpDate: formData.followUpDate || undefined,
       });
-      toast.success('Clinical record added successfully');
+      toast.success(t('medical.clinicalRecordAdded'));
       onSuccess();
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to add clinical record');
+      toast.error(error.response?.data?.error || t('medical.failedAddClinicalRecord'));
     } finally {
       setLoading(false);
     }
@@ -88,11 +90,11 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Clinical Record</DialogTitle>
+          <DialogTitle>{t('medical.addClinicalRecordTitle')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">{t('medical.date')}</Label>
             <Input
               id="date"
               type="date"
@@ -103,64 +105,64 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
           </div>
 
           <div>
-            <Label htmlFor="symptoms">Symptoms</Label>
+            <Label htmlFor="symptoms">{t('medical.symptomsLabel')}</Label>
             <Textarea
               id="symptoms"
               value={formData.symptoms}
               onChange={(e) => setFormData({ ...formData, symptoms: e.target.value })}
-              placeholder="Describe the symptoms observed..."
+              placeholder={t('medical.symptomsPlaceholder')}
               rows={3}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="diagnosis">Diagnosis</Label>
+            <Label htmlFor="diagnosis">{t('medical.diagnosisLabel')}</Label>
             <Textarea
               id="diagnosis"
               value={formData.diagnosis}
               onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
-              placeholder="Provide the diagnosis..."
+              placeholder={t('medical.diagnosisPlaceholder')}
               rows={3}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="treatment">Treatment</Label>
+            <Label htmlFor="treatment">{t('medical.treatmentLabel')}</Label>
             <Textarea
               id="treatment"
               value={formData.treatment}
               onChange={(e) => setFormData({ ...formData, treatment: e.target.value })}
-              placeholder="Describe the treatment provided..."
+              placeholder={t('medical.treatmentPlaceholder')}
               rows={3}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="medications">Medications (Optional)</Label>
+            <Label htmlFor="medications">{t('medical.medicationsOptional')}</Label>
             <Input
               id="medications"
               value={formData.medications}
               onChange={(e) => setFormData({ ...formData, medications: e.target.value })}
-              placeholder="Comma-separated list, e.g., Amoxicillin 500mg, Cough suppressant"
+              placeholder={t('medical.medicationsPlaceholder')}
             />
           </div>
 
           <div>
-            <Label htmlFor="notes">Additional Notes (Optional)</Label>
+            <Label htmlFor="notes">{t('medical.additionalNotesOptional')}</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Any additional notes..."
+              placeholder={t('medical.notesPlaceholder')}
               rows={2}
             />
           </div>
 
           <div>
-            <Label htmlFor="followUpDate">Follow-up Date (Optional)</Label>
+            <Label htmlFor="followUpDate">{t('medical.followUpDateOptional')}</Label>
             <Input
               id="followUpDate"
               type="date"
@@ -171,10 +173,10 @@ export default function ClinicalRecordForm({ petId, onClose, onSuccess }: Clinic
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('medical.cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Clinical Record'}
+              {loading ? t('medical.adding') : t('medical.addClinicalRecord')}
             </Button>
           </div>
         </form>

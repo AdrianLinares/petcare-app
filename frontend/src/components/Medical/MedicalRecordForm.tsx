@@ -35,6 +35,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { medicalRecordAPI } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -54,6 +55,7 @@ export default function MedicalRecordForm({
   onClose,
   onSuccess,
 }: MedicalRecordFormProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -70,10 +72,10 @@ export default function MedicalRecordForm({
         petId,
         ...formData,
       });
-      toast.success('Medical record added successfully');
+      toast.success(t('medical.recordAdded'));
       onSuccess();
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to add medical record');
+      toast.error(error.response?.data?.error || t('medical.failedSaveRecord'));
     } finally {
       setLoading(false);
     }
@@ -83,11 +85,11 @@ export default function MedicalRecordForm({
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Medical Record</DialogTitle>
+          <DialogTitle>{t('medical.addMedicalRecord')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">{t('medical.date')}</Label>
             <Input
               id="date"
               type="date"
@@ -98,23 +100,23 @@ export default function MedicalRecordForm({
           </div>
 
           <div>
-            <Label htmlFor="recordType">Record Type</Label>
+            <Label htmlFor="recordType">{t('medical.recordType')}</Label>
             <Input
               id="recordType"
               value={formData.recordType}
               onChange={(e) => setFormData({ ...formData, recordType: e.target.value })}
-              placeholder="e.g., Checkup, Emergency, Surgery"
+              placeholder={t('medical.recordTypePlaceholder')}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('medical.description')}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Detailed description of the medical record..."
+              placeholder={t('medical.descriptionPlaceholder')}
               rows={4}
               required
             />
@@ -122,10 +124,10 @@ export default function MedicalRecordForm({
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('medical.cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Record'}
+              {loading ? t('medical.adding') : t('medical.addRecord')}
             </Button>
           </div>
         </form>

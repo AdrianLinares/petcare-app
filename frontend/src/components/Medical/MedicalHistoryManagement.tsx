@@ -45,6 +45,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,6 +67,7 @@ interface MedicalHistoryManagementProps {
 }
 
 export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: MedicalHistoryManagementProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('medical');
   const [loading, setLoading] = useState(true);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
@@ -84,7 +86,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       setVaccinations(v);
       setMedications(md);
     } catch (e) {
-      toast.error('Failed to load medical history');
+      toast.error(t('medical.failedLoadMedicalHistory'));
     } finally {
       setLoading(false);
     }
@@ -163,7 +165,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           recordType: medicalForm.recordType,
           description: medicalForm.description
         });
-        toast.success('Medical record updated successfully');
+        toast.success(t('medical.recordUpdated'));
       } else {
         await medicalRecordAPI.create({
           petId: pet.id,
@@ -171,13 +173,13 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           recordType: medicalForm.recordType!,
           description: medicalForm.description!
         });
-        toast.success('Medical record added successfully');
+        toast.success(t('medical.recordAdded'));
       }
       await loadAll();
       onUpdate();
       setMedicalRecordDialog(false);
     } catch (error) {
-      toast.error('Failed to save medical record');
+      toast.error(t('medical.failedSaveRecord'));
     }
   };
 
@@ -185,11 +187,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     setDeleteAction(() => async () => {
       try {
         await medicalRecordAPI.delete(id);
-        toast.success('Medical record deleted');
+        toast.success(t('medical.recordDeleted'));
         await loadAll();
         onUpdate();
       } catch (error) {
-        toast.error('Failed to delete medical record');
+        toast.error(t('medical.failedDeleteRecord'));
       }
     });
     setDeleteDialog(true);
@@ -219,7 +221,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           date: vaccinationForm.date,
           nextDue: vaccinationForm.nextDue
         });
-        toast.success('Vaccination record updated successfully');
+        toast.success(t('medical.vaccinationUpdated'));
       } else {
         await vaccinationAPI.create({
           petId: pet.id,
@@ -227,13 +229,13 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           date: vaccinationForm.date!,
           nextDue: vaccinationForm.nextDue
         });
-        toast.success('Vaccination record added successfully');
+        toast.success(t('medical.vaccinationAdded'));
       }
       await loadAll();
       onUpdate();
       setVaccinationDialog(false);
     } catch (error) {
-      toast.error('Failed to save vaccination record');
+      toast.error(t('medical.failedSaveVaccination'));
     }
   };
 
@@ -241,11 +243,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     setDeleteAction(() => async () => {
       try {
         await vaccinationAPI.delete(id);
-        toast.success('Vaccination record deleted');
+        toast.success(t('medical.vaccinationDeleted'));
         await loadAll();
         onUpdate();
       } catch (error) {
-        toast.error('Failed to delete vaccination record');
+        toast.error(t('medical.failedDeleteVaccination'));
       }
     });
     setDeleteDialog(true);
@@ -277,7 +279,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           startDate: medicationForm.startDate,
           endDate: medicationForm.endDate
         });
-        toast.success('Medication record updated successfully');
+        toast.success(t('medical.medicationUpdated'));
       } else {
         await medicationAPI.create({
           petId: pet.id,
@@ -286,13 +288,13 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           startDate: medicationForm.startDate!,
           endDate: medicationForm.endDate
         });
-        toast.success('Medication record added successfully');
+        toast.success(t('medical.medicationAdded'));
       }
       await loadAll();
       onUpdate();
       setMedicationDialog(false);
     } catch (error) {
-      toast.error('Failed to save medication record');
+      toast.error(t('medical.failedSaveMedication'));
     }
   };
 
@@ -300,11 +302,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     setDeleteAction(() => async () => {
       try {
         await medicationAPI.delete(id);
-        toast.success('Medication record deleted');
+        toast.success(t('medical.medicationDeleted'));
         await loadAll();
         onUpdate();
       } catch (error) {
-        toast.error('Failed to delete medication record');
+        toast.error(t('medical.failedDeleteMedication'));
       }
     });
     setDeleteDialog(true);
@@ -323,11 +325,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
         .map(a => a.trim())
         .filter(a => a.length > 0);
       await petAPI.updatePet(pet.id, { allergies: allergiesArray });
-      toast.success('Allergies updated successfully');
+      toast.success(t('medical.allergiesUpdated'));
       onUpdate();
       setAllergiesDialog(false);
     } catch (error) {
-      toast.error('Failed to update allergies');
+      toast.error(t('medical.failedUpdateAllergies'));
     }
   };
 
@@ -340,11 +342,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
   const handleSaveNotes = async () => {
     try {
       await petAPI.updatePet(pet.id, { notes: notesText });
-      toast.success('Notes updated successfully');
+      toast.success(t('medical.notesUpdated'));
       onUpdate();
       setNotesDialog(false);
     } catch (error) {
-      toast.error('Failed to update notes');
+      toast.error(t('medical.failedUpdateNotes'));
     }
   };
 
@@ -358,16 +360,16 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     try {
       const newWeight = parseFloat(weightValue);
       if (isNaN(newWeight) || newWeight <= 0) {
-        toast.error('Please enter a valid weight');
+        toast.error(t('medical.invalidWeight'));
         return;
       }
 
       await petAPI.updatePet(pet.id, { weight: newWeight });
-      toast.success('Weight updated successfully');
+      toast.success(t('medical.weightUpdated'));
       onUpdate();
       setWeightDialog(false);
     } catch (error) {
-      toast.error('Failed to update weight');
+      toast.error(t('medical.failedUpdateWeight'));
     }
   };
 
@@ -385,8 +387,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               </div>
             </div>
             <div className="text-right text-sm text-gray-600">
-              <p>Age: {pet.age} years</p>
-              <p>Owner: {pet.ownerId}</p>
+              <p>{t('medical.age')} {t('pets.years', { age: pet.age })}</p>
+              <p>{t('medical.owner')} {pet.ownerId}</p>
             </div>
           </CardTitle>
         </CardHeader>
@@ -398,7 +400,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Allergies</p>
+                <p className="text-sm font-medium text-gray-600">{t('medical.allergies')}</p>
                 <p className="text-lg font-bold">{pet.allergies?.length || 0}</p>
               </div>
               {canEdit && <Edit className="h-4 w-4 text-gray-400" />}
@@ -417,8 +419,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Weight</p>
-                <p className="text-lg font-bold">{pet.weight} kg</p>
+                <p className="text-sm font-medium text-gray-600">{t('medical.weight')}</p>
+                <p className="text-lg font-bold">{pet.weight} {t('medical.kg')}</p>
               </div>
               {canEdit && <Edit className="h-4 w-4 text-gray-400" />}
             </div>
@@ -429,8 +431,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Notes</p>
-                <p className="text-sm text-gray-500 truncate">{pet.notes || 'No notes'}</p>
+                <p className="text-sm font-medium text-gray-600">{t('medical.notes')}</p>
+                <p className="text-sm text-gray-500 truncate">{pet.notes || t('medical.noNotes')}</p>
               </div>
               {canEdit && <Edit className="h-4 w-4 text-gray-400" />}
             </div>
@@ -443,15 +445,15 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="medical">
             <FileText className="h-4 w-4 mr-2" />
-            Medical History
+            {t('medical.medicalHistory')}
           </TabsTrigger>
           <TabsTrigger value="vaccinations">
             <Syringe className="h-4 w-4 mr-2" />
-            Vaccinations
+            {t('medical.vaccinations')}
           </TabsTrigger>
           <TabsTrigger value="medications">
             <Pill className="h-4 w-4 mr-2" />
-            Medications
+            {t('medical.medications')}
           </TabsTrigger>
         </TabsList>
 
@@ -460,7 +462,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Medical History</CardTitle>
+                <CardTitle>{t('medical.medicalHistory')}</CardTitle>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -469,12 +471,12 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                     disabled={loading}
                   >
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
+                    {t('medical.refresh')}
                   </Button>
                   {canEdit && (
                     <Button onClick={() => handleOpenMedicalDialog()}>
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Record
+                      {t('medical.addRecord')}
                     </Button>
                   )}
                 </div>
@@ -482,7 +484,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             </CardHeader>
             <CardContent>
               {loading ? (
-                <p className="text-center text-gray-500 py-8">Loading...</p>
+                <p className="text-center text-gray-500 py-8">{t('medical.loading')}</p>
               ) : medicalRecords && medicalRecords.length > 0 ? (
                 <div className="space-y-4">
                   {medicalRecords.map((record) => (
@@ -496,7 +498,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                             </span>
                           </div>
                           <p className="text-sm font-medium mb-1">{record.description}</p>
-                          <p className="text-xs text-gray-600">Veterinarian: {record.veterinarianName}</p>
+                          <p className="text-xs text-gray-600">{t('medical.veterinarian')} {record.veterinarianName}</p>
                         </div>
                         {canEdit && (
                           <div className="flex gap-2">
@@ -521,7 +523,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 py-8">No medical history records</p>
+                <p className="text-center text-gray-500 py-8">{t('medical.noMedicalHistory')}</p>
               )}
             </CardContent>
           </Card>
@@ -532,7 +534,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Vaccinations</CardTitle>
+                <CardTitle>{t('medical.vaccinations')}</CardTitle>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -541,12 +543,12 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                     disabled={loading}
                   >
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
+                    {t('medical.refresh')}
                   </Button>
                   {canEdit && (
                     <Button onClick={() => handleOpenVaccinationDialog()}>
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Vaccination
+                      {t('medical.addVaccination')}
                     </Button>
                   )}
                 </div>
@@ -554,7 +556,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             </CardHeader>
             <CardContent>
               {loading ? (
-                <p className="text-center text-gray-500 py-8">Loading...</p>
+                <p className="text-center text-gray-500 py-8">{t('medical.loading')}</p>
               ) : vaccinations && vaccinations.length > 0 ? (
                 <div className="space-y-4">
                   {vaccinations.map((record) => (
@@ -563,11 +565,11 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                         <div className="flex-1">
                           <p className="font-medium mb-1">{record.vaccine}</p>
                           <p className="text-sm text-gray-600">
-                            Date: {new Date(record.date).toLocaleDateString()}
+                            {t('medical.date')} {new Date(record.date).toLocaleDateString()}
                           </p>
                           {record.nextDue && (
                             <p className="text-sm text-gray-600">
-                              Next Due: {new Date(record.nextDue).toLocaleDateString()}
+                              {t('medical.nextDue')} {new Date(record.nextDue).toLocaleDateString()}
                             </p>
                           )}
                         </div>
@@ -594,7 +596,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 py-8">No vaccination records</p>
+                <p className="text-center text-gray-500 py-8">{t('medical.noVaccinations')}</p>
               )}
             </CardContent>
           </Card>
@@ -605,7 +607,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Medications</CardTitle>
+                <CardTitle>{t('medical.medications')}</CardTitle>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
@@ -614,12 +616,12 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                     disabled={loading}
                   >
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
+                    {t('medical.refresh')}
                   </Button>
                   {canEdit && (
                     <Button onClick={() => handleOpenMedicationDialog()}>
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Medication
+                      {t('medical.addMedication')}
                     </Button>
                   )}
                 </div>
@@ -627,7 +629,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             </CardHeader>
             <CardContent>
               {loading ? (
-                <p className="text-center text-gray-500 py-8">Loading...</p>
+                <p className="text-center text-gray-500 py-8">{t('medical.loading')}</p>
               ) : medications && medications.length > 0 ? (
                 <div className="space-y-4">
                   {medications.map((record) => (
@@ -635,13 +637,13 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-medium mb-1">{record.name}</p>
-                          <p className="text-sm text-gray-600">Dosage: {record.dosage}</p>
+                          <p className="text-sm text-gray-600">{t('medical.dosage')} {record.dosage}</p>
                           <p className="text-sm text-gray-600">
-                            Start: {new Date(record.startDate).toLocaleDateString()}
+                            {t('medical.start')} {new Date(record.startDate).toLocaleDateString()}
                           </p>
                           {record.endDate && (
                             <p className="text-sm text-gray-600">
-                              End: {new Date(record.endDate).toLocaleDateString()}
+                              {t('medical.end')} {new Date(record.endDate).toLocaleDateString()}
                             </p>
                           )}
                         </div>
@@ -668,7 +670,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 py-8">No medication records</p>
+                <p className="text-center text-gray-500 py-8">{t('medical.noMedications')}</p>
               )}
             </CardContent>
           </Card>
@@ -679,12 +681,12 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={medicalRecordDialog} onOpenChange={setMedicalRecordDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingMedicalId ? 'Edit' : 'Add'} Medical Record</DialogTitle>
-            <DialogDescription>Add or update medical history for {pet.name}</DialogDescription>
+            <DialogTitle>{editingMedicalId ? t('medical.editMedicalRecord') : t('medical.addMedicalRecord')}</DialogTitle>
+            <DialogDescription>{t('medical.medicalRecordDesc', { petName: pet.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Date</Label>
+              <Label>{t('medical.date')}</Label>
               <Input
                 type="date"
                 value={medicalForm.date}
@@ -692,25 +694,25 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               />
             </div>
             <div className="space-y-2">
-              <Label>Type</Label>
+              <Label>{t('medical.recordType')}</Label>
               <Input
-                placeholder="e.g., Checkup, Surgery, Emergency"
+                placeholder={t('medical.recordTypePlaceholder')}
                 value={medicalForm.recordType}
                 onChange={(e) => setMedicalForm({ ...medicalForm, recordType: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t('medical.description')}</Label>
               <Textarea
-                placeholder="Detailed description of the medical visit"
+                placeholder={t('medical.descriptionPlaceholder')}
                 value={medicalForm.description}
                 onChange={(e) => setMedicalForm({ ...medicalForm, description: e.target.value })}
                 rows={3}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setMedicalRecordDialog(false)}>Cancel</Button>
-              <Button onClick={handleSaveMedicalRecord}>Save</Button>
+              <Button variant="outline" onClick={() => setMedicalRecordDialog(false)}>{t('medical.cancel')}</Button>
+              <Button onClick={handleSaveMedicalRecord}>{t('medical.save')}</Button>
             </div>
           </div>
         </DialogContent>
@@ -720,20 +722,20 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={vaccinationDialog} onOpenChange={setVaccinationDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingVaccinationId ? 'Edit' : 'Add'} Vaccination</DialogTitle>
-            <DialogDescription>Add or update vaccination record for {pet.name}</DialogDescription>
+            <DialogTitle>{editingVaccinationId ? t('medical.editVaccination') : t('medical.addVaccinationRecord')}</DialogTitle>
+            <DialogDescription>{t('medical.vaccinationDesc', { petName: pet.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Vaccine Name</Label>
+              <Label>{t('medical.vaccineName')}</Label>
               <Input
-                placeholder="e.g., Rabies, Distemper"
+                placeholder={t('medical.vaccineNamePlaceholder')}
                 value={vaccinationForm.vaccine}
                 onChange={(e) => setVaccinationForm({ ...vaccinationForm, vaccine: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Date Administered</Label>
+              <Label>{t('medical.dateAdministered')}</Label>
               <Input
                 type="date"
                 value={vaccinationForm.date}
@@ -741,7 +743,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               />
             </div>
             <div className="space-y-2">
-              <Label>Next Due Date</Label>
+              <Label>{t('medical.nextDueDateLabel')}</Label>
               <Input
                 type="date"
                 value={vaccinationForm.nextDue}
@@ -749,8 +751,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setVaccinationDialog(false)}>Cancel</Button>
-              <Button onClick={handleSaveVaccination}>Save</Button>
+              <Button variant="outline" onClick={() => setVaccinationDialog(false)}>{t('medical.cancel')}</Button>
+              <Button onClick={handleSaveVaccination}>{t('medical.save')}</Button>
             </div>
           </div>
         </DialogContent>
@@ -760,28 +762,28 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={medicationDialog} onOpenChange={setMedicationDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingMedicationId ? 'Edit' : 'Add'} Medication</DialogTitle>
-            <DialogDescription>Add or update medication record for {pet.name}</DialogDescription>
+            <DialogTitle>{editingMedicationId ? t('medical.editMedication') : t('medical.addMedicationTitle')}</DialogTitle>
+            <DialogDescription>{t('medical.medicationDesc', { petName: pet.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Medication Name</Label>
+              <Label>{t('medical.medicationName')}</Label>
               <Input
-                placeholder="e.g., Antibiotics, Pain Relief"
+                placeholder={t('medical.medicationNamePlaceholder')}
                 value={medicationForm.name}
                 onChange={(e) => setMedicationForm({ ...medicationForm, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Dosage</Label>
+              <Label>{t('medical.dosageLabel')}</Label>
               <Input
-                placeholder="e.g., 500mg twice daily"
+                placeholder={t('medical.dosagePlaceholder')}
                 value={medicationForm.dosage}
                 onChange={(e) => setMedicationForm({ ...medicationForm, dosage: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Start Date</Label>
+              <Label>{t('medical.startDate')}</Label>
               <Input
                 type="date"
                 value={medicationForm.startDate}
@@ -789,7 +791,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               />
             </div>
             <div className="space-y-2">
-              <Label>End Date (Optional)</Label>
+              <Label>{t('medical.endDateOptional')}</Label>
               <Input
                 type="date"
                 value={medicationForm.endDate || ''}
@@ -797,8 +799,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setMedicationDialog(false)}>Cancel</Button>
-              <Button onClick={handleSaveMedication}>Save</Button>
+              <Button variant="outline" onClick={() => setMedicationDialog(false)}>{t('medical.cancel')}</Button>
+              <Button onClick={handleSaveMedication}>{t('medical.save')}</Button>
             </div>
           </div>
         </DialogContent>
@@ -808,12 +810,12 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={allergiesDialog} onOpenChange={setAllergiesDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Allergies</DialogTitle>
-            <DialogDescription>Update allergies for {pet.name}</DialogDescription>
+            <DialogTitle>{t('medical.editAllergies')}</DialogTitle>
+            <DialogDescription>{t('medical.allergiesDesc', { petName: pet.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Allergies (comma-separated)</Label>
+              <Label>{t('medical.allergiesCommaSep')}</Label>
               <Textarea
                 placeholder="e.g., Penicillin, Wheat, Chicken"
                 value={allergiesText}
@@ -822,8 +824,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setAllergiesDialog(false)}>Cancel</Button>
-              <Button onClick={handleSaveAllergies}>Save</Button>
+              <Button variant="outline" onClick={() => setAllergiesDialog(false)}>{t('medical.cancel')}</Button>
+              <Button onClick={handleSaveAllergies}>{t('medical.save')}</Button>
             </div>
           </div>
         </DialogContent>
@@ -833,22 +835,22 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={notesDialog} onOpenChange={setNotesDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Notes</DialogTitle>
-            <DialogDescription>Update notes for {pet.name}</DialogDescription>
+            <DialogTitle>{t('medical.editNotes')}</DialogTitle>
+            <DialogDescription>{t('medical.notesDesc', { petName: pet.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <Label>{t('medical.notes')}</Label>
               <Textarea
-                placeholder="Additional notes about the pet"
+                placeholder={t('medical.notesPlaceholder')}
                 value={notesText}
                 onChange={(e) => setNotesText(e.target.value)}
                 rows={5}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setNotesDialog(false)}>Cancel</Button>
-              <Button onClick={handleSaveNotes}>Save</Button>
+              <Button variant="outline" onClick={() => setNotesDialog(false)}>{t('medical.cancel')}</Button>
+              <Button onClick={handleSaveNotes}>{t('medical.save')}</Button>
             </div>
           </div>
         </DialogContent>
@@ -858,12 +860,12 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       <Dialog open={weightDialog} onOpenChange={setWeightDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update Weight</DialogTitle>
-            <DialogDescription>Update the weight for {pet.name}</DialogDescription>
+            <DialogTitle>{t('medical.updateWeight')}</DialogTitle>
+            <DialogDescription>{t('medical.weightDesc', { petName: pet.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Weight (kg)</Label>
+              <Label>{t('medical.weightKg')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -874,8 +876,8 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setWeightDialog(false)}>Cancel</Button>
-              <Button onClick={handleSaveWeight}>Save</Button>
+              <Button variant="outline" onClick={() => setWeightDialog(false)}>{t('medical.cancel')}</Button>
+              <Button onClick={handleSaveWeight}>{t('medical.save')}</Button>
             </div>
           </div>
         </DialogContent>
@@ -887,14 +889,14 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              Confirm Deletion
+              {t('medical.confirmDelete')}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this record? This action cannot be undone.
+              {t('medical.confirmDeleteMessage')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('medical.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (deleteAction) deleteAction();
@@ -903,7 +905,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              {t('medical.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

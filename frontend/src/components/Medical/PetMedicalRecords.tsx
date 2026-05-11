@@ -41,6 +41,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   medicalRecordAPI,
   vaccinationAPI,
@@ -87,6 +88,7 @@ export default function PetMedicalRecords({
   petName,
   currentUser
 }: PetMedicalRecordsProps) {
+  const { t } = useTranslation();
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [vaccinations, setVaccinations] = useState<VaccinationRecord[]>([]);
   const [medications, setMedications] = useState<MedicationRecord[]>([]);
@@ -124,45 +126,45 @@ export default function PetMedicalRecords({
       setMedications(meds);
       setClinicalRecords(clinical);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to load medical records');
+      toast.error(error.response?.data?.error || t('medical.failedLoadRecords'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteMedicalRecord = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this medical record?')) return;
+    if (!confirm(t('medical.confirmDeleteMedicalRecord'))) return;
 
     try {
       await medicalRecordAPI.delete(id);
       setMedicalRecords(prev => prev.filter(r => r.id !== id));
-      toast.success('Medical record deleted');
+      toast.success(t('medical.recordDeleted'));
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to delete medical record');
+      toast.error(error.response?.data?.error || t('medical.failedDeleteRecord'));
     }
   };
 
   const handleDeleteVaccination = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this vaccination record?')) return;
+    if (!confirm(t('medical.confirmDeleteVaccination'))) return;
 
     try {
       await vaccinationAPI.delete(id);
       setVaccinations(prev => prev.filter(r => r.id !== id));
-      toast.success('Vaccination record deleted');
+      toast.success(t('medical.vaccinationDeleted'));
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to delete vaccination record');
+      toast.error(error.response?.data?.error || t('medical.failedDeleteVaccination'));
     }
   };
 
   const handleDeleteMedication = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this medication record?')) return;
+    if (!confirm(t('medical.confirmDeleteMedication'))) return;
 
     try {
       await medicationAPI.delete(id);
       setMedications(prev => prev.filter(r => r.id !== id));
-      toast.success('Medication record deleted');
+      toast.success(t('medical.medicationDeleted'));
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to delete medication record');
+      toast.error(error.response?.data?.error || t('medical.failedDeleteMedication'));
     }
   };
 
@@ -172,21 +174,21 @@ export default function PetMedicalRecords({
       setMedications(prev =>
         prev.map(m => m.id === id ? { ...m, active: false } : m)
       );
-      toast.success('Medication deactivated');
+      toast.success(t('medical.medicationDeactivated'));
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to deactivate medication');
+      toast.error(error.response?.data?.error || t('medical.failedDeactivateMedication'));
     }
   };
 
   const handleDeleteClinicalRecord = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this clinical record?')) return;
+    if (!confirm(t('medical.confirmDeleteClinicalRecord'))) return;
 
     try {
       await clinicalRecordAPI.delete(id);
       setClinicalRecords(prev => prev.filter(r => r.id !== id));
-      toast.success('Clinical record deleted');
+      toast.success(t('medical.clinicalRecordDeleted'));
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to delete clinical record');
+      toast.error(error.response?.data?.error || t('medical.failedDeleteClinicalRecord'));
     }
   };
 
@@ -194,7 +196,7 @@ export default function PetMedicalRecords({
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="text-center text-muted-foreground">Loading medical records...</div>
+          <div className="text-center text-muted-foreground">{t('medical.loadingRecords')}</div>
         </CardContent>
       </Card>
     );
@@ -205,7 +207,7 @@ export default function PetMedicalRecords({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Medical Records - {petName}</span>
+            <span>{t('medical.title')} - {petName}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -213,30 +215,30 @@ export default function PetMedicalRecords({
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="medical" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Medical ({medicalRecords.length})
+                {t('medical.medicalTab', { count: medicalRecords.length })}
               </TabsTrigger>
               <TabsTrigger value="vaccinations" className="flex items-center gap-2">
                 <Syringe className="h-4 w-4" />
-                Vaccinations ({vaccinations.length})
+                {t('medical.vaccinationsTab', { count: vaccinations.length })}
               </TabsTrigger>
               <TabsTrigger value="medications" className="flex items-center gap-2">
                 <Pill className="h-4 w-4" />
-                Medications ({medications.filter(m => m.active).length})
+                {t('medical.medicationsTab', { count: medications.filter(m => m.active).length })}
               </TabsTrigger>
               <TabsTrigger value="clinical" className="flex items-center gap-2">
                 <Stethoscope className="h-4 w-4" />
-                Clinical ({clinicalRecords.length})
+                {t('medical.clinicalTab', { count: clinicalRecords.length })}
               </TabsTrigger>
             </TabsList>
 
             {/* Medical Records Tab */}
             <TabsContent value="medical" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Medical History</h3>
+                <h3 className="text-lg font-semibold">{t('medical.medicalHistory')}</h3>
                 {isVetOrAdmin && (
                   <Button onClick={() => setShowMedicalForm(true)} size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Record
+                    {t('medical.addRecord')}
                   </Button>
                 )}
               </div>
@@ -244,7 +246,7 @@ export default function PetMedicalRecords({
               {medicalRecords.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">
                   <FileText className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>No medical records found</p>
+                  <p>{t('medical.noMedicalRecords')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -286,11 +288,11 @@ export default function PetMedicalRecords({
             {/* Vaccinations Tab */}
             <TabsContent value="vaccinations" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Vaccination Records</h3>
+                <h3 className="text-lg font-semibold">{t('medical.vaccinationRecords')}</h3>
                 {isVetOrAdmin && (
                   <Button onClick={() => setShowVaccinationForm(true)} size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Vaccination
+                    {t('medical.addVaccination')}
                   </Button>
                 )}
               </div>
@@ -298,7 +300,7 @@ export default function PetMedicalRecords({
               {vaccinations.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">
                   <Syringe className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>No vaccination records found</p>
+                  <p>{t('medical.noVaccinationRecords')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -316,19 +318,19 @@ export default function PetMedicalRecords({
                                 {isDue && (
                                   <Badge variant="destructive" className="flex items-center gap-1">
                                     <AlertCircle className="h-3 w-3" />
-                                    Due Soon
+                                    {t('medical.dueSoon')}
                                   </Badge>
                                 )}
                               </div>
                               <div className="space-y-1 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />
-                                  Administered: {new Date(vacc.date).toLocaleDateString()}
+                                  {t('medical.administered')} {new Date(vacc.date).toLocaleDateString()}
                                 </div>
                                 {vacc.nextDue && (
                                   <div className="flex items-center gap-1">
                                     <Calendar className="h-3 w-3" />
-                                    Next Due: {new Date(vacc.nextDue).toLocaleDateString()}
+                                    {t('medical.nextDue')} {new Date(vacc.nextDue).toLocaleDateString()}
                                   </div>
                                 )}
                                 {vacc.administeredByName && (
@@ -360,11 +362,11 @@ export default function PetMedicalRecords({
             {/* Medications Tab */}
             <TabsContent value="medications" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Medications</h3>
+                <h3 className="text-lg font-semibold">{t('medical.medications')}</h3>
                 {isVetOrAdmin && (
                   <Button onClick={() => setShowMedicationForm(true)} size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Medication
+                    {t('medical.addMedication')}
                   </Button>
                 )}
               </div>
@@ -372,7 +374,7 @@ export default function PetMedicalRecords({
               {medications.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">
                   <Pill className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>No medications found</p>
+                  <p>{t('medical.noMedicationRecords')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -384,25 +386,25 @@ export default function PetMedicalRecords({
                             <div className="flex items-center gap-2 mb-2">
                               <span className="font-semibold">{med.name}</span>
                               <Badge variant={med.active ? 'default' : 'secondary'}>
-                                {med.active ? 'Active' : 'Inactive'}
+                                {med.active ? t('medical.active') : t('medical.inactive')}
                               </Badge>
                             </div>
-                            <p className="text-sm mb-2">Dosage: {med.dosage}</p>
+                            <p className="text-sm mb-2">{t('medical.dosage')} {med.dosage}</p>
                             <div className="space-y-1 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                Start: {new Date(med.startDate).toLocaleDateString()}
+                                {t('medical.start')} {new Date(med.startDate).toLocaleDateString()}
                               </div>
                               {med.endDate && (
                                 <div className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />
-                                  End: {new Date(med.endDate).toLocaleDateString()}
+                                  {t('medical.end')} {new Date(med.endDate).toLocaleDateString()}
                                 </div>
                               )}
                               {med.prescribedByName && (
                                 <div className="flex items-center gap-1">
                                   <UserIcon className="h-3 w-3" />
-                                  Prescribed by: {med.prescribedByName}
+                                  {t('medical.prescribedBy')} {med.prescribedByName}
                                 </div>
                               )}
                             </div>
@@ -415,7 +417,7 @@ export default function PetMedicalRecords({
                                   size="sm"
                                   onClick={() => handleDeactivateMedication(med.id)}
                                 >
-                                  Deactivate
+                                  {t('medical.deactivate')}
                                 </Button>
                               )}
                               {isAdmin && (
@@ -440,11 +442,11 @@ export default function PetMedicalRecords({
             {/* Clinical Records Tab */}
             <TabsContent value="clinical" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Clinical Records</h3>
+                <h3 className="text-lg font-semibold">{t('medical.clinicalRecords')}</h3>
                 {isVetOrAdmin && (
                   <Button onClick={() => setShowClinicalForm(true)} size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Clinical Record
+                    {t('medical.addClinicalRecord')}
                   </Button>
                 )}
               </div>
@@ -452,7 +454,7 @@ export default function PetMedicalRecords({
               {clinicalRecords.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">
                   <Stethoscope className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>No clinical records found</p>
+                  <p>{t('medical.noClinicalRecords')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -463,7 +465,7 @@ export default function PetMedicalRecords({
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="font-semibold">
-                                {record.appointmentType || 'Clinical Visit'}
+                                {record.appointmentType || t('medical.clinicalVisit')}
                               </span>
                               <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
@@ -472,27 +474,27 @@ export default function PetMedicalRecords({
                             </div>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <strong>Symptoms:</strong> {record.symptoms}
+                                <strong>{t('medical.symptomsField')}</strong> {record.symptoms}
                               </div>
                               <div>
-                                <strong>Diagnosis:</strong> {record.diagnosis}
+                                <strong>{t('medical.diagnosisField')}</strong> {record.diagnosis}
                               </div>
                               <div>
-                                <strong>Treatment:</strong> {record.treatment}
+                                <strong>{t('medical.treatmentField')}</strong> {record.treatment}
                               </div>
                               {record.medications && record.medications.length > 0 && (
                                 <div>
-                                  <strong>Medications:</strong> {record.medications.join(', ')}
+                                  <strong>{t('medical.medicationsField')}</strong> {record.medications.join(', ')}
                                 </div>
                               )}
                               {record.notes && (
                                 <div>
-                                  <strong>Notes:</strong> {record.notes}
+                                  <strong>{t('medical.notesField')}</strong> {record.notes}
                                 </div>
                               )}
                               {record.followUpDate && (
                                 <div className="text-muted-foreground">
-                                  <strong>Follow-up:</strong>{' '}
+                                  <strong>{t('medical.followUp')}</strong>{' '}
                                   {new Date(record.followUpDate).toLocaleDateString()}
                                 </div>
                               )}

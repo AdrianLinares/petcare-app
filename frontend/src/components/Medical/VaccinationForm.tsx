@@ -39,6 +39,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { vaccinationAPI } from '@/lib/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,7 @@ interface VaccinationFormProps {
 }
 
 export default function VaccinationForm({ petId, onClose, onSuccess }: VaccinationFormProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     vaccine: '',
@@ -70,10 +72,10 @@ export default function VaccinationForm({ petId, onClose, onSuccess }: Vaccinati
         ...formData,
         nextDue: formData.nextDue || undefined,
       });
-      toast.success('Vaccination record added successfully');
+      toast.success(t('medical.vaccinationAdded'));
       onSuccess();
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to add vaccination record');
+      toast.error(error.response?.data?.error || t('medical.failedSaveVaccination'));
     } finally {
       setLoading(false);
     }
@@ -83,22 +85,22 @@ export default function VaccinationForm({ petId, onClose, onSuccess }: Vaccinati
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Vaccination Record</DialogTitle>
+          <DialogTitle>{t('medical.addVaccinationRecord')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="vaccine">Vaccine Name</Label>
+            <Label htmlFor="vaccine">{t('medical.vaccineName')}</Label>
             <Input
               id="vaccine"
               value={formData.vaccine}
               onChange={(e) => setFormData({ ...formData, vaccine: e.target.value })}
-              placeholder="e.g., Rabies, DHPP"
+              placeholder={t('medical.vaccineNamePlaceholder')}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="date">Date Administered</Label>
+            <Label htmlFor="date">{t('medical.dateAdministered')}</Label>
             <Input
               id="date"
               type="date"
@@ -109,7 +111,7 @@ export default function VaccinationForm({ petId, onClose, onSuccess }: Vaccinati
           </div>
 
           <div>
-            <Label htmlFor="nextDue">Next Due Date (Optional)</Label>
+            <Label htmlFor="nextDue">{t('medical.nextDueOptional')}</Label>
             <Input
               id="nextDue"
               type="date"
@@ -120,10 +122,10 @@ export default function VaccinationForm({ petId, onClose, onSuccess }: Vaccinati
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('medical.cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Vaccination'}
+              {loading ? t('medical.adding') : t('medical.addVaccination')}
             </Button>
           </div>
         </form>
