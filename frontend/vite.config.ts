@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
+    deps: {
+      inline: ["react", "react-dom", "react/jsx-dev-runtime", "react/jsx-runtime"],
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
