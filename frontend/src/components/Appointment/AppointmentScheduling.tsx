@@ -362,7 +362,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                   <SelectContent>
                     {appointmentTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {t(`appointment.types.${type}`)}
+                        {translateAppointmentType(t, type)}
                       </SelectItem>
                     ))}
                   </SelectContent>
