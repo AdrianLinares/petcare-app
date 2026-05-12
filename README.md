@@ -9,7 +9,7 @@ A comprehensive pet care management system built with modern web technologies, o
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.11-cyan)
 ![Netlify](https://img.shields.io/badge/Netlify-Serverless-00C7B7)
 ![Neon](https://img.shields.io/badge/Neon-PostgreSQL-4F46E5)
-![![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AdrianLinares/petcare-app)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AdrianLinares/petcare-app)
 
 ## ⚡ Key Highlights
 
@@ -29,140 +29,145 @@ A comprehensive pet care management system built with modern web technologies, o
 ## ✨ Features
 
 ### 🏠 **Pet Owner Dashboard**
+
 - **Pet Management**:
-  - Complete pet profile management with detailed information
-  - Support for multiple pets per owner
-  - Pet species, breed, age, weight, and color tracking
-  - Microchip ID storage
-  - Gender tracking
+    - Complete pet profile management with detailed information
+    - Support for multiple pets per owner
+    - Pet species, breed, age, weight, and color tracking
+    - Microchip ID storage
+    - Gender tracking
 - **Medical History Management**:
-  - Comprehensive medical history records
-  - Add, edit, and delete medical records
-  - Track diagnoses, treatments, and veterinarian notes
-  - View complete medical history timeline
+    - Comprehensive medical history records
+    - Add, edit, and delete medical records
+    - Track diagnoses, treatments, and veterinarian notes
+    - View complete medical history timeline
 - **Vaccination Tracking**:
-  - Complete vaccination records management
-  - Add, update, and delete vaccination entries
-  - Track next due dates for vaccinations
-  - Visual indicators for overdue vaccinations
-  - Vaccination reminders
+    - Complete vaccination records management
+    - Add, update, and delete vaccination entries
+    - Track next due dates for vaccinations
+    - Visual indicators for overdue vaccinations
+    - Vaccination reminders
 - **Medication Management**:
-  - Active and past medication tracking
-  - Add, update, and delete medication records
-  - Dosage and administration schedule tracking
-  - Start and end date management
+    - Active and past medication tracking
+    - Add, update, and delete medication records
+    - Dosage and administration schedule tracking
+    - Start and end date management
 - **Appointment Management**:
-  - Schedule new appointments with veterinarians
-  - View upcoming and past appointments
-  - Appointment status tracking (scheduled, completed, cancelled)
-  - Appointment details including date, time, type, and reason
+    - Schedule new appointments with veterinarians
+    - View upcoming and past appointments
+    - Appointment status tracking (scheduled, completed, cancelled)
+    - Appointment details including date, time, type, and reason
 - **Pet Health Overview**:
-  - Allergy tracking and management
-  - Custom notes for special care instructions
-  - Quick stats dashboard with pet count, upcoming appointments, and overdue vaccines
+    - Allergy tracking and management
+    - Custom notes for special care instructions
+    - Quick stats dashboard with pet count, upcoming appointments, and overdue vaccines
 
 ### 👨‍⚕️ **Veterinarian Dashboard**
+
 - **Patient Management**:
-  - View all patient (pet) records
-  - Search pets by name, species, or breed
-  - Access complete pet medical history
-  - Pet owner contact information
+    - View all patient (pet) records
+    - Search pets by name, species, or breed
+    - Access complete pet medical history
+    - Pet owner contact information
 - **Appointment Management**:
-  - Today's appointments view with real-time updates
-  - Upcoming appointments calendar
-  - Appointment status management (scheduled, completed, cancelled)
-  - Reschedule appointments with date picker
-  - Delete appointments
-  - Time-based appointment sorting
+    - Today's appointments view with real-time updates
+    - Upcoming appointments calendar
+    - Appointment status management (scheduled, completed, cancelled)
+    - Reschedule appointments with date picker
+    - Delete appointments
+    - Time-based appointment sorting
 - **Clinical Records**:
-  - Create and edit clinical records
-  - Add diagnosis and treatment information
-  - Record symptoms and medical findings
-  - Medication prescriptions
-  - Follow-up date scheduling
-  - Clinical notes management
+    - Create and edit clinical records
+    - Add diagnosis and treatment information
+    - Record symptoms and medical findings
+    - Medication prescriptions
+    - Follow-up date scheduling
+    - Clinical notes management
 - **Medical History Management**:
-  - View complete pet medical history
-  - Edit existing medical records
-  - Add new medical entries
-  - Update vaccination records
-  - Manage medication prescriptions
+    - View complete pet medical history
+    - Edit existing medical records
+    - Add new medical entries
+    - Update vaccination records
+    - Manage medication prescriptions
 - **Practice Analytics**:
-  - Daily appointment statistics
-  - Completed appointments tracking
-  - Patient load overview
-  - Upcoming schedule visibility
+    - Daily appointment statistics
+    - Completed appointments tracking
+    - Patient load overview
+    - Upcoming schedule visibility
 - **Search and Filter**:
-  - Search appointments by pet name, owner, or type
-  - Filter by appointment status
-  - Advanced filtering options
+    - Search appointments by pet name, owner, or type
+    - Filter by appointment status
+    - Advanced filtering options
 
 ### 🛡️ **Administrator Dashboard**
+
 - **Complete User Management System**:
-  - Create, edit, and delete users of all types (Pet Owners, Veterinarians, Administrators)
-  - Role-based access control (RBAC)
-  - User search and filtering by email, name, or user type
-  - Bulk operations support
-  - View detailed user information
-  - User type management (Pet Owner, Veterinarian, Administrator)
-  - Administrator access level management (Standard, Elevated, Super Admin)
+    - Create, edit, and delete users of all types (Pet Owners, Veterinarians, Administrators)
+    - Role-based access control (RBAC)
+    - User search and filtering by email, name, or user type
+    - Bulk operations support
+    - View detailed user information
+    - User type management (Pet Owner, Veterinarian, Administrator)
+    - Administrator access level management (Standard, Elevated, Super Admin)
 - **Appointment Management**:
-  - View all appointments across the system
-  - Search appointments by pet name, owner, veterinarian, or type
-  - Filter appointments by status (all, scheduled, completed, cancelled)
-  - Update appointment status
-  - Delete appointments
-  - View detailed appointment information
-  - Track appointment creation dates
+    - View all appointments across the system
+    - Search appointments by pet name, owner, veterinarian, or type
+    - Filter appointments by status (all, scheduled, completed, cancelled)
+    - Update appointment status
+    - Delete appointments
+    - View detailed appointment information
+    - Track appointment creation dates
 - **Pet Management**:
-  - View all pets in the system
-  - Search pets by name, species, or breed
-  - Access complete pet profiles and medical history
-  - View pet owner information
+    - View all pets in the system
+    - Search pets by name, species, or breed
+    - Access complete pet profiles and medical history
+    - View pet owner information
 - **Medical History Access**:
-  - View and manage medical records for all pets
-  - Edit vaccination records
-  - Update medication information
-  - Add clinical notes
+    - View and manage medical records for all pets
+    - Edit vaccination records
+    - Update medication information
+    - Add clinical notes
 - **System Analytics**:
-  - Total user statistics (Pet Owners, Veterinarians, Administrators)
-  - Appointment analytics (Total, Completed, Cancelled, Today's appointments)
-  - Total pets in system
-  - Real-time dashboard metrics
-  - User demographics and distribution
+    - Total user statistics (Pet Owners, Veterinarians, Administrators)
+    - Appointment analytics (Total, Completed, Cancelled, Today's appointments)
+    - Total pets in system
+    - Real-time dashboard metrics
+    - User demographics and distribution
 - **Access Control**:
-  - Hierarchical admin permissions
-  - Super Admin: Full system access and administrator management
-  - Elevated Admin: Advanced features and settings access
-  - Standard Admin: Basic user and appointment management
-  - Permission-based UI elements and feature visibility
+    - Hierarchical admin permissions
+    - Super Admin: Full system access and administrator management
+    - Elevated Admin: Advanced features and settings access
+    - Standard Admin: Basic user and appointment management
+    - Permission-based UI elements and feature visibility
 
 ### 🔐 **Authentication & Security**
+
 - **User Authentication**:
-  - Secure login system with email and password
-  - Role-based authentication (Pet Owner, Veterinarian, Administrator)
-  - Session management with localStorage
-  - Automatic logout functionality
+    - Secure login system with email and password
+    - Role-based authentication (Pet Owner, Veterinarian, Administrator)
+    - Session management with localStorage
+    - Automatic logout functionality
 - **Password Recovery**:
-  - "Forgot Password" functionality
-  - Secure password reset token generation (64-character cryptographic tokens)
-  - Email-based password reset links
-  - Token expiration (1 hour validity)
-  - One-time use tokens
-  - Password reset confirmation emails
-  - Demo email logging for development
+    - "Forgot Password" functionality
+    - Secure password reset token generation (64-character cryptographic tokens)
+    - Email-based password reset links
+    - Token expiration (1 hour validity)
+    - One-time use tokens
+    - Password reset confirmation emails
+    - Demo email logging for development
 - **Security Features**:
-  - Password validation (minimum 8 characters)
-  - Email enumeration protection
-  - Expired token cleanup
-  - Used token tracking
-  - Secure token validation
+    - Password validation (minimum 8 characters)
+    - Email enumeration protection
+    - Expired token cleanup
+    - Used token tracking
+    - Secure token validation
 
 ## 🏗️ Architecture
 
 ### **Technology Stack**
 
 #### Frontend
+
 - **Framework**: React 18.3.1 with TypeScript
 - **Build Tool**: Vite 5.4.1
 - **Styling**: Tailwind CSS 3.4.11
@@ -174,12 +179,14 @@ A comprehensive pet care management system built with modern web technologies, o
 - **HTTP Client**: Axios
 
 #### Backend
+
 - **Runtime**: Netlify Serverless Functions
 - **Database**: Neon PostgreSQL (serverless)
 - **Authentication**: JWT (JSON Web Tokens)
 - **API Architecture**: RESTful serverless endpoints
 
 ### **Project Structure**
+
 ```
 petcare-app/
 ├── frontend/                  # React application
@@ -224,25 +231,25 @@ All guides are in the [`docs/`](./docs/) folder, numbered in the recommended rea
 
 ### 📖 For Beginners (Start Here)
 
-| # | Document | What It Covers | Reading Time |
-|---|----------|---------------|:------------:|
-| 01 | **[01-ARCHITECTURE.md](./docs/01-ARCHITECTURE.md)** | Big-picture overview, tech stack, project structure, data flow | ~30 min |
-| 02 | **[02-BEGINNER_GUIDE.md](./docs/02-BEGINNER_GUIDE.md)** | Step-by-step code walkthrough with examples and exercises | ~60 min |
-| 03 | **[03-CODE_COMMENTS_GUIDE.md](./docs/03-CODE_COMMENTS_GUIDE.md)** | How to read the inline code comments throughout the project | ~20 min |
+| #   | Document                                                          | What It Covers                                                 | Reading Time |
+| --- | ----------------------------------------------------------------- | -------------------------------------------------------------- | :----------: |
+| 01  | **[01-ARCHITECTURE.md](./docs/01-ARCHITECTURE.md)**               | Big-picture overview, tech stack, project structure, data flow |   ~30 min    |
+| 02  | **[02-BEGINNER_GUIDE.md](./docs/02-BEGINNER_GUIDE.md)**           | Step-by-step code walkthrough with examples and exercises      |   ~60 min    |
+| 03  | **[03-CODE_COMMENTS_GUIDE.md](./docs/03-CODE_COMMENTS_GUIDE.md)** | How to read the inline code comments throughout the project    |   ~20 min    |
 
 ### 🚀 Getting Started
 
-| # | Document | What It Covers |
-|---|----------|----------------|
-| 04 | **[04-QUICK-START.md](./docs/04-QUICK-START.md)** | Get the app running in 5 steps |
-| 05 | **[05-DEPLOYMENT.md](./docs/05-DEPLOYMENT.md)** | Full deployment guide: Netlify, Neon PostgreSQL, custom domains |
+| #   | Document                                          | What It Covers                                                  |
+| --- | ------------------------------------------------- | --------------------------------------------------------------- |
+| 04  | **[04-QUICK-START.md](./docs/04-QUICK-START.md)** | Get the app running in 5 steps                                  |
+| 05  | **[05-DEPLOYMENT.md](./docs/05-DEPLOYMENT.md)**   | Full deployment guide: Netlify, Neon PostgreSQL, custom domains |
 
 ### 🔌 Services & Troubleshooting
 
-| # | Document | What It Covers |
-|---|----------|----------------|
-| 06 | **[06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md)** | Pusher real-time notification setup and usage |
-| 07 | **[07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md)** | Fix npm installation issues |
+| #   | Document                                                                | What It Covers                                |
+| --- | ----------------------------------------------------------------------- | --------------------------------------------- |
+| 06  | **[06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md)** | Pusher real-time notification setup and usage |
+| 07  | **[07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md)**                 | Fix npm installation issues                   |
 
 ### 🗄️ Database Files
 
@@ -252,6 +259,7 @@ All guides are in the [`docs/`](./docs/) folder, numbered in the recommended rea
 ### 📝 Code Comments
 
 All major code files include detailed inline comments explaining:
+
 - What each section does
 - Why it's written that way
 - Step-by-step breakdowns of complex logic
@@ -265,22 +273,23 @@ All major code files include detailed inline comments explaining:
 
 1. **Use Node.js 20.x** (>=20 <21).
 2. **Run the setup script**:
-   ```bash
-   npm run setup
-   ```
-   If you want to run it directly, do this once:
-   ```bash
-   chmod +x setup.sh
-   ./setup.sh
-   ```
+    ```bash
+    npm run setup
+    ```
+    If you want to run it directly, do this once:
+    ```bash
+    chmod +x setup.sh
+    ./setup.sh
+    ```
 3. **Configure DATABASE_URL** in `.env` (Neon or a local Postgres).
 4. **JWT_SECRET**: `setup.sh` auto-generates it if the placeholder is present.
 5. **Start dev**:
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```
 
 ### Prerequisites
+
 - Node.js 20 LTS
 - npm 10+
 - Netlify CLI (optional for local development)
@@ -288,45 +297,48 @@ All major code files include detailed inline comments explaining:
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd petcare-app
-   ```
+
+    ```bash
+    git clone <repository-url>
+    cd petcare-app
+    ```
 
 2. **Install dependencies**
-   ```bash
-   # Option 1: Use the automated fix script (recommended if you encounter npm errors)
-   ./fix-dependencies.sh
-   
-   # Option 2: Standard installation
-   npm run install:all
-   # This installs dependencies for frontend and serverless functions
-   ```
-   
+
+    ```bash
+    # Option 1: Use the automated fix script (recommended if you encounter npm errors)
+    ./fix-dependencies.sh
+
+    # Option 2: Standard installation
+    npm run install:all
+    # This installs dependencies for frontend and serverless functions
+    ```
+
 > **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md) for details.
 
 3. **Configure environment variables**
 
-   This project uses multiple environment scopes:
+    This project uses multiple environment scopes:
 
 - Root (`.env`) — variables used by serverless functions and tools (DATABASE_URL, JWT_SECRET, etc.)
 - Netlify functions (`netlify/functions/.env`) — variables available to serverless functions at runtime when running locally with Netlify Dev
-- Frontend (`frontend/.env`) — client-side config for Vite (VITE_* variables)
+- Frontend (`frontend/.env`) — client-side config for Vite (VITE\_\* variables)
 
-   Example files are provided. Copy the appropriate example to create your local `.env` files and DO NOT commit them.
+    Example files are provided. Copy the appropriate example to create your local `.env` files and DO NOT commit them.
 
-   ```bash
-   # Root env (server / functions)
-   cp .env.example .env
+    ```bash
+    # Root env (server / functions)
+    cp .env.example .env
 
-   # Functions-specific env (local dev)
-   cp netlify/functions/.env.example netlify/functions/.env || true
+    # Functions-specific env (local dev)
+    cp netlify/functions/.env.example netlify/functions/.env || true
 
-   # Frontend env (client-side Vite variables)
-   cp frontend/.env.example frontend/.env || true
-   ```
+    # Frontend env (client-side Vite variables)
+    cp frontend/.env.example frontend/.env || true
+    ```
 
 Notes:
+
 - Never commit `.env` files. They are gitignored by default.
 - `frontend/.env` values starting with `VITE_` are safe to expose in client bundles if they contain non-sensitive values.
 - If you add a new environment variable to code, update the corresponding `.env.example` file immediately.
@@ -338,10 +350,10 @@ grep -E "^\.env(\b|\.|$)" .gitignore || true
 ```
 
 4. **Start development server**
-   ```bash
-   npm run dev
-   # Runs Netlify Dev via npx on http://localhost:8888 (functions available at /.netlify/functions/*)
-   ```
+    ```bash
+    npm run dev
+    # Runs Netlify Dev via npx on http://localhost:8888 (functions available at /.netlify/functions/*)
+    ```
 
 Quick verification (after installing deps and copying env files):
 
@@ -372,23 +384,26 @@ npm --prefix netlify/functions run typecheck || npm --prefix netlify/functions r
 ### Deployment to Netlify
 
 1. **Install Netlify CLI**
-   ```bash
-  npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 2. **Login to Netlify**
-   ```bash
-  npx netlify login
-   ```
+
+    ```bash
+    npx netlify login
+    ```
 
 3. **Initialize site**
-   ```bash
-  npx netlify init
-   ```
+
+    ```bash
+    npx netlify init
+    ```
 
 4. **Deploy**
-   ```bash
-  npx netlify deploy --prod
+    ```bash
+    npx netlify deploy --prod
     ```
 
 ## Getting Started
@@ -414,12 +429,15 @@ The full documentation set is in the docs/ folder. Relevant files:
 These accounts are preloaded via demo data and can be used to explore each dashboard:
 
 ### Administrator
+
 - **Elevated Admin:** `admin@petcare.com` / `password123`
 
 ### Veterinarian
+
 - **Dr. Sarah Johnson:** `vet@petcare.com` / `password123`
 
 ### Pet Owner
+
 - **John Smith:** `owner@petcare.com` / `password123`
 
 **Note:** All demo accounts use the same password (`password123`) for simplicity. In production, enforce strong, unique passwords.
@@ -427,12 +445,14 @@ These accounts are preloaded via demo data and can be used to explore each dashb
 ## 👥 User Roles & Permissions
 
 ### **Pet Owner**
+
 - Manage own pets and their medical records
 - Schedule and view appointments
 - Access vaccination and medication tracking
 - View clinical records from veterinarians
 
 ### **Veterinarian**
+
 - Access patient (pet) information
 - Create and manage clinical records
 - Schedule and manage appointments
@@ -441,16 +461,19 @@ These accounts are preloaded via demo data and can be used to explore each dashb
 ### **Administrator Levels**
 
 #### **Standard Administrator**
+
 - Create and manage Pet Owners and Veterinarians
 - View system analytics and reports
 - Access admin dashboard
 
 #### **Elevated Administrator**
+
 - All Standard Admin permissions
 - Access to system settings
 - Advanced clinical record management
 
 #### **Super Administrator**
+
 - All system permissions
 - Manage other administrators
 - Full system control and configuration
@@ -487,6 +510,7 @@ npm run install:functions
 The application uses serverless functions deployed on Netlify:
 
 **Serverless Functions** (`netlify/functions/`)
+
 - **Authentication**: Login, registration, password reset
 - **Users**: User CRUD operations, profile management
 - **Pets**: Pet management with medical records
@@ -498,6 +522,7 @@ The application uses serverless functions deployed on Netlify:
 - **Notifications**: System notifications
 
 **Frontend API Client** (`frontend/src/lib/api.ts`)
+
 - Axios-based HTTP client
 - JWT token management
 - Automatic authentication
@@ -505,6 +530,7 @@ The application uses serverless functions deployed on Netlify:
 - Type-safe API calls
 
 **Key Features:**
+
 - Neon PostgreSQL (serverless database)
 - JWT authentication for secure access
 - RESTful serverless endpoints
@@ -516,18 +542,18 @@ The application uses serverless functions deployed on Netlify:
 ### **Adding New Features**
 
 1. **Serverless Functions**:
-   - Create new function in `netlify/functions/`
-   - Add database queries using Neon connection
-   - Implement JWT authentication with `requireAuth`
-   - Add validation and error handling
-   - Update API documentation
+    - Create new function in `netlify/functions/`
+    - Add database queries using Neon connection
+    - Implement JWT authentication with `requireAuth`
+    - Add validation and error handling
+    - Update API documentation
 
 2. **Frontend**:
-   - Add TypeScript interfaces in `frontend/src/types.ts`
-   - Update API client in `frontend/src/lib/api.ts`
-   - Create Zod schemas in `frontend/src/schemas/`
-   - Build UI components with shadcn/ui
-   - Update role management in `frontend/src/utils/roleManagement.ts`
+    - Add TypeScript interfaces in `frontend/src/types.ts`
+    - Update API client in `frontend/src/lib/api.ts`
+    - Create Zod schemas in `frontend/src/schemas/`
+    - Build UI components with shadcn/ui
+    - Update role management in `frontend/src/utils/roleManagement.ts`
 
 ## 📊 Data Models
 
@@ -536,6 +562,7 @@ The application uses comprehensive TypeScript interfaces for type safety:
 ### **Core Entities**
 
 **Pet**
+
 - Complete pet profile (name, species, breed, age, weight, color, gender)
 - Microchip ID tracking
 - Medical history array
@@ -545,6 +572,7 @@ The application uses comprehensive TypeScript interfaces for type safety:
 - Custom notes
 
 **User**
+
 - Email, password, full name, phone
 - User type (pet_owner, veterinarian, administrator)
 - Address, specialization, license number (role-specific)
@@ -552,6 +580,7 @@ The application uses comprehensive TypeScript interfaces for type safety:
 - Admin tokens for elevated permissions
 
 **Appointment**
+
 - Pet and owner references
 - Veterinarian assignment
 - Date, time, and appointment type
@@ -560,22 +589,26 @@ The application uses comprehensive TypeScript interfaces for type safety:
 - Clinical information (diagnosis, treatment, follow-up)
 
 **Medical Record**
+
 - Date and type of medical event
 - Description and diagnosis
 - Attending veterinarian
 - Treatment details
 
 **Vaccination Record**
+
 - Vaccine name and type
 - Administration date
 - Next due date for reminders
 
 **Medication Record**
+
 - Medication name and dosage
 - Start and end dates
 - Administration schedule
 
 **Password Reset Token**
+
 - Secure token generation
 - Email reference
 - Expiration timestamp
@@ -585,29 +618,29 @@ The application uses comprehensive TypeScript interfaces for type safety:
 ## 🔒 Security Features
 
 - **Role-Based Access Control (RBAC)**
-  - Three distinct user roles with specific permissions
-  - Hierarchical administrator access levels
-  - Permission-based feature visibility
+    - Three distinct user roles with specific permissions
+    - Hierarchical administrator access levels
+    - Permission-based feature visibility
 - **Authentication Security**
-  - Secure password storage (development mode)
-  - Session management with localStorage
-  - Role-based login verification
+    - Secure password storage (development mode)
+    - Session management with localStorage
+    - Role-based login verification
 - **Password Recovery Security**
-  - Cryptographically secure token generation (64-character tokens)
-  - Token expiration after 1 hour
-  - One-time use tokens with usage tracking
-  - Email enumeration protection
-  - Automatic cleanup of expired tokens
+    - Cryptographically secure token generation (64-character tokens)
+    - Token expiration after 1 hour
+    - One-time use tokens with usage tracking
+    - Email enumeration protection
+    - Automatic cleanup of expired tokens
 - **Input Validation**
-  - Zod schema validation for all forms
-  - React Hook Form integration
-  - Server-side validation simulation
-  - Type-safe data handling
+    - Zod schema validation for all forms
+    - React Hook Form integration
+    - Server-side validation simulation
+    - Type-safe data handling
 - **Access Control**
-  - Permission-based UI rendering
-  - Access level hierarchy enforcement
-  - Protected routes and features
-  - Secure user management operations
+    - Permission-based UI rendering
+    - Access level hierarchy enforcement
+    - Protected routes and features
+    - Secure user management operations
 
 ## 📱 Responsive Design
 
@@ -620,6 +653,7 @@ The application uses comprehensive TypeScript interfaces for type safety:
 ## 🧪 Testing
 
 The application includes comprehensive demo data for testing:
+
 - **Pre-loaded User Accounts**: demo users across all three roles
 - **Sample Pet Profiles**: Multiple pets with complete medical histories
 - **Example Appointments**: Scheduled, completed, and cancelled appointments
@@ -631,7 +665,9 @@ The application includes comprehensive demo data for testing:
 ## 🔮 Future Enhancements
 
 ### **Planned Features**
+
 -- ✅ ~~Real-time notifications with WebSockets~~ **COMPLETED** (see [06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md))
+
 - Advanced reporting and analytics dashboards
 - Multi-clinic support with clinic management
 - External API integrations (labs, pharmacies)
@@ -645,10 +681,11 @@ The application includes comprehensive demo data for testing:
 - Video consultation integration
 
 ### **Technical Improvements**
+
 - ✅ ~~Database integration (Neon PostgreSQL)~~ **COMPLETED**
 - ✅ ~~JWT authentication~~ **COMPLETED**
 - ✅ ~~Serverless API with Netlify~~ **COMPLETED**
--- ✅ ~~Real-time updates with Pusher WebSockets~~ **COMPLETED** (see [06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md))
+  -- ✅ ~~Real-time updates with Pusher WebSockets~~ **COMPLETED** (see [06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md))
 - ✅ ~~Advanced caching strategies (Edge Functions)~~ **COMPLETED** (Edge cache for `GET /api/*`)
 - Performance optimizations (lazy loading, code splitting)
 - Comprehensive test coverage (Jest, React Testing Library, Playwright)
@@ -688,6 +725,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For support and questions:
+
 - Open an issue on GitHub
 - Check the documentation
 
