@@ -9,6 +9,7 @@ A comprehensive pet care management system built with modern web technologies, o
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.11-cyan)
 ![Netlify](https://img.shields.io/badge/Netlify-Serverless-00C7B7)
 ![Neon](https://img.shields.io/badge/Neon-PostgreSQL-4F46E5)
+![![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AdrianLinares/petcare-app)
 
 ## ⚡ Key Highlights
 
