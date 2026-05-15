@@ -33,6 +33,7 @@ const mockPets = [
     gender: "Male" as const,
     notes: "Very friendly",
     ownerId: "user-1",
+    conditions: "",
     medicalHistory: [],
     vaccinations: [],
     medications: [],

@@ -1,0 +1,11 @@
+packages:
+  - "."
+  - "frontend"
+  - "netlify/functions"
+
+onlyBuiltDependencies:
+  - bcrypt
+  - esbuild
+  - netlify-cli
+  - "@swc/core"
+  - sharp

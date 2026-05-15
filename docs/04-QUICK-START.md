@@ -5,8 +5,8 @@
 ### 1. Install Dependencies
 
 ```bash
-npm run install:all
-# This installs dependencies for frontend and serverless functions
+pnpm install
+# Installs root, frontend, and functions dependencies via pnpm workspaces
 ```
 
 ### 2. Configure Environment
@@ -45,7 +45,7 @@ psql "$DATABASE_URL" -f seed-database-fixed.sql
 ### 4. Run Development Server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Visit **http://localhost:8888**
@@ -66,15 +66,20 @@ Check that schema is correct:
 
 ```bash
 # Development
-npm run dev                    # Start Netlify Dev server
-npx netlify dev                # Alternative command
+pnpm dev                        # Start Netlify Dev server
 
 # Build
-npm run build                  # Build frontend for production
+pnpm build                      # Build frontend for production
+
+# Tests
+pnpm test:run                   # Run frontend tests
+
+# Functions
+pnpm --filter ./netlify/functions typecheck   # Typecheck functions
 
 # Deployment
-npx netlify deploy             # Preview deployment
-npx netlify deploy --prod      # Production deployment
+pnpm exec netlify deploy        # Preview deployment
+pnpm exec netlify deploy --prod # Production deployment
 ```
 
 ## Project Structure
@@ -105,10 +110,10 @@ frontend/              # React app
 - Test connection with: `psql $DATABASE_URL`
 
 **Functions not working?**
-- Run `npm run install:functions`
-- Check function logs: `npx netlify logs`
+- Run `pnpm install` to ensure all deps are installed
+- Check function logs: `pnpm exec netlify logs`
 - Verify environment variables are set in Netlify dashboard
 
 **Build fails?**
-- Clear cache: `rm -rf node_modules netlify/functions/node_modules frontend/node_modules`
-- Reinstall: `npm run install:all`
+- Clean cache: `rm -rf node_modules frontend/node_modules netlify/functions/node_modules`
+- Reinstall: `pnpm install`

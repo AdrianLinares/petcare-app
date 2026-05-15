@@ -51,6 +51,7 @@ export interface Pet {
   color: string;
   gender: 'Male' | 'Female'; // Only these two values are allowed!
   microchipId?: string;
+  conditions?: string;
   medicalHistory?: MedicalRecord[];
   vaccinations?: VaccinationRecord[];
   allergies?: string[];

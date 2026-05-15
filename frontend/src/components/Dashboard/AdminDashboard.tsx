@@ -112,6 +112,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       // Load all pets from backend (all owners)
       const pets = await petAPI.getPets();
       setAllPets(pets);
+      setSelectedPet(prev => prev ? pets.find(p => p.id === prev.id) || prev : null);
     } catch (error: any) {
       console.error('Failed to load admin dashboard data:', error);
       toast.error(t('dashboard.failedLoadDashboard'));

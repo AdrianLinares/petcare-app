@@ -1,10 +1,11 @@
 [build]
   base = "."
   publish = "frontend/dist"
-  command = "cd frontend && (npm ci --include=dev || npm install --include=dev) && npm run build && cd ../netlify/functions && (npm ci || npm install)"
+  command = "pnpm install --frozen-lockfile && pnpm --filter ./frontend build"
 
 [build.environment]
   NODE_VERSION = "20"
+  PNPM_VERSION = "10"
 
 [functions]
   # Point Netlify to the SOURCE TypeScript files
@@ -13,7 +14,7 @@
   node_bundler = "esbuild"
 
 [dev]
-  command = "npm --prefix frontend run dev"
+  command = "pnpm --filter ./frontend dev"
   port = 8888
   targetPort = 5173
   framework = "#custom"

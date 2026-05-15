@@ -33,22 +33,29 @@ The PetCare project had the following dependency-related issues:
 ### 1. **Created Fix Script** (`fix-dependencies.sh`)
    - Automates clean installation process
    - Removes problematic `node_modules` and lock files
-   - Clears npm cache
-   - Runs clean `npm install` and regenerates `package-lock.json`
-   - Supports frontend and netlify functions separately
+   - Runs clean `pnpm install` (pnpm workspaces)
+   - Supports all packages in one pass
 
-### 2. **Installation Steps**
+### 2. **Migrated from npm to pnpm** (Security-driven)
+   - Replaced `npm` with `pnpm` >= 10
+   - Created `pnpm-workspace.yaml` for monorepo management
+   - pnpm's content-addressable store prevents supply-chain attacks
+   - Postinstall scripts require explicit approval (`onlyBuiltDependencies`)
+   - Single `pnpm install` installs root, frontend, and functions
+
+### 3. **Installation Steps**
    ```bash
    # Option 1: Run the automated fix script (recommended)
    ./fix-dependencies.sh
 
-   # Option 2: Manual installation
-   npm run install:all
+   # Option 2: Standard installation
+   pnpm install
    ```
 
-### 3. **Verified Installations**
-   - ✅ Frontend: 350+ packages installed including React, Vite, TypeScript
-   - ✅ Netlify Functions: All 80+ dependencies including bcrypt, JWT, PostgreSQL driver
+### 4. **Verified Installations**
+   - ✅ Frontend: 1450+ packages installed including React, Vite, TypeScript
+   - ✅ Netlify Functions: All dependencies including bcrypt, JWT, PostgreSQL driver
+   - ✅ Build scripts for bcrypt, esbuild, netlify-cli, @swc/core, sharp approved and executed
 
 ## Key Packages Installed
 
@@ -77,13 +84,13 @@ All installations have been verified as complete:
 
 ```bash
 # Check frontend
-ls frontend/node_modules | wc -l  # Should show 350+ packages
+pnpm ls --filter ./frontend --depth=0
 
 # Check netlify functions
-ls netlify/functions/node_modules | wc -l  # Should show 80+ packages
+pnpm ls --filter ./netlify/functions --depth=0
 
-# Verify critical packages
-ls netlify/functions/node_modules/{bcrypt,jsonwebtoken,pg,@netlify}
+# Verify build works
+pnpm build
 ```
 
 ## Prevention Going Forward
@@ -94,18 +101,19 @@ The `fix-dependencies.sh` script can be run anytime dependencies become corrupte
 ./fix-dependencies.sh
 ```
 
-For CI/CD or deployment, consider using:
+For CI/CD or deployment, Netlify uses:
 ```bash
-npm ci  # Uses exact versions from package-lock.json
+pnpm install --frozen-lockfile && pnpm --filter ./frontend build
 ```
 
 ## Additional Notes
 
-- The project now uses npm-only lockfile installs to avoid package-manager drift
-- All dependencies are specified with caret ranges (^) allowing minor version updates
-- Optional dependencies (like platform-specific binaries) may fail to install but don't affect functionality
+- The project uses **pnpm workspaces** with a shared lockfile (`pnpm-lock.yaml`)
+- Postinstall scripts are restricted to approved packages via `onlyBuiltDependencies` in `pnpm-workspace.yaml`
+- The content-addressable store prevents supply-chain attacks
+- Dependencies are specified with caret ranges (^) allowing minor version updates
 
 ---
 
-**Last Updated**: February 16, 2026  
-**Status**: ✅ All dependencies verified and fixed
+**Last Updated**: May 14, 2026  
+**Status**: ✅ Migrated from npm to pnpm. All dependencies verified.

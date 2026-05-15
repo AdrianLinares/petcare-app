@@ -210,7 +210,7 @@ export const initializeTestData = () => {
       color: 'Golden',
       gender: 'Male', // Capitalized to match Pet interface
       ownerId: 'sarah.johnson@email.com',
-      // Removed demo string arrays (conditions/vaccinations) that didn't match interface
+      conditions: '',
       notes: 'Very friendly and energetic. Loves swimming and playing fetch.',
       createdAt: '2024-01-15T10:00:00Z'
     },
@@ -224,7 +224,7 @@ export const initializeTestData = () => {
       color: 'White',
       gender: 'Female', // Capitalized to match Pet interface
       ownerId: 'sarah.johnson@email.com',
-      // Removed demo string arrays (conditions/vaccinations) that didn't match interface
+      conditions: '',
       notes: 'Indoor cat, very calm and affectionate. Enjoys grooming sessions.',
       createdAt: '2024-01-20T10:00:00Z'
     }
@@ -242,7 +242,7 @@ export const initializeTestData = () => {
       color: 'Black and Tan',
       gender: 'Male',
       ownerId: 'michael.chen@email.com',
-      // Removed conditions and vaccinations arrays
+      conditions: 'ACL recovery (post-surgery)',
       notes: 'Working dog background. Currently recovering from ACL surgery.',
       createdAt: '2024-02-10T14:30:00Z'
     }
@@ -260,7 +260,7 @@ export const initializeTestData = () => {
       color: 'Chocolate Brown',
       gender: 'Female',
       ownerId: 'emma.rodriguez@email.com',
-      // Removed conditions and vaccinations arrays
+      conditions: '',
       notes: 'Young energetic puppy. Still completing vaccination series.',
       createdAt: '2024-03-05T09:15:00Z'
     },
@@ -274,7 +274,7 @@ export const initializeTestData = () => {
       color: 'Orange Tabby',
       gender: 'Male',
       ownerId: 'emma.rodriguez@email.com',
-      // Removed conditions and vaccinations arrays
+      conditions: '',
       notes: 'Large, gentle cat. Indoor/outdoor access.',
       createdAt: '2024-03-10T09:15:00Z'
     }
@@ -292,7 +292,7 @@ export const initializeTestData = () => {
       color: 'Tricolor',
       gender: 'Male',
       ownerId: 'owner@petcare.com',
-      // Removed conditions and vaccinations arrays
+      conditions: 'Seasonal allergies, Hip dysplasia (mild)',
       notes: 'Friendly beagle with seasonal allergies.',
       createdAt: '2024-01-01T12:00:00Z'
     }

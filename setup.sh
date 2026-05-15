@@ -35,6 +35,12 @@ require_node() {
   fi
 }
 
+require_pnpm() {
+  if ! command -v pnpm >/dev/null 2>&1; then
+    fail "pnpm is not installed. Install it with: npm install -g pnpm"
+  fi
+}
+
 copy_if_missing() {
   src=$1
   dest=$2
@@ -79,21 +85,8 @@ ensure_jwt_secret() {
   esac
 }
 
-install_deps() {
-  dir=$1
-
-  if [ ! -f "$dir/package.json" ]; then
-    return 0
-  fi
-
-  if [ -f "$dir/package-lock.json" ]; then
-    (cd "$dir" && npm ci)
-  else
-    (cd "$dir" && npm install)
-  fi
-}
-
 require_node
+require_pnpm
 
 copy_if_missing ".env.example" ".env"
 copy_if_missing "frontend/.env.example" "frontend/.env"
@@ -101,14 +94,14 @@ copy_if_missing "netlify/functions/.env.example" "netlify/functions/.env"
 
 ensure_jwt_secret
 
-install_deps "."
-install_deps "frontend"
-install_deps "netlify/functions"
+# Install all dependencies via pnpm workspace
+log "📦 Installing all dependencies via pnpm..."
+pnpm install
 
 cat <<'EOF'
 Setup complete.
 
 Next steps:
 - If you need a real database, edit DATABASE_URL in .env.
-- Start development: npm run dev
+- Start development: pnpm dev
 EOF

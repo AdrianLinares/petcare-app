@@ -786,6 +786,8 @@ export const appointmentAPI = {
     id: string,
     updates: {
       status?: string;
+      date?: string;
+      time?: string;
       diagnosis?: string;
       treatment?: string;
       notes?: string;

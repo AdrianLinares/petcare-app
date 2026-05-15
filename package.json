@@ -5,18 +5,19 @@
     "private": true,
     "engines": {
         "node": ">=20 <21",
-        "npm": ">=10"
+        "pnpm": ">=10"
     },
+    "packageManager": "pnpm@10.14.0",
     "scripts": {
         "setup": "sh ./setup.sh",
-        "dev": "npx netlify dev",
-        "build": "cd frontend && npm run build",
-        "prebuild": "npm --prefix frontend run test:run || true",
-        "test": "cd frontend && npm run test",
-        "test:run": "cd frontend && npm run test:run",
-        "test:coverage": "cd frontend && npm run test:coverage",
-        "install:all": "npm install && cd frontend && (npm ci --include=dev || npm install --include=dev) && cd ../netlify/functions && (npm ci || npm install)",
-        "install:functions": "cd netlify/functions && (npm ci || npm install)",
+        "dev": "netlify dev --filter petcare-app",
+        "build": "pnpm --filter ./frontend build",
+        "prebuild": "pnpm --filter ./frontend test:run || true",
+        "test": "pnpm --filter ./frontend test",
+        "test:run": "pnpm --filter ./frontend test:run",
+        "test:coverage": "pnpm --filter ./frontend test:coverage",
+        "install:all": "pnpm install",
+        "install:functions": "pnpm install --filter ./netlify/functions",
         "reinstall:clean": "./fix-dependencies.sh"
     },
     "devDependencies": {

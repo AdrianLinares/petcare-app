@@ -271,10 +271,10 @@ All major code files include detailed inline comments explaining:
 
 ## Environment Setup
 
-1. **Use Node.js 20.x** (>=20 <21).
+1. **Use Node.js 20.x** (>=20 <21) and **pnpm >= 10**.
 2. **Run the setup script**:
     ```bash
-    npm run setup
+    pnpm setup
     ```
     If you want to run it directly, do this once:
     ```bash
@@ -285,13 +285,13 @@ All major code files include detailed inline comments explaining:
 4. **JWT_SECRET**: `setup.sh` auto-generates it if the placeholder is present.
 5. **Start dev**:
     ```bash
-    npm run dev
+    pnpm dev
     ```
 
 ### Prerequisites
 
 - Node.js 20 LTS
-- npm 10+
+- pnpm >= 10
 - Netlify CLI (optional for local development)
 
 ### Installation
@@ -306,15 +306,15 @@ All major code files include detailed inline comments explaining:
 2. **Install dependencies**
 
     ```bash
-    # Option 1: Use the automated fix script (recommended if you encounter npm errors)
+    # Option 1: Use the automated fix script (recommended if you encounter install errors)
     ./fix-dependencies.sh
 
     # Option 2: Standard installation
-    npm run install:all
-    # This installs dependencies for frontend and serverless functions
+    pnpm install
+    # Installs root, frontend, and functions dependencies via pnpm workspaces
     ```
 
-> **Troubleshooting**: If you encounter `ENOTEMPTY` or other npm errors, run `fix-dependencies.sh` to resolve them. See [07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md) for details.
+> **Troubleshooting**: If you encounter install errors, run `fix-dependencies.sh` to resolve them. See [07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md) for details.
 
 3. **Configure environment variables**
 
@@ -351,24 +351,24 @@ grep -E "^\.env(\b|\.|$)" .gitignore || true
 
 4. **Start development server**
     ```bash
-    npm run dev
-    # Runs Netlify Dev via npx on http://localhost:8888 (functions available at /.netlify/functions/*)
+    pnpm dev
+    # Runs Netlify Dev on http://localhost:8888 (functions available at /.netlify/functions/*)
     ```
 
 Quick verification (after installing deps and copying env files):
 
 ```bash
-# Check node/npm versions
-node -v && npm -v
+# Check node/pnpm versions
+node -v && pnpm --version
 
 # Run Netlify Dev
-npm run dev
+pnpm dev
 
 # (Optional) In a separate terminal: run frontend only
-npm --prefix frontend run dev
+pnpm --filter ./frontend dev
 
 # (Optional) Typecheck or build functions
-npm --prefix netlify/functions run typecheck || npm --prefix netlify/functions run build
+pnpm --filter ./netlify/functions typecheck || pnpm --filter ./netlify/functions build
 ```
 
 5. **Open your browser**
@@ -383,27 +383,23 @@ npm --prefix netlify/functions run typecheck || npm --prefix netlify/functions r
 
 ### Deployment to Netlify
 
-1. **Install Netlify CLI**
-
-    ```bash
-    npm install
-    ```
+1. **Netlify CLI is already installed** (via project dependencies).
 
 2. **Login to Netlify**
 
     ```bash
-    npx netlify login
+    pnpm exec netlify login
     ```
 
 3. **Initialize site**
 
     ```bash
-    npx netlify init
+    pnpm exec netlify init
     ```
 
 4. **Deploy**
     ```bash
-    npx netlify deploy --prod
+    pnpm exec netlify deploy --prod
     ```
 
 ## Getting Started
@@ -484,16 +480,19 @@ These accounts are preloaded via demo data and can be used to explore each dashb
 
 ```bash
 # Development server (Netlify Dev)
-npm run dev
+pnpm dev
 
 # Build frontend for production
-npm run build
+pnpm build
 
 # Install all dependencies (root, frontend, functions)
-npm run install:all
+pnpm install
 
-# Install only functions dependencies
-npm run install:functions
+# Run frontend tests
+pnpm test:run
+
+# Typecheck functions
+pnpm --filter ./netlify/functions typecheck
 ```
 
 ### **Code Structure Guidelines**

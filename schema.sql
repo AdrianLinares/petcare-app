@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS pets (
     gender VARCHAR(20) CHECK (gender IN ('Male', 'Female')),
     microchip_id VARCHAR(255) UNIQUE,
     allergies TEXT[] DEFAULT '{}',
+    conditions TEXT,
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

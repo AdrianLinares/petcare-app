@@ -91,8 +91,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
     weight: '',        // Weight in pounds/kg
     color: '',         // Fur/feather color
     gender: '',        // Male, Female, Unknown
-    conditions: '',    // Comma-separated health conditions
-    vaccinations: '',  // Comma-separated vaccination list
+    conditions: '',    // Pre-existing health conditions
     notes: ''          // Additional notes
   });
 
@@ -119,7 +118,6 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
       color: '',
       gender: '',
       conditions: '',
-      vaccinations: '',
       notes: ''
     });
   };
@@ -137,9 +135,8 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
         weight: parseFloat(formData.weight),
         color: formData.color,
         gender: (formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1)) as 'Male' | 'Female',
-        // Note: 'conditions' doesn't exist in Pet type - using notes field instead
-        // TODO: Consider adding conditions field to Pet interface if needed
-        notes: formData.notes + (formData.conditions ? `\nConditions: ${formData.conditions}` : '')
+        conditions: formData.conditions || null,
+        notes: formData.notes || null
       };
 
       if (editingPet) {
@@ -175,8 +172,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
       weight: pet.weight.toString(),
       color: pet.color,
       gender: pet.gender.toLowerCase(),
-      conditions: '', // conditions field not in Pet type
-      vaccinations: '', // vaccinations field exists but is MedicationRecord[], not string[]
+      conditions: pet.conditions || '',
       notes: pet.notes || ''
     });
     setIsAddingPet(true);
@@ -338,13 +334,10 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="vaccinations">{t('pets.vaccinations')}</Label>
-                <Input
-                  id="vaccinations"
-                  value={formData.vaccinations}
-                  onChange={(e) => setFormData(prev => ({ ...prev, vaccinations: e.target.value }))}
-                  placeholder={t('pets.vaccinationsPlaceholder')}
-                />
+                <Label>{t('pets.vaccinations')}</Label>
+                <div className="text-sm text-muted-foreground bg-muted/50 rounded-md p-3">
+                  {t('pets.vaccinationsInfo')}
+                </div>
               </div>
 
               <div className="space-y-2">

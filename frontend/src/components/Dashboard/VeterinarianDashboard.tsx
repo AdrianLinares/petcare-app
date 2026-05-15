@@ -113,6 +113,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     try {
       const petsData = await petAPI.getPets();
       setAllPets(petsData);
+      setSelectedPet(prev => prev ? petsData.find(p => p.id === prev.id) || prev : null);
     } catch (error: any) {
       console.error('Failed to load pets:', error);
       toast.error(t('dashboard.failedLoadPets'));
@@ -224,17 +225,13 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     if (!reschedulingAppointment) return;
 
     try {
-      // NOTE: Current API limitation - updateAppointment doesn't support changing date/time
-      // In a production system, you would need to add a reschedule endpoint to the backend
-      // For now, we'll just mark the old appointment as cancelled and create a new one
-      // TODO: Implement proper reschedule API endpoint
       await appointmentAPI.updateAppointment(reschedulingAppointment.id, {
-        status: 'cancelled',
-        notes: 'Rescheduled'
+        date: format(rescheduleForm.date, 'yyyy-MM-dd'),
+        time: rescheduleForm.time
       });
       await loadAppointments();
       setReschedulingAppointment(null);
-      toast.success(t('dashboard.rescheduleNote'));
+      toast.success(t('dashboard.rescheduleSuccess'));
     } catch (error: any) {
       const message = error.response?.data?.error || t('dashboard.failedReschedule');
       toast.error(message);

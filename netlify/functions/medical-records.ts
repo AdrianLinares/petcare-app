@@ -136,7 +136,7 @@ const handler: Handler = async (event: HandlerEvent) => {
         `INSERT INTO medical_records (pet_id, date, record_type, description, diagnosis, treatment, veterinarian_id, veterinarian_name)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
-        [petId, date, recordType, description || null, diagnosis || null, treatment || null, veterinarianId || user.id, veterinarianName || null]
+        [petId, date, recordType, description || null, diagnosis || null, treatment || null, veterinarianId || user.id, veterinarianName || user.fullName || null]
       );
       return successResponse(mapRecord(result.rows[0]), 201);
     }

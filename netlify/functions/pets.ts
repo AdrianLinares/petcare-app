@@ -108,6 +108,7 @@ const handler: Handler = async (event: HandlerEvent) => {
         ownerEmail: pet.owner_email,
         medicalHistory: pet.medical_history,
         allergies: pet.allergies,
+        conditions: pet.conditions,
         currentMedications: pet.current_medications,
         notes: pet.notes,
         createdAt: pet.created_at,
@@ -200,6 +201,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           ownerName: pet.owner_name,
           medicalHistory: pet.medical_history,
           allergies: pet.allergies,
+          conditions: pet.conditions,
           currentMedications: pet.current_medications,
           notes: pet.notes,
           createdAt: pet.created_at,
@@ -209,7 +211,7 @@ const handler: Handler = async (event: HandlerEvent) => {
 
       // PATCH /pets/:id
       if (event.httpMethod === 'PATCH') {
-        const { name, species, breed, age, gender, color, microchipId, weight, medicalHistory, allergies, currentMedications, notes } = body;
+        const { name, species, breed, age, gender, color, microchipId, weight, conditions, medicalHistory, allergies, currentMedications, notes } = body;
 
         const updates: string[] = [];
         const values: any[] = [];
@@ -250,6 +252,10 @@ const handler: Handler = async (event: HandlerEvent) => {
         if (medicalHistory !== undefined) {
           updates.push(`medical_history = $${paramCount++}`);
           values.push(medicalHistory);
+        }
+        if (conditions !== undefined) {
+          updates.push(`conditions = $${paramCount++}`);
+          values.push(conditions);
         }
         if (allergies !== undefined) {
           updates.push(`allergies = $${paramCount++}`);
@@ -301,6 +307,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           ownerId: pet.owner_id,
           medicalHistory: pet.medical_history,
           allergies: pet.allergies,
+          conditions: pet.conditions,
           currentMedications: pet.current_medications,
           notes: pet.notes,
           updatedAt: pet.updated_at,

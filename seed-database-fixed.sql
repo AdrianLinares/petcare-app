@@ -50,7 +50,7 @@ ON CONFLICT (email) DO NOTHING;
 -- 2. CREATE PETS
 -- ============================================
 
-INSERT INTO pets (id, owner_id, name, species, breed, age, weight, color, gender, microchip_id, allergies, notes, created_at, updated_at)
+INSERT INTO pets (id, owner_id, name, species, breed, age, weight, color, gender, microchip_id, allergies, conditions, notes, created_at, updated_at)
 VALUES 
   -- Pet 1: Buddy (Dog)
   ('650e8400-e29b-41d4-a716-446655440001',
@@ -64,6 +64,7 @@ VALUES
    'Male',
    'CHIP123456789',
    ARRAY['Peanuts', 'Chicken'],
+   'Hip dysplasia, Seasonal allergies',
    'Very friendly, loves playing fetch',
    NOW(),
    NOW()),
@@ -80,6 +81,7 @@ VALUES
    'Female',
    'CHIP987654321',
    ARRAY[]::text[],
+   'Dental tartar, Feline herpesvirus (latent)',
    'Indoor cat, shy around strangers',
    NOW(),
    NOW()),
@@ -96,6 +98,7 @@ VALUES
    'Male',
    'CHIP456789123',
    ARRAY['Beef'],
+   NULL,
    'Guard dog, well trained',
    NOW(),
    NOW())

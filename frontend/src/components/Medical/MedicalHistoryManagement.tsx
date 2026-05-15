@@ -129,6 +129,10 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
   const [allergiesDialog, setAllergiesDialog] = useState(false);
   const [allergiesText, setAllergiesText] = useState('');
 
+  // Conditions state
+  const [conditionsDialog, setConditionsDialog] = useState(false);
+  const [conditionsText, setConditionsText] = useState('');
+
   // Notes state
   const [notesDialog, setNotesDialog] = useState(false);
   const [notesText, setNotesText] = useState('');
@@ -178,8 +182,9 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       await loadAll();
       onUpdate();
       setMedicalRecordDialog(false);
-    } catch (error) {
-      toast.error(t('medical.failedSaveRecord'));
+    } catch (error: any) {
+      console.error('Failed to save medical record:', error?.response?.data || error);
+      toast.error(error?.response?.data?.error || t('medical.failedSaveRecord'));
     }
   };
 
@@ -333,6 +338,23 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
     }
   };
 
+  // Conditions handlers
+  const handleOpenConditionsDialog = () => {
+    setConditionsText(pet.conditions || '');
+    setConditionsDialog(true);
+  };
+
+  const handleSaveConditions = async () => {
+    try {
+      await petAPI.updatePet(pet.id, { conditions: conditionsText || null });
+      toast.success(t('medical.conditionsUpdated'));
+      onUpdate();
+      setConditionsDialog(false);
+    } catch (error) {
+      toast.error(t('medical.failedUpdateConditions'));
+    }
+  };
+
   // Notes handlers
   const handleOpenNotesDialog = () => {
     setNotesText(pet.notes || '');
@@ -395,7 +417,7 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
       </Card>
 
       {/* Quick Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="cursor-pointer hover:shadow-md" onClick={() => canEdit && handleOpenAllergiesDialog()}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -421,6 +443,18 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
               <div>
                 <p className="text-sm font-medium text-gray-600">{t('medical.weight')}</p>
                 <p className="text-lg font-bold">{pet.weight} {t('medical.kg')}</p>
+              </div>
+              {canEdit && <Edit className="h-4 w-4 text-gray-400" />}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md" onClick={() => canEdit && handleOpenConditionsDialog()}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">{t('medical.conditions')}</p>
+                <p className="text-sm text-gray-500 truncate">{pet.conditions || t('medical.noConditions')}</p>
               </div>
               {canEdit && <Edit className="h-4 w-4 text-gray-400" />}
             </div>
@@ -826,6 +860,31 @@ export default function MedicalHistoryManagement({ pet, onUpdate, canEdit }: Med
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setAllergiesDialog(false)}>{t('medical.cancel')}</Button>
               <Button onClick={handleSaveAllergies}>{t('medical.save')}</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Conditions Dialog */}
+      <Dialog open={conditionsDialog} onOpenChange={setConditionsDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('medical.editConditions')}</DialogTitle>
+            <DialogDescription>{t('medical.conditionsDesc', { petName: pet.name })}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t('medical.conditionsLabel')}</Label>
+              <Textarea
+                placeholder={t('medical.conditionsPlaceholder')}
+                value={conditionsText}
+                onChange={(e) => setConditionsText(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setConditionsDialog(false)}>{t('medical.cancel')}</Button>
+              <Button onClick={handleSaveConditions}>{t('medical.save')}</Button>
             </div>
           </div>
         </DialogContent>

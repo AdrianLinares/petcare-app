@@ -75,8 +75,8 @@ psql "$DATABASE_URL" -c "SELECT COUNT(*) FROM users;"
 ### 1. Install Dependencies
 
 ```bash
-# One command installs root, frontend, and functions deps
-npm run install:all
+# One command installs root, frontend, and functions deps via pnpm workspaces
+pnpm install
 ```
 
 ### 2. Set Up Environment Variables
@@ -155,7 +155,7 @@ psql "$DATABASE_URL" -f seed-database-fixed.sql
 
 ```bash
 # Start Netlify Dev (runs both frontend and serverless functions)
-npm run dev
+pnpm dev
 ```
 
 This will start:
@@ -177,7 +177,7 @@ This will start:
 Netlify uses `netlify.toml` in the repo root. Verify these align:
 
 - **Base directory**: `.`
-- **Build command**: `cd frontend && (npm ci --include=dev || npm install --include=dev) && npm run build && cd ../netlify/functions && (npm ci || npm install)`
+- **Build command**: `pnpm install --frozen-lockfile && pnpm --filter ./frontend build`
 - **Publish directory**: `frontend/dist`
 - **Functions directory**: `netlify/functions`
 
