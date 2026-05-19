@@ -1,55 +1,31 @@
 /**
  * Appointments Serverless Function
- * 
- * BEGINNER EXPLANATION:
- * This function manages veterinary appointments. It's like an online booking
- * system that handles scheduling, viewing, and managing vet appointments.
- * 
+ *
  * API Endpoints:
  * GET    /appointments       - List appointments (filtered by role)
  * POST   /appointments       - Create new appointment
  * GET    /appointments/:id   - Get specific appointment
- * PATCH  /appointments/:id   - Update appointment (status, medical notes)
+ * PATCH  /appointments/:id   - Update appointment (status, notes)
  * DELETE /appointments/:id   - Cancel appointment (soft delete)
- * 
- * Role-Based Filtering:
- * - Pet Owners: See only appointments for their pets
- * - Veterinarians: See only appointments assigned to them
- * - Administrators: See ALL appointments
- * 
- * Appointment Statuses:
- * - scheduled: Appointment is confirmed and upcoming
- * - completed: Appointment happened and is finished
- * - cancelled: Appointment was cancelled
- * 
+ *
  * Query Parameters (GET /appointments):
  * - status: Filter by appointment status
  * - date: Filter by specific date (YYYY-MM-DD)
  * - petId: Filter by specific pet
- * 
- * Update Limitations:
- * Current API allows updating:
- * - status (scheduled/completed/cancelled)
- * - Medical notes (diagnosis, treatment, notes, followUpDate)
- * 
- * NOT currently supported:
- * - Changing appointment date/time (would need separate reschedule endpoint)
- * 
- * Database Joins:
- * Appointment query joins 3 tables:
- * - appointments: Main appointment data
- * - pets: Get pet name
- * - users (twice): Get owner name AND veterinarian name
- * 
- * Soft Delete Pattern:
- * Cancelled appointments aren't removed - we set deleted_at timestamp.
- * This preserves history for record-keeping and analytics.
  */
 
 import { Handler, HandlerEvent } from '@netlify/functions';
 import { query } from './utils/database';
 import { requireAuth } from './utils/auth';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
+import { camelCaseRows, camelCaseRow, buildUpdateSet, parsePath } from './utils/db-helpers';
+
+/** Rename appointmentType → type after camelCase conversion for API compatibility */
+function formatAppointment(row: any) {
+  if (!row) return null;
+  const { appointmentType, ...rest } = row;
+  return { ...rest, type: appointmentType };
+}
 
 const handler: Handler = async (event: HandlerEvent) => {
   if (event.httpMethod === 'OPTIONS') return corsResponse();
@@ -62,7 +38,7 @@ const handler: Handler = async (event: HandlerEvent) => {
 
     // GET /appointments
     if (path === '' && event.httpMethod === 'GET') {
-      let queryText = `SELECT a.*, p.name as pet_name, u1.full_name as owner_name, u2.full_name as vet_name
+      let queryText = `SELECT a.*, p.name as pet_name, u1.full_name as owner_name, u2.full_name as veterinarian_name
                        FROM appointments a
                        JOIN pets p ON a.pet_id = p.id
                        JOIN users u1 ON a.owner_id = u1.id
@@ -97,24 +73,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       queryText += ' ORDER BY a.date ASC';
 
       const result = await query(queryText, values);
-      return successResponse(result.rows.map((apt: any) => ({
-        id: apt.id,
-        petId: apt.pet_id,
-        petName: apt.pet_name,
-        ownerId: apt.owner_id,
-        ownerName: apt.owner_name,
-        veterinarianId: apt.veterinarian_id,
-        veterinarianName: apt.vet_name,
-        type: apt.appointment_type,
-        date: apt.date,
-        time: apt.time,
-        duration: apt.duration,
-        reason: apt.reason,
-        status: apt.status,
-        notes: apt.notes,
-        createdAt: apt.created_at,
-        updatedAt: apt.updated_at,
-      })));
+      return successResponse(camelCaseRows(result.rows).map(formatAppointment));
     }
 
     // POST /appointments
@@ -140,18 +99,18 @@ const handler: Handler = async (event: HandlerEvent) => {
         [petId, ownerId, veterinarianId, type, date, time, reason || null, 'scheduled']
       );
 
-      return successResponse(result.rows[0], 201);
+      return successResponse(formatAppointment(camelCaseRow(result.rows[0])), 201);
     }
 
     // Handle /:id routes
-    const idMatch = path.match(/^\/([^\/]+)$/);
-    if (idMatch) {
-      const appointmentId = idMatch[1];
+    const routeParams = parsePath({ path }, '/:appointmentId');
+    if (routeParams) {
+      const appointmentId = routeParams.appointmentId;
 
       // GET /appointments/:id
       if (event.httpMethod === 'GET') {
         const result = await query(
-          `SELECT a.*, p.name as pet_name, u1.full_name as owner_name, u2.full_name as vet_name
+          `SELECT a.*, p.name as pet_name, u1.full_name as owner_name, u2.full_name as veterinarian_name
            FROM appointments a
            JOIN pets p ON a.pet_id = p.id
            JOIN users u1 ON a.owner_id = u1.id
@@ -164,51 +123,27 @@ const handler: Handler = async (event: HandlerEvent) => {
           throw new Error('Appointment not found');
         }
 
-        return successResponse(result.rows[0]);
+        return successResponse(formatAppointment(camelCaseRow(result.rows[0])));
       }
 
       // PATCH /appointments/:id
       if (event.httpMethod === 'PATCH') {
         const { date, time, status, notes, type, reason } = body;
 
-        const updates: string[] = [];
-        const values: any[] = [];
-        let paramCount = 1;
-
-        if (date) {
-          updates.push(`date = $${paramCount++}`);
-          values.push(date);
-        }
-        if (time) {
-          updates.push(`time = $${paramCount++}`);
-          values.push(time);
-        }
-        if (status) {
-          updates.push(`status = $${paramCount++}`);
-          values.push(status);
-        }
-        if (notes !== undefined) {
-          updates.push(`notes = $${paramCount++}`);
-          values.push(notes);
-        }
-        if (type) {
-          updates.push(`appointment_type = $${paramCount++}`);
-          values.push(type);
-        }
-        if (reason !== undefined) {
-          updates.push(`reason = $${paramCount++}`);
-          values.push(reason);
-        }
-
-        if (updates.length === 0) {
-          throw new Error('No fields to update');
-        }
+        const { clause, values, nextParam } = buildUpdateSet({
+          date,
+          time,
+          status,
+          notes,
+          appointment_type: type,
+          reason,
+        });
 
         values.push(appointmentId);
 
         const result = await query(
-          `UPDATE appointments SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
-           WHERE id = $${paramCount} AND deleted_at IS NULL
+          `UPDATE appointments SET ${clause}, updated_at = CURRENT_TIMESTAMP
+           WHERE id = $${nextParam} AND deleted_at IS NULL
            RETURNING *`,
           values
         );
@@ -217,7 +152,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           throw new Error('Appointment not found');
         }
 
-        return successResponse(result.rows[0]);
+        return successResponse(formatAppointment(camelCaseRow(result.rows[0])));
       }
 
       // DELETE /appointments/:id

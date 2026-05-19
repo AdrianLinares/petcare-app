@@ -55,6 +55,7 @@ import { Handler, HandlerEvent } from '@netlify/functions';
 import { query } from './utils/database';
 import { requireAuth, requireRole } from './utils/auth';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
+import { camelCaseRows, camelCaseRow, buildUpdateSet, parsePath } from './utils/db-helpers';
 
 const handler: Handler = async (event: HandlerEvent) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -93,27 +94,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       queryText += ' ORDER BY p.created_at DESC';
 
       const result = await query(queryText, values);
-      return successResponse(result.rows.map((pet: any) => ({
-        id: pet.id,
-        name: pet.name,
-        species: pet.species,
-        breed: pet.breed,
-        age: pet.age,
-        gender: pet.gender,
-        color: pet.color,
-        microchipId: pet.microchip_id,
-        weight: pet.weight,
-        ownerId: pet.owner_id,
-        ownerName: pet.owner_name,
-        ownerEmail: pet.owner_email,
-        medicalHistory: pet.medical_history,
-        allergies: pet.allergies,
-        conditions: pet.conditions,
-        currentMedications: pet.current_medications,
-        notes: pet.notes,
-        createdAt: pet.created_at,
-        updatedAt: pet.updated_at,
-      })));
+      return successResponse(camelCaseRows(result.rows));
     }
 
     // POST /pets - Create new pet
@@ -147,28 +128,13 @@ const handler: Handler = async (event: HandlerEvent) => {
         throw new Error('Failed to create pet - no rows returned');
       }
 
-      const pet = result.rows[0];
-      console.log('Created pet:', pet);
-
-      return successResponse({
-        id: pet.id,
-        name: pet.name,
-        species: pet.species,
-        breed: pet.breed,
-        age: pet.age,
-        gender: pet.gender,
-        color: pet.color,
-        microchipId: pet.microchip_id,
-        weight: pet.weight,
-        ownerId: pet.owner_id,
-        createdAt: pet.created_at,
-      }, 201);
+      return successResponse(camelCaseRow(result.rows[0]), 201);
     }
 
-    // Handle /:id routes
-    const idMatch = path.match(/^\/([^\/]+)$/);
-    if (idMatch) {
-      const petId = idMatch[1];
+    // Handle /:petId routes using parsePath
+    const params = parsePath({ path }, '/:petId');
+    if (params) {
+      const petId = params.petId;
 
       // GET /pets/:id
       if (event.httpMethod === 'GET') {
@@ -186,104 +152,41 @@ const handler: Handler = async (event: HandlerEvent) => {
           throw new Error('Pet not found');
         }
 
-        const pet = result.rows[0];
-        return successResponse({
-          id: pet.id,
-          name: pet.name,
-          species: pet.species,
-          breed: pet.breed,
-          age: pet.age,
-          gender: pet.gender,
-          color: pet.color,
-          microchipId: pet.microchip_id,
-          weight: pet.weight,
-          ownerId: pet.owner_id,
-          ownerName: pet.owner_name,
-          medicalHistory: pet.medical_history,
-          allergies: pet.allergies,
-          conditions: pet.conditions,
-          currentMedications: pet.current_medications,
-          notes: pet.notes,
-          createdAt: pet.created_at,
-          updatedAt: pet.updated_at,
-        });
+        return successResponse(camelCaseRow(result.rows[0]));
       }
 
       // PATCH /pets/:id
       if (event.httpMethod === 'PATCH') {
         const { name, species, breed, age, gender, color, microchipId, weight, conditions, medicalHistory, allergies, currentMedications, notes } = body;
 
-        const updates: string[] = [];
-        const values: any[] = [];
-        let paramCount = 1;
+        const dbUpdates: Record<string, any> = {
+          name,
+          species,
+          breed,
+          age,
+          gender,
+          color,
+          microchip_id: microchipId,
+          weight,
+          medical_history: medicalHistory,
+          conditions,
+          allergies,
+          current_medications: currentMedications,
+          notes,
+        };
 
-        if (name !== undefined) {
-          updates.push(`name = $${paramCount++}`);
-          values.push(name);
-        }
-        if (species !== undefined) {
-          updates.push(`species = $${paramCount++}`);
-          values.push(species);
-        }
-        if (breed !== undefined) {
-          updates.push(`breed = $${paramCount++}`);
-          values.push(breed);
-        }
-        if (age !== undefined) {
-          updates.push(`age = $${paramCount++}`);
-          values.push(age);
-        }
-        if (gender !== undefined) {
-          updates.push(`gender = $${paramCount++}`);
-          values.push(gender);
-        }
-        if (color !== undefined) {
-          updates.push(`color = $${paramCount++}`);
-          values.push(color);
-        }
-        if (microchipId !== undefined) {
-          updates.push(`microchip_id = $${paramCount++}`);
-          values.push(microchipId);
-        }
-        if (weight !== undefined) {
-          updates.push(`weight = $${paramCount++}`);
-          values.push(weight);
-        }
-        if (medicalHistory !== undefined) {
-          updates.push(`medical_history = $${paramCount++}`);
-          values.push(medicalHistory);
-        }
-        if (conditions !== undefined) {
-          updates.push(`conditions = $${paramCount++}`);
-          values.push(conditions);
-        }
-        if (allergies !== undefined) {
-          updates.push(`allergies = $${paramCount++}`);
-          values.push(allergies);
-        }
-        if (currentMedications !== undefined) {
-          updates.push(`current_medications = $${paramCount++}`);
-          values.push(currentMedications);
-        }
-        if (notes !== undefined) {
-          updates.push(`notes = $${paramCount++}`);
-          values.push(notes);
-        }
-
-        if (updates.length === 0) {
-          throw new Error('No fields to update');
-        }
+        const { clause, values, nextParam } = buildUpdateSet(dbUpdates);
 
         values.push(petId);
-        let whereClause = `id = $${paramCount}`;
+        let whereClause = `id = $${nextParam}`;
 
         if (user.userType === 'pet_owner') {
-          whereClause += ` AND owner_id = $${paramCount + 1}`;
+          whereClause += ` AND owner_id = $${nextParam + 1}`;
           values.push(user.id);
         }
 
         const result = await query(
-          `UPDATE pets SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP 
+          `UPDATE pets SET ${clause}, updated_at = CURRENT_TIMESTAMP 
            WHERE ${whereClause} AND deleted_at IS NULL
            RETURNING *`,
           values
@@ -293,25 +196,7 @@ const handler: Handler = async (event: HandlerEvent) => {
           throw new Error('Pet not found or access denied');
         }
 
-        const pet = result.rows[0];
-        return successResponse({
-          id: pet.id,
-          name: pet.name,
-          species: pet.species,
-          breed: pet.breed,
-          age: pet.age,
-          gender: pet.gender,
-          color: pet.color,
-          microchipId: pet.microchip_id,
-          weight: pet.weight,
-          ownerId: pet.owner_id,
-          medicalHistory: pet.medical_history,
-          allergies: pet.allergies,
-          conditions: pet.conditions,
-          currentMedications: pet.current_medications,
-          notes: pet.notes,
-          updatedAt: pet.updated_at,
-        });
+        return successResponse(camelCaseRow(result.rows[0]));
       }
 
       // DELETE /pets/:id

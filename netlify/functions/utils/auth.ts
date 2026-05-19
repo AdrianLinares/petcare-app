@@ -53,6 +53,7 @@ export interface TokenPayload {
   userId: string;
   email: string;
   userType: string;
+  jti?: string;
 }
 
 /**
@@ -96,10 +97,26 @@ export const getUserFromToken = async (event: HandlerEvent): Promise<User | null
       return null;
     }
 
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET not configured');
+      return null;
+    }
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'default_secret'
+      process.env.JWT_SECRET
     ) as TokenPayload;
+
+    // Check blacklist if token has a jti (JWT ID)
+    if (decoded.jti) {
+      const blacklistResult = await query(
+        'SELECT id FROM token_blacklist WHERE token_jti = $1 AND expires_at > NOW()',
+        [decoded.jti]
+      );
+      if (blacklistResult.rows.length > 0) {
+        console.warn(`Blocked request - blacklisted token jti: ${decoded.jti}`);
+        return null;
+      }
+    }
 
     const result = await query(
       'SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL',
