@@ -1,19 +1,30 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import PetOwnerDashboard from "@/components/Dashboard/PetOwnerDashboard";
 import { __TESTING__ } from "react-i18next";
 
-// Mock API modules
-vi.mock("@/lib/api", () => ({
-  petAPI: {
-    getPets: vi.fn().mockResolvedValue([]),
-  },
-  appointmentAPI: {
-    getAppointments: vi.fn().mockResolvedValue([]),
-  },
-  vaccinationAPI: {
-    getUpcoming: vi.fn().mockResolvedValue([]),
-  },
+// Mock React Query hooks — they return empty data by default
+vi.mock("@/hooks/use-pets", () => ({
+  usePets: () => ({
+    data: [],
+    isLoading: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-appointments", () => ({
+  useAppointments: () => ({
+    data: [],
+    isLoading: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-vaccinations", () => ({
+  useUpcomingVaccinations: () => ({
+    data: [],
+    isLoading: false,
+  }),
 }));
 
 // Mock sonner toast
@@ -52,6 +63,22 @@ const mockUser = {
   userType: "pet_owner" as const,
 };
 
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { retry: false },
+    },
+  });
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    );
+  };
+}
+
 describe("PetOwnerDashboard — translated strings", () => {
   const onLogout = vi.fn();
 
@@ -61,7 +88,9 @@ describe("PetOwnerDashboard — translated strings", () => {
   });
 
   const renderDashboard = () =>
-    render(<PetOwnerDashboard user={mockUser} onLogout={onLogout} />);
+    render(<PetOwnerDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
 
   it("renders the welcome message via translation key", () => {
     renderDashboard();

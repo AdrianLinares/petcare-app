@@ -1,17 +1,28 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import VeterinarianDashboard from "@/components/Dashboard/VeterinarianDashboard";
 import { __TESTING__ } from "react-i18next";
 
-// Mock API modules
-vi.mock("@/lib/api", () => ({
-  appointmentAPI: {
-    getAppointments: vi.fn().mockResolvedValue([]),
-    updateAppointment: vi.fn(),
-  },
-  petAPI: {
-    getPets: vi.fn().mockResolvedValue([]),
-  },
+// Mock React Query hooks
+vi.mock("@/hooks/use-appointments", () => ({
+  useAppointments: vi.fn(() => ({
+    data: [],
+    isLoading: false,
+  })),
+  useUpdateAppointment: vi.fn(() => ({
+    mutate: vi.fn(),
+    isLoading: false,
+  })),
+}));
+
+vi.mock("@/hooks/use-pets", () => ({
+  usePets: vi.fn(() => ({
+    data: [],
+    isLoading: false,
+    refetch: vi.fn(),
+  })),
 }));
 
 // Mock sonner toast
@@ -22,7 +33,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-// Mock child components to isolate dashboard translation testing
+// Mock child components to isolate dashboard
 vi.mock("@/components/Notification/NotificationBell", () => ({
   default: () => <div data-testid="notification-bell">NotificationBell</div>,
 }));
@@ -40,7 +51,26 @@ const mockUser = {
   email: "vet@test.com",
   fullName: "Jane Smith",
   userType: "veterinarian" as const,
+  phone: "+1-555-0100",
+  password: "hashed",
+  createdAt: "2024-01-01T00:00:00Z",
 };
+
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { retry: false },
+    },
+  });
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    );
+  };
+}
 
 describe("VeterinarianDashboard — translated strings", () => {
   const onLogout = vi.fn();
@@ -51,7 +81,9 @@ describe("VeterinarianDashboard — translated strings", () => {
   });
 
   const renderDashboard = () =>
-    render(<VeterinarianDashboard user={mockUser} onLogout={onLogout} />);
+    render(<VeterinarianDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
 
   it("renders the Dr. prefix welcome via translation key", () => {
     renderDashboard();
@@ -106,9 +138,6 @@ describe("VeterinarianDashboard — translated strings", () => {
 
   it("renders the search placeholder via translation key", () => {
     renderDashboard();
-    // The search input exists in the DOM (on the manage tab), but may be hidden.
-    // Verify the component renders without crash — the key assertion is that
-    // the dashboard renders the expected tab labels.
     const todayTab = screen.getByText("[en] dashboard.todaySchedule");
     expect(todayTab).toBeInTheDocument();
   });

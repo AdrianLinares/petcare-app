@@ -29,6 +29,8 @@ import { Agentation } from 'agentation';
 // UI Component imports - Pre-built components for notifications and tooltips
 import { Toaster } from '@/components/ui/sonner';        // Shows toast notifications (popup messages)
 import { TooltipProvider } from '@/components/ui/tooltip'; // Provides tooltip functionality
+import { QueryProvider } from '@/providers/QueryProvider';  // React Query provider for data fetching
+import { ErrorBoundary } from '@/components/ErrorBoundary'; // Catches unhandled errors gracefully
 
 // Authentication components - All the login/password screens
 import LoginForm from './components/Auth/LoginForm';                 // The login screen
@@ -222,92 +224,94 @@ const App = () => {
   // SCENARIO 1: Still loading? Show a spinner
   if (loading) {
     return (
-      // Full-screen centered container
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          {/* Spinning loading icon */}
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          {/* Loading text */}
-          <p className="text-gray-600">Loading PetCare...</p>
-        </div>
-      </div>
+      <ErrorBoundary>
+        <QueryProvider>
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              {/* Spinning loading icon */}
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              {/* Loading text */}
+              <p className="text-gray-600">Loading PetCare...</p>
+            </div>
+          </div>
+        </QueryProvider>
+      </ErrorBoundary>
     );
   }
 
   // SCENARIO 2: No one logged in? Show authentication forms
   if (!currentUser) {
     return (
-      <TooltipProvider>  {/* Wraps app to provide tooltip functionality */}
-        <Toaster />      {/* Component that shows toast notifications */}
-        
-        {/* Show LOGIN FORM if authState.view === 'login' */}
-        {authState.view === 'login' && (
-          <LoginForm 
-            onLoginSuccess={handleLoginSuccess}      // Pass login success handler
-            onSwitchToRegister={() => { }}           // Register handled in LoginForm
-            onForgotPassword={handleForgotPassword}  // Pass forgot password function
-          />
-        )}
-        
-        {/* Show FORGOT PASSWORD FORM if authState.view === 'forgot-password' */}
-        {authState.view === 'forgot-password' && (
-          <ForgotPasswordForm onBack={handleBackToLogin} />  // Pass back button function
-        )}
-        
-        {/* Show RESET PASSWORD FORM if authState.view === 'reset-password' */}
-        {authState.view === 'reset-password' && (
-          <ResetPasswordForm 
-            resetToken={authState.resetToken}           // Pass the token from URL
-            onSuccess={handlePasswordResetSuccess}      // What to do after success
-            onBack={handleBackToLogin}                  // Back button
-          />
-        )}
-        
-        {/* Show DEMO PAGE if authState.view === 'demo' */}
-        {(authState as any).view === 'demo' && (
-          <PasswordRecoveryDemo />  // Demo page for testing password recovery
-        )}
-        {import.meta.env.DEV && <Agentation />}
-      </TooltipProvider>
+      <ErrorBoundary>
+        <QueryProvider>
+          <TooltipProvider>
+            <Toaster />
+
+          {/* Show LOGIN FORM if authState.view === 'login' */}
+          {authState.view === 'login' && (
+            <LoginForm
+              onLoginSuccess={handleLoginSuccess}
+              onSwitchToRegister={() => { }}
+              onForgotPassword={handleForgotPassword}
+            />
+          )}
+
+          {/* Show FORGOT PASSWORD FORM if authState.view === 'forgot-password' */}
+          {authState.view === 'forgot-password' && (
+            <ForgotPasswordForm onBack={handleBackToLogin} />
+          )}
+
+          {/* Show RESET PASSWORD FORM if authState.view === 'reset-password' */}
+          {authState.view === 'reset-password' && (
+            <ResetPasswordForm
+              resetToken={authState.resetToken}
+              onSuccess={handlePasswordResetSuccess}
+              onBack={handleBackToLogin}
+            />
+          )}
+
+          {/* Show DEMO PAGE if authState.view === 'demo' */}
+          {(authState as any).view === 'demo' && (
+            <PasswordRecoveryDemo />
+          )}
+          {import.meta.env.DEV && <Agentation />}
+          </TooltipProvider>
+        </QueryProvider>
+      </ErrorBoundary>
     );
   }
 
   // SCENARIO 3: Someone IS logged in! Show their dashboard
-  /**
-   * Different users see different dashboards:
-   * - Pet Owner: See their pets, appointments, medical records
-   * - Veterinarian: See all appointments, patient records
-   * - Administrator: See everything, manage users
-   */
   return (
-    <TooltipProvider>
-      <Toaster />
-      
-      {/* If user is a PET OWNER, show Pet Owner Dashboard */}
-      {currentUser.userType === 'pet_owner' && (
-        <PetOwnerDashboard 
-          user={currentUser}        // Pass user info to dashboard
-          onLogout={handleLogout}   // Pass logout function
-        />
-      )}
-      
-      {/* If user is a VETERINARIAN, show Veterinarian Dashboard */}
-      {currentUser.userType === 'veterinarian' && (
-        <VeterinarianDashboard 
-          user={currentUser}
-          onLogout={handleLogout}
-        />
-      )}
-      
-      {/* If user is an ADMINISTRATOR, show Admin Dashboard */}
-      {currentUser.userType === 'administrator' && (
-        <AdminDashboard 
-          user={currentUser}
-          onLogout={handleLogout}
-        />
-      )}
-      {import.meta.env.DEV && <Agentation />}
-    </TooltipProvider>
+    <ErrorBoundary>
+      <QueryProvider>
+        <TooltipProvider>
+          <Toaster />
+
+        {currentUser.userType === 'pet_owner' && (
+          <PetOwnerDashboard
+            user={currentUser}
+            onLogout={handleLogout}
+          />
+        )}
+
+        {currentUser.userType === 'veterinarian' && (
+          <VeterinarianDashboard
+            user={currentUser}
+            onLogout={handleLogout}
+          />
+        )}
+
+        {currentUser.userType === 'administrator' && (
+          <AdminDashboard
+            user={currentUser}
+            onLogout={handleLogout}
+          />
+        )}
+        {import.meta.env.DEV && <Agentation />}
+      </TooltipProvider>
+    </QueryProvider>
+    </ErrorBoundary>
   );
 };
 

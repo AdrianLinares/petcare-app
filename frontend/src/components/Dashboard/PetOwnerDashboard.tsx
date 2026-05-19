@@ -14,20 +14,20 @@
  * Architecture:
  * - Tab-based navigation (4 main sections)
  * - Each tab shows different specialized components
- * - Data loads once on mount, then updates as user makes changes
+ * - Data fetched via React Query (auto-refreshing, cached)
  * - Statistics calculated from loaded data (no separate API calls)
  * 
  * User Experience Flow:
  * 1. User logs in → Sees overview with key stats
  * 2. Can click tabs to access different features
  * 3. Can drill down into specific pet details
- * 4. Changes sync to backend immediately
+ * 4. Changes sync to backend immediately via React Query mutations
  * 
  * @param {User} user - The currently logged-in pet owner
  * @param {Function} onLogout - Callback function to handle user logout
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,8 +41,9 @@ import PetMedicalRecords from '../Medical/PetMedicalRecords';
 import NotificationBell from '../Notification/NotificationBell';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { Pet, Appointment, User } from '../../types';
-import { petAPI, appointmentAPI, vaccinationAPI } from '@/lib/api';
-import { toast } from 'sonner';
+import { usePets } from '@/hooks/use-pets';
+import { useAppointments } from '@/hooks/use-appointments';
+import { useUpcomingVaccinations } from '@/hooks/use-vaccinations';
 import { translateAppointmentType } from '@/i18n/appointment';
 import { translateSpecies } from '@/i18n/pets';
 
@@ -53,54 +54,38 @@ interface PetOwnerDashboardProps {
 
 export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardProps) {
   const { t } = useTranslation();
+
   // ============================================
-  // STATE MANAGEMENT
+  // DATA FETCHING (React Query)
   // ============================================
-  // BEGINNER NOTE: These state variables hold all the data for the dashboard.
-  // React re-renders the UI automatically when any of these change.
+  const { data: pets = [], isLoading: petsLoading, refetch: refetchPets } = usePets();
+  const { data: appointments = [], isLoading: apptsLoading, refetch: refetchAppointments } = useAppointments();
+  const { data: upcomingVaccinations = [], isLoading: vaxLoading } = useUpcomingVaccinations();
 
-  // Data states - The actual data from the backend
-  const [pets, setPets] = useState<Pet[]>([]);                     // List of user's pets
-  const [appointments, setAppointments] = useState<Appointment[]>([]); // List of user's appointments
-  const [overdueVaccines, setOverdueVaccines] = useState(0);       // Count of overdue vaccinations
+  // Combined loading state
+  const isLoading = petsLoading || apptsLoading || vaxLoading;
 
-  // Navigation states - Control which tab/pet is displayed
-  const [activeTab, setActiveTab] = useState('overview');          // Which tab is currently active
-  const [selectedPetId, setSelectedPetId] = useState<string | null>(null); // Which pet's medical records to show
+  // Derived: count overdue vaccinations
+  const overdueVaccines = upcomingVaccinations.filter(
+    vacc => vacc.nextDue && new Date(vacc.nextDue) < new Date()
+  ).length;
 
-  // UI states - Control loading and visual feedback
-  const [isLoading, setIsLoading] = useState(true);                // Shows loading state during initial data fetch
+  // ============================================
+  // UI STATE (kept as useState — not data fetching)
+  // ============================================
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
 
-  // Load data from backend
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        // Load pets
-        const petsData = await petAPI.getPets();
-        setPets(petsData);
+  // Bridge: child components expect setter functions for optimistic updates.
+  // With React Query, we refetch instead — the child's API call already
+  // updated the server, so refetching gets the latest data.
+  const setPets = useCallback((_pets: Pet[]) => {
+    refetchPets();
+  }, [refetchPets]);
 
-        // Load appointments
-        const appointmentsData = await appointmentAPI.getAppointments();
-        setAppointments(appointmentsData);
-
-        // Load upcoming vaccinations to count overdue
-        const upcomingVaccinations = await vaccinationAPI.getUpcoming();
-        const now = new Date();
-        const overdue = upcomingVaccinations.filter(vacc =>
-          vacc.nextDue && new Date(vacc.nextDue) < now
-        ).length;
-        setOverdueVaccines(overdue);
-      } catch (error: any) {
-        console.error('Failed to load dashboard data:', error);
-        toast.error(t('dashboard.loadError'));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
+  const setAppointments = useCallback((_appointments: Appointment[]) => {
+    refetchAppointments();
+  }, [refetchAppointments]);
 
   const upcomingAppointments = appointments
     .filter(apt => new Date(apt.date) > new Date() && apt.status !== 'cancelled')
@@ -111,6 +96,15 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
     .filter(apt => apt.status === 'completed')
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-600">{t('dashboard.loading') || 'Loading...'}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

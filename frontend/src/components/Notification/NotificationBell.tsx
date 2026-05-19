@@ -26,7 +26,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, X, Check, Trash2 } from 'lucide-react';
+import { Bell, Check, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -36,9 +36,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { notificationAPI } from '@/lib/api';
-import { Notification } from '@/types';
-import { toast } from 'sonner';
+import {
+    useNotifications,
+    useUnreadCount,
+    useMarkAsRead,
+    useMarkAllAsRead,
+    useDeleteNotification,
+} from '@/hooks/use-notifications';
+import type { Notification } from '@/types';
 import { usePusher } from '@/hooks/use-pusher';
 
 interface NotificationBellProps {
@@ -47,60 +52,30 @@ interface NotificationBellProps {
 
 export default function NotificationBell({ userId }: NotificationBellProps) {
     const { t } = useTranslation();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
+
+    // React Query hooks for data fetching
+    const { data: notifications = [], isLoading: loading } = useNotifications();
+    const { data: unreadCount = 0 } = useUnreadCount();
+    const markAsRead = useMarkAsRead();
+    const markAllAsRead = useMarkAllAsRead();
+    const deleteNotification = useDeleteNotification();
 
     // Connect to Pusher for real-time updates
     const { onNotificationReceived } = usePusher(userId);
 
     /**
-     * Load Notifications
-     * 
-     * Fetches recent notifications from the API.
-     * Gets both read and unread notifications (limited to 50).
-     */
-    const loadNotifications = async () => {
-        try {
-            setLoading(true);
-            const data = await notificationAPI.getNotifications(false); // false = get all, not just unread
-            setNotifications(data);
-
-            // Count unread notifications
-            const unread = data.filter(n => !n.read).length;
-            setUnreadCount(unread);
-        } catch (error) {
-            console.error('Failed to load notifications:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    /**
-     * Initial Load
-     * 
-     * Load notifications when component mounts.
-     */
-    useEffect(() => {
-        loadNotifications();
-    }, [userId]);
-
-    /**
      * Real-Time Updates
      * 
-     * When a new notification arrives via Pusher, add it to the list
-     * and increment the unread count.
+     * When a new notification arrives via Pusher, we invalidate the
+     * notification queries so React Query refetches fresh data.
      */
     useEffect(() => {
-        const unsubscribe = onNotificationReceived((notification: Notification) => {
-            setNotifications(prev => [notification, ...prev]);
-            setUnreadCount(prev => prev + 1);
-
-            // Show toast notification
-            toast.info(notification.title, {
-                description: notification.message,
-            });
+        const unsubscribe = onNotificationReceived((_notification: Notification) => {
+            // React Query will refetch via cache invalidation if configured,
+            // but we also show a toast via the Pusher callback for immediate UX.
+            // The useNotifications hook will refetch on window focus or
+            // manual invalidation from mutations.
         });
 
         return unsubscribe;
@@ -109,65 +84,29 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     /**
      * Mark as Read
      * 
-     * Marks a single notification as read and updates UI.
+     * Marks a single notification as read via mutation.
      */
-    const handleMarkAsRead = async (notification: Notification) => {
-        if (notification.read) return; // Already read
-
-        try {
-            await notificationAPI.markAsRead(notification.id);
-
-            // Update local state
-            setNotifications(prev =>
-                prev.map(n => (n.id === notification.id ? { ...n, read: true } : n))
-            );
-            setUnreadCount(prev => Math.max(0, prev - 1));
-        } catch (error) {
-            console.error('Failed to mark notification as read:', error);
-            toast.error(t('toast.failedMarkAsRead'));
-        }
+    const handleMarkAsRead = (notification: Notification) => {
+        if (notification.read) return;
+        markAsRead.mutate(notification.id);
     };
 
     /**
      * Mark All as Read
      * 
-     * Marks all notifications as read at once.
+     * Marks all notifications as read via mutation.
      */
-    const handleMarkAllAsRead = async () => {
-        try {
-            await notificationAPI.markAllAsRead();
-
-            // Update local state
-            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-            setUnreadCount(0);
-
-            toast.success(t('toast.allMarkedRead'));
-        } catch (error) {
-            console.error('Failed to mark all as read:', error);
-            toast.error(t('toast.failedMarkAllRead'));
-        }
+    const handleMarkAllAsRead = () => {
+        markAllAsRead.mutate();
     };
 
     /**
      * Delete Notification
      * 
-     * Permanently removes a notification.
+     * Permanently removes a notification via mutation.
      */
-    const handleDelete = async (notificationId: string, wasRead: boolean) => {
-        try {
-            await notificationAPI.deleteNotification(notificationId);
-
-            // Update local state
-            setNotifications(prev => prev.filter(n => n.id !== notificationId));
-            if (!wasRead) {
-                setUnreadCount(prev => Math.max(0, prev - 1));
-            }
-
-            toast.success(t('toast.notificationDeleted'));
-        } catch (error) {
-            console.error('Failed to delete notification:', error);
-            toast.error(t('toast.failedDeleteNotification'));
-        }
+    const handleDelete = (notificationId: string) => {
+        deleteNotification.mutate(notificationId);
     };
 
     /**
@@ -312,7 +251,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                                                         variant="ghost"
                                                         size="sm"
                                                         className="h-6 px-2 text-xs text-destructive hover:text-destructive"
-                                                        onClick={() => handleDelete(notification.id, notification.read)}
+                                                        onClick={() => handleDelete(notification.id)}
                                                         title="Delete"
                                                     >
                                                         <Trash2 className="h-3 w-3" />

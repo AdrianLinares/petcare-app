@@ -1,33 +1,4 @@
-/**
- * VeterinarianDashboard Component
- * 
- * BEGINNER EXPLANATION:
- * This is the main workspace for veterinarians. Think of it as their digital clinic
- * where they can see their schedule, manage appointments, and update medical records.
- * 
- * Key Features:
- * 1. Today's Schedule - See all appointments for today
- * 2. Upcoming Appointments - View future appointments
- * 3. All Appointments - Search and filter all appointments
- * 4. Pet Medical Records - View and update patient records
- * 5. Inline Editing - Update medical notes directly from appointment view
- * 
- * Architecture:
- * - Tab-based navigation (today, upcoming, all appointments, pets)
- * - Shows ONLY appointments assigned to this specific veterinarian
- * - Allows updating appointment status (complete, cancel, reschedule)
- * - Can add medical notes (diagnosis, treatment, follow-up) to appointments
- * 
- * Veterinarian Workflow:
- * 1. View today's appointments → Complete appointments → Add medical notes
- * 2. Reschedule appointments if needed
- * 3. Access pet medical history for context
- * 
- * @param {User} user - The currently logged-in veterinarian
- * @param {Function} onLogout - Callback function to handle user logout
- */
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,11 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Footer from '@/components/ui/footer';
-import { Calendar, Clock, Users, FileText, Bell, User as UserIcon, Edit, Save, X, Search, Filter, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Users, FileText, Edit, Save, X, Search, Filter, Trash2 } from 'lucide-react';
 import NotificationBell from '../Notification/NotificationBell';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { Appointment, User, Pet } from '../../types';
-import { appointmentAPI, petAPI } from '@/lib/api';
+import { useAppointments, useUpdateAppointment } from '@/hooks/use-appointments';
+import { usePets } from '@/hooks/use-pets';
 import { toast } from 'sonner';
 import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
 import { translateSpecies } from '@/i18n/pets';
@@ -59,75 +31,42 @@ interface VeterinarianDashboardProps {
 
 export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDashboardProps) {
   const { t } = useTranslation();
-  // ============================================
-  // STATE MANAGEMENT
-  // ============================================
-  // BEGINNER NOTE: State holds all the data and UI state for the veterinarian dashboard.
-  // Each piece of state has a specific purpose in managing the vet's workflow.
 
-  // Data states - Store appointments and pets data
-  const [appointments, setAppointments] = useState<Appointment[]>([]); // All appointments for this vet
-  const [allPets, setAllPets] = useState<Pet[]>([]);                  // All pets (for medical records view)
+  // React Query data fetching
+  const { data: allAppointmentsData = [], isLoading: appointmentsLoading } = useAppointments();
+  const { data: allPetsData = [], refetch: refetchPets, isLoading: petsLoading } = usePets();
+  const updateAppointmentMutation = useUpdateAppointment();
+
+  // Filter appointments for this veterinarian
+  const appointments = useMemo(
+    () => allAppointmentsData.filter((apt: Appointment) => apt.veterinarianId === user.id),
+    [allAppointmentsData, user.id]
+  );
 
   // Navigation and selection states
-  const [activeTab, setActiveTab] = useState('today');                // Which tab is currently active
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);   // Pet selected for medical records view
+  const [activeTab, setActiveTab] = useState('today');
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
 
-  // Editing states - Control which appointment is being edited and how
-  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);       // Appointment being edited for medical notes
-  const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null); // Appointment being rescheduled
+  // Editing states
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
 
-  // Form states - Hold temporary form data during editing
+  // Form states
   const [medicalForm, setMedicalForm] = useState({
-    diagnosis: '',      // Diagnosis entered by vet
-    treatment: '',      // Treatment plan entered by vet
-    notes: '',          // Additional notes from vet
-    followUpDate: ''    // Date for follow-up appointment
+    diagnosis: '',
+    treatment: '',
+    notes: '',
+    followUpDate: ''
   });
   const [rescheduleForm, setRescheduleForm] = useState({
-    date: new Date(),   // New appointment date
-    time: ''            // New appointment time
+    date: new Date(),
+    time: ''
   });
 
-  // Search and filter states - Control what data is displayed
-  const [searchTerm, setSearchTerm] = useState('');                   // Search text for appointments
-  const [petSearchTerm, setPetSearchTerm] = useState('');             // Search text for pets
-  const [statusFilter, setStatusFilter] = useState<string>('all');    // Filter appointments by status
-
-  // UI states
-  const [isLoading, setIsLoading] = useState(true);                   // Shows loading spinner
-
-  const loadAppointments = async () => {
-    try {
-      const appointmentsData = await appointmentAPI.getAppointments();
-      // Filter appointments for this veterinarian
-      const vetAppointments = appointmentsData.filter(apt => apt.veterinarianId === user.id);
-      setAppointments(vetAppointments);
-    } catch (error: any) {
-      console.error('Failed to load appointments:', error);
-      toast.error(t('dashboard.failedLoadAppointments'));
-    }
-  };
-
-  const loadPets = async () => {
-    try {
-      const petsData = await petAPI.getPets();
-      setAllPets(petsData);
-      setSelectedPet(prev => prev ? petsData.find(p => p.id === prev.id) || prev : null);
-    } catch (error: any) {
-      console.error('Failed to load pets:', error);
-      toast.error(t('dashboard.failedLoadPets'));
-    }
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      await Promise.all([loadAppointments(), loadPets()]);
-      setIsLoading(false);
-    };
-    loadData();
-  }, [user.id]);
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [petSearchTerm, setPetSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const today = new Date().toDateString();
   const todayAppointments = appointments.filter(apt =>
@@ -142,46 +81,44 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     new Date(apt.date).toDateString() === today && apt.status === 'completed'
   ).length;
 
-  const handleCompleteAppointment = async (appointmentId: string) => {
-    try {
-      await appointmentAPI.updateAppointment(appointmentId, { status: 'completed' });
-      await loadAppointments();
-      toast.success(t('dashboard.appointmentCompleted'));
-    } catch (error: any) {
-      const message = error.response?.data?.error || t('dashboard.failedUpdateAppointment');
-      toast.error(message);
-    }
+  const handleCompleteAppointment = (appointmentId: string) => {
+    updateAppointmentMutation.mutate(
+      { id: appointmentId, data: { status: 'completed' } },
+      {
+        onSuccess: () => {
+          toast.success(t('dashboard.appointmentCompleted'));
+        },
+      }
+    );
   };
 
-  const handleCancelAppointment = async (appointmentId: string) => {
+  const handleCancelAppointment = (appointmentId: string) => {
     if (!confirm(t('dashboard.confirmCancelAppointment'))) {
       return;
     }
-
-    try {
-      await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
-      await loadAppointments();
-      toast.success(t('dashboard.appointmentCancelled'));
-    } catch (error: any) {
-      const message = error.response?.data?.error || t('dashboard.failedCancelAppointment');
-      toast.error(message);
-    }
+    updateAppointmentMutation.mutate(
+      { id: appointmentId, data: { status: 'cancelled' } },
+      {
+        onSuccess: () => {
+          toast.success(t('dashboard.appointmentCancelled'));
+        },
+      }
+    );
   };
 
-  const handleDeleteAppointment = async (appointmentId: string) => {
+  const handleDeleteAppointment = (appointmentId: string) => {
     if (!confirm(t('dashboard.confirmDeleteAppointment'))) {
       return;
     }
-
-    try {
-      // Note: Backend doesn't have delete endpoint, so we just mark as cancelled
-      await appointmentAPI.updateAppointment(appointmentId, { status: 'cancelled' });
-      await loadAppointments();
-      toast.success(t('dashboard.appointmentCancelled'));
-    } catch (error: any) {
-      const message = error.response?.data?.error || t('dashboard.failedDeleteAppointment');
-      toast.error(message);
-    }
+    // Backend doesn't have a delete endpoint, so we mark as cancelled
+    updateAppointmentMutation.mutate(
+      { id: appointmentId, data: { status: 'cancelled' } },
+      {
+        onSuccess: () => {
+          toast.success(t('dashboard.appointmentCancelled'));
+        },
+      }
+    );
   };
 
   const handleEditMedicalHistory = (appointment: Appointment) => {
@@ -194,23 +131,26 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     });
   };
 
-  const handleSaveMedicalHistory = async () => {
+  const handleSaveMedicalHistory = () => {
     if (!editingAppointment) return;
 
-    try {
-      await appointmentAPI.updateAppointment(editingAppointment.id, {
-        diagnosis: medicalForm.diagnosis,
-        treatment: medicalForm.treatment,
-        notes: medicalForm.notes,
-        followUpDate: medicalForm.followUpDate
-      });
-      await loadAppointments();
-      setEditingAppointment(null);
-      toast.success(t('dashboard.medicalHistoryUpdated'));
-    } catch (error: any) {
-      const message = error.response?.data?.error || t('dashboard.failedUpdateMedicalHistory');
-      toast.error(message);
-    }
+    updateAppointmentMutation.mutate(
+      {
+        id: editingAppointment.id,
+        data: {
+          diagnosis: medicalForm.diagnosis,
+          treatment: medicalForm.treatment,
+          notes: medicalForm.notes,
+          followUpDate: medicalForm.followUpDate
+        }
+      },
+      {
+        onSuccess: () => {
+          setEditingAppointment(null);
+          toast.success(t('dashboard.medicalHistoryUpdated'));
+        },
+      }
+    );
   };
 
   const handleRescheduleAppointment = (appointment: Appointment) => {
@@ -221,21 +161,24 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     });
   };
 
-  const handleSaveReschedule = async () => {
+  const handleSaveReschedule = () => {
     if (!reschedulingAppointment) return;
 
-    try {
-      await appointmentAPI.updateAppointment(reschedulingAppointment.id, {
-        date: format(rescheduleForm.date, 'yyyy-MM-dd'),
-        time: rescheduleForm.time
-      });
-      await loadAppointments();
-      setReschedulingAppointment(null);
-      toast.success(t('dashboard.rescheduleSuccess'));
-    } catch (error: any) {
-      const message = error.response?.data?.error || t('dashboard.failedReschedule');
-      toast.error(message);
-    }
+    updateAppointmentMutation.mutate(
+      {
+        id: reschedulingAppointment.id,
+        data: {
+          date: format(rescheduleForm.date, 'yyyy-MM-dd'),
+          time: rescheduleForm.time
+        }
+      },
+      {
+        onSuccess: () => {
+          setReschedulingAppointment(null);
+          toast.success(t('dashboard.rescheduleSuccess'));
+        },
+      }
+    );
   };
 
   const handleCancelReschedule = () => {
@@ -247,6 +190,8 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     setEditingAppointment(null);
     setMedicalForm({ diagnosis: '', treatment: '', notes: '', followUpDate: '' });
   };
+
+  const isLoading = appointmentsLoading || petsLoading;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -260,6 +205,14 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">{t('dashboard.loading') || 'Loading...'}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -594,7 +547,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                 </Button>
                 <MedicalHistoryManagement
                   pet={selectedPet}
-                  onUpdate={loadPets}
+                  onUpdate={async () => { await refetchPets(); }}
                   canEdit={true}
                 />
               </div>
@@ -616,7 +569,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                 </CardHeader>
                 <CardContent>
                   {(() => {
-                    const filteredPets = allPets.filter(pet =>
+                    const filteredPets = allPetsData.filter((pet: Pet) =>
                       pet.name.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
                       pet.species.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
                       pet.breed.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
@@ -625,7 +578,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
 
                     return filteredPets.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredPets.map((pet) => (
+                        {filteredPets.map((pet: Pet) => (
                           <Card
                             key={pet.id}
                             className="cursor-pointer hover:shadow-lg transition-shadow"

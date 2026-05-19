@@ -25,7 +25,7 @@
  * @param {Function} onLogout - Callback function to handle user logout
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,7 +41,9 @@ import NotificationBell from '../Notification/NotificationBell';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { Appointment, User, Pet } from '../../types';
 import UserManagementDialogs from '../Admin/UserManagementDialogs';
-import { userAPI, petAPI, appointmentAPI } from '@/lib/api';
+import { useUsers } from '@/hooks/use-users';
+import { useAppointments, useUpdateAppointment } from '@/hooks/use-appointments';
+import { usePets } from '@/hooks/use-pets';
 import { toast } from 'sonner';
 import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
 import { translateSpecies } from '@/i18n/pets';
@@ -54,16 +56,24 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   const { t } = useTranslation();
-  // ============================================
-  // STATE MANAGEMENT
-  // ============================================
-  // BEGINNER NOTE: State variables hold the data that powers the dashboard.
-  // When these change, React automatically re-renders the UI.
 
-  // Data states - Store the actual data from the backend
-  const [allUsers, setAllUsers] = useState<User[]>([]);                    // All users in the system
-  const [allAppointments, setAllAppointments] = useState<Appointment[]>([]); // All appointments in the system
-  const [allPets, setAllPets] = useState<Pet[]>([]);                       // All pets in the system
+  // Data fetching via React Query hooks
+  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers();
+  const { data: appointmentsData, isLoading: appointmentsLoading } = useAppointments();
+  const { data: petsData, isLoading: petsLoading, refetch: refetchPets } = usePets();
+  const updateAppointmentMutation = useUpdateAppointment();
+
+  // Derived data from React Query responses
+  const allUsers: User[] = usersData?.users || [];
+  const allAppointments: Appointment[] = appointmentsData || [];
+  const allPets: Pet[] = petsData || [];
+
+  // Combined loading state (data still fetching)
+  const isLoading = usersLoading || appointmentsLoading || petsLoading;
+
+  // ============================================
+  // UI STATE (kept as useState — not data fetching)
+  // ============================================
 
   // Search and filter states - Control what data is displayed
   const [searchTerm, setSearchTerm] = useState('');                        // Search text for user table
@@ -75,56 +85,21 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null); // Appointment being viewed/edited
   const [viewDialogOpen, setViewDialogOpen] = useState(false);             // Controls view appointment dialog
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);         // Controls delete confirmation dialog
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);        // Pet being viewed for medical history
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);      // Pet being viewed for medical history
 
-  // UI states - Control loading and interaction states
-  const [isLoading, setIsLoading] = useState(false);                       // Shows loading spinner during API calls
-
-  /**
-   * Load Data Function
-   * 
-   * BEGINNER EXPLANATION:
-   * This function fetches ALL data from the backend that the admin needs to see.
-   * It's wrapped in useCallback so it doesn't get recreated on every render.
-   * 
-   * Why use Promise.all? We could load data one-by-one, but loading in parallel
-   * (all at once) is much faster. Think of it like opening 3 browser tabs at once
-   * instead of waiting for each page to load before opening the next one.
-   * 
-   * Flow:
-   * 1. Set loading state to true (shows spinner)
-   * 2. Call all three APIs simultaneously
-   * 3. Update state with the results
-   * 4. Handle any errors with user-friendly message
-   * 5. Turn off loading state
-   */
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      // Load all users from backend (pet owners, vets, admins)
-      const usersResult = await userAPI.listUsers();
-      setAllUsers(usersResult.users || []);
-
-      // Load all appointments from backend (all statuses)
-      const appointments = await appointmentAPI.getAppointments();
-      setAllAppointments(appointments);
-
-      // Load all pets from backend (all owners)
-      const pets = await petAPI.getPets();
-      setAllPets(pets);
-      setSelectedPet(prev => prev ? pets.find(p => p.id === prev.id) || prev : null);
-    } catch (error: any) {
-      console.error('Failed to load admin dashboard data:', error);
-      toast.error(t('dashboard.failedLoadDashboard'));
-    } finally {
-      // Always turn off loading, even if there was an error
-      setIsLoading(false);
+  // Keep selectedPet in sync with refreshed pets data
+  React.useEffect(() => {
+    if (selectedPet && allPets.length > 0) {
+      const updated = allPets.find(p => p.id === selectedPet.id);
+      if (updated) {
+        setSelectedPet(updated);
+      }
     }
-  }, []);
+  }, [allPets]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  // ============================================
+  // DERIVED DATA & EVENT HANDLERS
+  // ============================================
 
   // Filter appointments based on search and status
   const filteredAppointments = allAppointments.filter(appointment => {
@@ -152,13 +127,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const confirmDeleteAppointment = async () => {
     if (!selectedAppointment) return;
 
-    setIsLoading(true);
     try {
-      // Note: Backend doesn't have delete endpoint, so we mark as cancelled
-      await appointmentAPI.updateAppointment(selectedAppointment.id, { status: 'cancelled' });
-
-      // Reload data
-      await loadData();
+      await updateAppointmentMutation.mutateAsync({
+        id: selectedAppointment.id,
+        data: { status: 'cancelled' },
+      });
 
       toast.success(t('dashboard.appointmentCancelledSuccess'));
       setDeleteDialogOpen(false);
@@ -166,17 +139,15 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     } catch (error: any) {
       const message = error.response?.data?.error || t('dashboard.errorDeletingAppointment');
       toast.error(message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleUpdateAppointmentStatus = async (appointmentId: string, newStatus: 'scheduled' | 'completed' | 'cancelled') => {
     try {
-      await appointmentAPI.updateAppointment(appointmentId, { status: newStatus });
-
-      // Reload data
-      await loadData();
+      await updateAppointmentMutation.mutateAsync({
+        id: appointmentId,
+        data: { status: newStatus },
+      });
 
       toast.success(t('dashboard.appointmentStatusUpdated', { status: newStatus }));
     } catch (error: any) {
@@ -454,7 +425,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
               <CardContent>
                 <UserManagementDialogs
                   users={filteredUsers}
-                  onUsersChange={loadData}
+                  onUsersChange={() => refetchUsers()}
                   currentUser={user}
                 />
                 {filteredUsers.length === 0 && (
@@ -599,7 +570,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                 </Button>
                 <MedicalHistoryManagement
                   pet={selectedPet}
-                  onUpdate={loadData}
+                  onUpdate={() => { refetchPets(); }}
                   canEdit={true}
                 />
               </div>
@@ -872,13 +843,13 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogCancel disabled={updateAppointmentMutation.isPending}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteAppointment}
-              disabled={isLoading}
+              disabled={updateAppointmentMutation.isPending}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isLoading ? t('dashboard.deleting') : t('dashboard.deleteAppointmentBtn')}
+              {updateAppointmentMutation.isPending ? t('dashboard.deleting') : t('dashboard.deleteAppointmentBtn')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
