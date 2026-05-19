@@ -143,6 +143,13 @@ api.interceptors.response.use(
 
   // ERROR: Request failed (status 400+)
   (error) => {
+    // Log error with context for debugging
+    console.error(
+      'API Error:',
+      error.response?.status,
+      error.response?.data ?? error.message
+    );
+
     // If backend returned 401 (invalid/expired token), let calling code handle it.
     // We intentionally do NOT clear session or reload the page here because:
     // - Demo users authenticate via localStorage fallback, not a real backend JWT
@@ -153,20 +160,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-// ==================== LOCALSTORAGE HELPER ====================
-// When the backend is unavailable, read demo data seeded by initializeTestData()
-function getLocalData<T>(keyPrefix: string): T[] {
-  try {
-    const stored = localStorage.getItem('currentUser');
-    if (!stored) return [];
-    const user = JSON.parse(stored);
-    const data = localStorage.getItem(`${keyPrefix}_${user.email}`);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
-}
 
 // ==================== AUTH API ====================
 
@@ -206,34 +199,16 @@ export const authAPI = {
    * console.log(result.user.fullName); // "John Smith"
    */
   async login(email: string, password: string) {
-    try {
-      // POST request to /auth/login endpoint
-      const { data } = await api.post('/auth/login', { email, password });
+    // POST request to /auth/login endpoint
+    const { data } = await api.post('/auth/login', { email, password });
 
-      // If backend sent a token, save it (successful login)
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('currentUser', JSON.stringify(data.user));
-      }
-
-      return data; // Return full response { user, token }
-    } catch (error) {
-      // Fallback: si el backend no está disponible o los datos no están en BD,
-      // intentar con usuarios de demo en localStorage
-      const userKey = `user_${email}`;
-      const storedUser = localStorage.getItem(userKey);
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        if (user.password === password) {
-          const token = 'demo-token-' + Date.now();
-          localStorage.setItem('token', token);
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          return { user, token };
-        }
-      }
-      // Re-lanzar error original si localStorage tampoco tiene el usuario
-      throw error;
+    // If backend sent a token, save it (successful login)
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
     }
+
+    return data; // Return full response { user, token }
   },
 
   /**
@@ -377,17 +352,8 @@ export const userAPI = {
    * console.log(user.email); // "owner@petcare.com"
    */
   async getCurrentUser() {
-    try {
-      const { data } = await api.get('/users/me');
-      return data;
-    } catch (error) {
-      // Fallback: restaurar usuario desde localStorage si el backend no responde
-      const storedUser = localStorage.getItem('currentUser');
-      if (storedUser) {
-        return JSON.parse(storedUser);
-      }
-      throw error;
-    }
+    const { data } = await api.get('/users/me');
+    return data;
   },
 
   /**
@@ -441,23 +407,8 @@ export const userAPI = {
    * const owners = await userAPI.listUsers({ userType: 'pet_owner', limit: 10 });
    */
   async listUsers(params?: { userType?: string; page?: number; limit?: number }) {
-    try {
-      const { data } = await api.get('/users', { params });
-      return data;
-    } catch {
-      // Fallback: read all users from localStorage
-      const users: User[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith('user_')) {
-          try {
-            const user = JSON.parse(localStorage.getItem(key)!);
-            users.push(user);
-          } catch {}
-        }
-      }
-      return users;
-    }
+    const { data } = await api.get('/users', { params });
+    return data;
   },
 
   /**
@@ -586,12 +537,8 @@ export const petAPI = {
    * console.log(myPets.length); // Number of pets
    */
   async getPets() {
-    try {
-      const { data } = await api.get('/pets');
-      return data as Pet[];
-    } catch {
-      return getLocalData<Pet>('pets');
-    }
+    const { data } = await api.get('/pets');
+    return data as Pet[];
   },
 
   /**
@@ -716,12 +663,8 @@ export const appointmentAPI = {
     date?: string;
     petId?: string;
   }) {
-    try {
-      const { data } = await api.get('/appointments', { params });
-      return data as Appointment[];
-    } catch {
-      return getLocalData<Appointment>('appointments');
-    }
+    const { data } = await api.get('/appointments', { params });
+    return data as Appointment[];
   },
 
   /**
@@ -962,12 +905,8 @@ export const medicalRecordAPI = {
    * console.log(records[0].recordType); // "checkup"
    */
   async getByPet(petId: string) {
-    try {
-      const { data } = await api.get(`/medical-records/pet/${petId}`);
-      return data as MedicalRecord[];
-    } catch {
-      return [];
-    }
+    const { data } = await api.get(`/medical-records/pet/${petId}`);
+    return data as MedicalRecord[];
   },
 
   /**
@@ -1082,12 +1021,8 @@ export const vaccinationAPI = {
    * vaccines.forEach(v => console.log(v.vaccine, v.date));
    */
   async getByPet(petId: string) {
-    try {
-      const { data } = await api.get(`/vaccinations/pet/${petId}`);
-      return data as VaccinationRecord[];
-    } catch {
-      return [];
-    }
+    const { data } = await api.get(`/vaccinations/pet/${petId}`);
+    return data as VaccinationRecord[];
   },
 
   /**
@@ -1103,12 +1038,8 @@ export const vaccinationAPI = {
    * // Returns vaccines due within next 30 days
    */
   async getUpcoming() {
-    try {
-      const { data } = await api.get('/vaccinations/upcoming');
-      return data as VaccinationRecord[];
-    } catch {
-      return [];
-    }
+    const { data } = await api.get('/vaccinations/upcoming');
+    return data as VaccinationRecord[];
   },
 
   /**
@@ -1226,12 +1157,8 @@ export const medicationAPI = {
    * const meds = await medicationAPI.getByPet('pet123');
    */
   async getByPet(petId: string) {
-    try {
-      const { data } = await api.get(`/medications/pet/${petId}`);
-      return data as MedicationRecord[];
-    } catch {
-      return [];
-    }
+    const { data } = await api.get(`/medications/pet/${petId}`);
+    return data as MedicationRecord[];
   },
 
   /**
@@ -1395,12 +1322,8 @@ export const clinicalRecordAPI = {
    * const clinicals = await clinicalRecordAPI.getByPet('pet123');
    */
   async getByPet(petId: string) {
-    try {
-      const { data } = await api.get(`/clinical-records/pet/${petId}`);
-      return data as ClinicalRecord[];
-    } catch {
-      return [];
-    }
+    const { data } = await api.get(`/clinical-records/pet/${petId}`);
+    return data as ClinicalRecord[];
   },
 
   /**
