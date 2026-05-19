@@ -17,11 +17,13 @@ CREATE TABLE IF NOT EXISTS users (
     specialization VARCHAR(255),
     license_number VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
 );
 
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_user_type ON users(user_type);
+CREATE INDEX idx_users_deleted_at ON users(deleted_at);
 
 -- ============================================
 -- 2. CREATE PETS TABLE
@@ -174,6 +176,20 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_read ON notifications(read);
+
+-- ============================================
+-- 9. CREATE TOKEN BLACKLIST TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS token_blacklist (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    token_jti VARCHAR(255) NOT NULL,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_token_blacklist_jti ON token_blacklist(token_jti);
+CREATE INDEX idx_token_blacklist_expires ON token_blacklist(expires_at);
 
 -- ============================================
 -- VERIFICATION SCRIPT

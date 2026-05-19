@@ -7,7 +7,7 @@
 -- Password for all users: password123
 -- Hash generated with bcrypt, rounds=10
 
-INSERT INTO users (id, email, password_hash, full_name, phone, address, user_type, access_level, created_at, updated_at)
+INSERT INTO users (id, email, password_hash, full_name, phone, address, user_type, access_level, deleted_at, created_at, updated_at)
 VALUES 
   -- Pet Owner
   ('550e8400-e29b-41d4-a716-446655440001', 
@@ -17,6 +17,7 @@ VALUES
    '+1-555-0101', 
    '123 Pet Street, Boston, MA 02101', 
    'pet_owner',
+   NULL,
    NULL,
    NOW(),
    NOW()),
@@ -30,6 +31,7 @@ VALUES
    '456 Vet Avenue, Boston, MA 02102', 
    'veterinarian',
    NULL,
+   NULL,
    NOW(),
    NOW()),
   
@@ -42,6 +44,7 @@ VALUES
    '789 Admin Road, Boston, MA 02103', 
    'administrator',
    'elevated',
+   NULL,
    NOW(),
    NOW())
 ON CONFLICT (email) DO NOTHING;
@@ -358,6 +361,21 @@ VALUES
    false,
    NOW())
 ON CONFLICT (id) DO NOTHING;
+
+-- ============================================
+-- 9. CREATE TOKEN BLACKLIST TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS token_blacklist (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    token_jti VARCHAR(255) NOT NULL,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_jti ON token_blacklist(token_jti);
+CREATE INDEX IF NOT EXISTS idx_token_blacklist_expires ON token_blacklist(expires_at);
 
 -- ============================================
 -- VERIFICATION QUERIES
