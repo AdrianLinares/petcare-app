@@ -58,9 +58,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const { t } = useTranslation();
 
   // Data fetching via React Query hooks
-  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers();
-  const { data: appointmentsData, isLoading: appointmentsLoading } = useAppointments();
-  const { data: petsData, isLoading: petsLoading, refetch: refetchPets } = usePets();
+  const { data: usersData, isLoading: usersLoading, isError: usersError, refetch: refetchUsers } = useUsers();
+  const { data: appointmentsData, isLoading: appointmentsLoading, isError: appointmentsError, refetch: refetchAppointments } = useAppointments();
+  const { data: petsData, isLoading: petsLoading, isError: petsError, refetch: refetchPets } = usePets();
   const updateAppointmentMutation = useUpdateAppointment();
 
   // Derived data from React Query responses
@@ -70,6 +70,9 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
   // Combined loading state (data still fetching)
   const isLoading = usersLoading || appointmentsLoading || petsLoading;
+
+  // Combined error state
+  const hasError = usersError || appointmentsError || petsError;
 
   // ============================================
   // UI STATE (kept as useState — not data fetching)
@@ -206,6 +209,16 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Error State — shown before content if queries failed */}
+      {hasError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 m-4">
+          <h3 className="text-red-800 font-medium">Connection Error</h3>
+          <p className="text-red-600 text-sm mt-1">Unable to load data from the server.</p>
+          <Button onClick={() => { refetchUsers(); refetchAppointments(); refetchPets(); }} variant="outline" className="mt-2">
+            Retry
+          </Button>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

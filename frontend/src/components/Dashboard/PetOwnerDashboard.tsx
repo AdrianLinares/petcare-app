@@ -58,9 +58,9 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
   // ============================================
   // DATA FETCHING (React Query)
   // ============================================
-  const { data: pets = [], isLoading: petsLoading, refetch: refetchPets } = usePets();
-  const { data: appointments = [], isLoading: apptsLoading, refetch: refetchAppointments } = useAppointments();
-  const { data: upcomingVaccinations = [], isLoading: vaxLoading } = useUpcomingVaccinations();
+  const { data: pets = [], isLoading: petsLoading, isError: petsError, refetch: refetchPets } = usePets();
+  const { data: appointments = [], isLoading: apptsLoading, isError: appointmentsError, refetch: refetchAppointments } = useAppointments();
+  const { data: upcomingVaccinations = [], isLoading: vaxLoading, isError: vaxError } = useUpcomingVaccinations();
 
   // Combined loading state
   const isLoading = petsLoading || apptsLoading || vaxLoading;
@@ -102,6 +102,32 @@ export default function PetOwnerDashboard({ user, onLogout }: PetOwnerDashboardP
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-gray-600">{t('dashboard.loading') || 'Loading...'}</div>
+      </div>
+    );
+  }
+
+  // Show error state if any query failed
+  if (petsError || appointmentsError || vaxError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <img src="/petcare-logo.png" alt="PetCare" className="h-8 w-auto mr-3" />
+                <h1 className="text-xl font-bold text-blue-600">PetCare</h1>
+              </div>
+              <Button variant="outline" onClick={onLogout}>{t('dashboard.signOut')}</Button>
+            </div>
+          </div>
+        </header>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 m-4">
+          <h3 className="text-red-800 font-medium">Connection Error</h3>
+          <p className="text-red-600 text-sm mt-1">Unable to load data from the server.</p>
+          <Button onClick={() => { refetchPets(); refetchAppointments(); }} variant="outline" className="mt-2">
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }

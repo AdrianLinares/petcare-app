@@ -33,8 +33,8 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
   const { t } = useTranslation();
 
   // React Query data fetching
-  const { data: allAppointmentsData = [], isLoading: appointmentsLoading } = useAppointments();
-  const { data: allPetsData = [], refetch: refetchPets, isLoading: petsLoading } = usePets();
+  const { data: allAppointmentsData = [], isLoading: appointmentsLoading, isError: appointmentsError, refetch: refetchAppointments } = useAppointments();
+  const { data: allPetsData = [], refetch: refetchPets, isLoading: petsLoading, isError: petsError } = usePets();
   const updateAppointmentMutation = useUpdateAppointment();
 
   // Filter appointments for this veterinarian
@@ -210,6 +210,32 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-gray-500">{t('dashboard.loading') || 'Loading...'}</div>
+      </div>
+    );
+  }
+
+  // Show error state if any query failed
+  if (appointmentsError || petsError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <img src="/petcare-logo.png" alt="PetCare" className="h-8 w-auto mr-3" />
+                <h1 className="text-xl font-bold text-blue-600">PetCare</h1>
+              </div>
+              <Button variant="outline" onClick={onLogout}>{t('dashboard.signOut')}</Button>
+            </div>
+          </div>
+        </header>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 m-4">
+          <h3 className="text-red-800 font-medium">Connection Error</h3>
+          <p className="text-red-600 text-sm mt-1">Unable to load data from the server.</p>
+          <Button onClick={() => { refetchAppointments(); refetchPets(); }} variant="outline" className="mt-2">
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }

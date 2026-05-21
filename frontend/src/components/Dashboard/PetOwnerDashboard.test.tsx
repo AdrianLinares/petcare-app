@@ -6,25 +6,36 @@ import PetOwnerDashboard from "@/components/Dashboard/PetOwnerDashboard";
 import { __TESTING__ } from "react-i18next";
 
 // Mock React Query hooks — they return empty data by default
+const mockUsePets = vi.fn(() => ({
+  data: [],
+  isLoading: false,
+  isError: false,
+  refetch: vi.fn(),
+}));
+
+const mockUseAppointments = vi.fn(() => ({
+  data: [],
+  isLoading: false,
+  isError: false,
+  refetch: vi.fn(),
+}));
+
+const mockUseUpcomingVaccinations = vi.fn(() => ({
+  data: [],
+  isLoading: false,
+  isError: false,
+}));
+
 vi.mock("@/hooks/use-pets", () => ({
-  usePets: () => ({
-    data: [],
-    isLoading: false,
-  }),
+  usePets: () => mockUsePets(),
 }));
 
 vi.mock("@/hooks/use-appointments", () => ({
-  useAppointments: () => ({
-    data: [],
-    isLoading: false,
-  }),
+  useAppointments: () => mockUseAppointments(),
 }));
 
 vi.mock("@/hooks/use-vaccinations", () => ({
-  useUpcomingVaccinations: () => ({
-    data: [],
-    isLoading: false,
-  }),
+  useUpcomingVaccinations: () => mockUseUpcomingVaccinations(),
 }));
 
 // Mock sonner toast
@@ -165,5 +176,98 @@ describe("PetOwnerDashboard — translated strings", () => {
     expect(
       screen.getByText("[en] dashboard.noMedicalHistory")
     ).toBeInTheDocument();
+  });
+});
+
+describe("PetOwnerDashboard — error handling", () => {
+  const onLogout = vi.fn();
+
+  beforeEach(() => {
+    __TESTING__.setLanguage("en");
+    vi.clearAllMocks();
+    // Reset hooks to default (no error)
+    mockUsePets.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    mockUseAppointments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    mockUseUpcomingVaccinations.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+    });
+  });
+
+  it("shows Connection Error when pets query fails", () => {
+    mockUsePets.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      refetch: vi.fn(),
+    });
+
+    render(<PetOwnerDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(screen.getByText("Connection Error")).toBeInTheDocument();
+    expect(screen.getByText("Unable to load data from the server.")).toBeInTheDocument();
+  });
+
+  it("shows Connection Error when appointments query fails", () => {
+    mockUseAppointments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      refetch: vi.fn(),
+    });
+
+    render(<PetOwnerDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(screen.getByText("Connection Error")).toBeInTheDocument();
+  });
+
+  it("shows Retry button that calls refetch when clicked", () => {
+    const refetchPets = vi.fn();
+    const refetchAppointments = vi.fn();
+    mockUsePets.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      refetch: refetchPets,
+    });
+    mockUseAppointments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: refetchAppointments,
+    });
+
+    render(<PetOwnerDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    const retryButton = screen.getByRole("button", { name: /retry/i });
+    expect(retryButton).toBeInTheDocument();
+    retryButton.click();
+    expect(refetchPets).toHaveBeenCalled();
+    expect(refetchAppointments).toHaveBeenCalled();
+  });
+
+  it("does NOT show error banner when all queries succeed", () => {
+    render(<PetOwnerDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(screen.queryByText("Connection Error")).not.toBeInTheDocument();
   });
 });

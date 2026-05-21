@@ -6,32 +6,44 @@ import AdminDashboard from "@/components/Dashboard/AdminDashboard";
 import { __TESTING__ } from "react-i18next";
 
 // Mock React Query hooks — they return empty data by default
+const mockUseUsers = vi.fn(() => ({
+  data: { users: [] },
+  isLoading: false,
+  isError: false,
+  refetch: vi.fn(),
+}));
+
+const mockUseAppointments = vi.fn(() => ({
+  data: [],
+  isLoading: false,
+  isError: false,
+  refetch: vi.fn(),
+}));
+
+const mockUseUpdateAppointment = vi.fn(() => ({
+  mutate: vi.fn(),
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
+
+const mockUsePets = vi.fn(() => ({
+  data: [],
+  isLoading: false,
+  isError: false,
+  refetch: vi.fn(),
+}));
+
 vi.mock("@/hooks/use-users", () => ({
-  useUsers: () => ({
-    data: { users: [] },
-    isLoading: false,
-    refetch: vi.fn(),
-  }),
+  useUsers: () => mockUseUsers(),
 }));
 
 vi.mock("@/hooks/use-appointments", () => ({
-  useAppointments: () => ({
-    data: [],
-    isLoading: false,
-  }),
-  useUpdateAppointment: () => ({
-    mutate: vi.fn(),
-    mutateAsync: vi.fn(),
-    isPending: false,
-  }),
+  useAppointments: () => mockUseAppointments(),
+  useUpdateAppointment: () => mockUseUpdateAppointment(),
 }));
 
 vi.mock("@/hooks/use-pets", () => ({
-  usePets: () => ({
-    data: [],
-    isLoading: false,
-    refetch: vi.fn(),
-  }),
+  usePets: () => mockUsePets(),
 }));
 
 // Mock sonner toast
@@ -183,5 +195,126 @@ describe("AdminDashboard — translated strings", () => {
     expect(
       screen.getByText("[en] dashboard.noRecentAppointments")
     ).toBeInTheDocument();
+  });
+});
+
+describe("AdminDashboard — error handling", () => {
+  const onLogout = vi.fn();
+
+  beforeEach(() => {
+    __TESTING__.setLanguage("en");
+    vi.clearAllMocks();
+    mockUseUsers.mockReturnValue({
+      data: { users: [] },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    mockUseAppointments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    mockUseUpdateAppointment.mockReturnValue({
+      mutate: vi.fn(),
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+    mockUsePets.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+  });
+
+  it("shows Connection Error when users query fails", () => {
+    mockUseUsers.mockReturnValue({
+      data: { users: [] },
+      isLoading: false,
+      isError: true,
+      refetch: vi.fn(),
+    });
+
+    render(<AdminDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(screen.getByText("Connection Error")).toBeInTheDocument();
+    expect(screen.getByText("Unable to load data from the server.")).toBeInTheDocument();
+  });
+
+  it("shows Connection Error when appointments query fails", () => {
+    mockUseAppointments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      refetch: vi.fn(),
+    });
+
+    render(<AdminDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(screen.getByText("Connection Error")).toBeInTheDocument();
+  });
+
+  it("shows Connection Error when pets query fails", () => {
+    mockUsePets.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      refetch: vi.fn(),
+    });
+
+    render(<AdminDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(screen.getByText("Connection Error")).toBeInTheDocument();
+  });
+
+  it("shows Retry button that calls refetch for all failed queries", () => {
+    const refetchUsers = vi.fn();
+    const refetchAppointments = vi.fn();
+    const refetchPets = vi.fn();
+    mockUseUsers.mockReturnValue({
+      data: { users: [] },
+      isLoading: false,
+      isError: true,
+      refetch: refetchUsers,
+    });
+    mockUseAppointments.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: refetchAppointments,
+    });
+    mockUsePets.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: refetchPets,
+    });
+
+    render(<AdminDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    const retryButton = screen.getByRole("button", { name: /retry/i });
+    expect(retryButton).toBeInTheDocument();
+    retryButton.click();
+    expect(refetchUsers).toHaveBeenCalled();
+    expect(refetchAppointments).toHaveBeenCalled();
+    expect(refetchPets).toHaveBeenCalled();
+  });
+
+  it("does NOT show error banner when all queries succeed", () => {
+    render(<AdminDashboard user={mockUser} onLogout={onLogout} />, {
+      wrapper: createWrapper(),
+    });
+
+    expect(screen.queryByText("Connection Error")).not.toBeInTheDocument();
   });
 });

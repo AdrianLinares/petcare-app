@@ -118,7 +118,9 @@ const App = () => {
       }
     };
     
-    checkAuth();
+    checkAuth()
+      .catch(() => {})
+      .finally(() => setLoading(false));
     
     // STEP 3: Check if URL has a password reset token
     // Example URL: http://localhost:5173/#reset-password?token=abc123
@@ -133,9 +135,6 @@ const App = () => {
     if (window.location.hash === '#demo') {
       setAuthState({ view: 'demo' } as any);
     }
-    
-    // STEP 5: Finished loading, show the app!
-    setLoading(false);
     
   }, []); // Empty array = run once on component mount
 

@@ -778,6 +778,96 @@ describe('Auth Utility Functions', () => {
       expect(user!.id).toBe('user-1');
       // Only the user lookup query should be called (no blacklist check for tokens without jti)
     });
+
+    // ─── Token Blacklist Resilience Tests ──────────────────────────────────
+
+    it('proceeds with auth when blacklist query throws (table missing)', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      (jwt.verify as any).mockReturnValue({
+        userId: 'user-1',
+        email: 'test@example.com',
+        userType: 'pet_owner',
+        jti: 'valid-jti-resilience',
+      });
+      // First call: blacklist check THROWS (table doesn't exist)
+      // Second call: user lookup succeeds
+      (query as any)
+        .mockRejectedValueOnce(new Error('relation "token_blacklist" does not exist'))
+        .mockResolvedValueOnce({ rows: [userRow], rowCount: 1 });
+
+      const event = mockAuthEvent('token-with-jti-but-no-table');
+      const user = await getUserFromToken(event);
+
+      expect(user).not.toBeNull();
+      expect(user!.id).toBe('user-1');
+      expect(warnSpy).toHaveBeenCalledWith(
+        'token_blacklist check failed (table may not exist):',
+        expect.any(Error)
+      );
+      warnSpy.mockRestore();
+    });
+
+    it('proceeds with auth when blacklist query throws generic DB error', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      (jwt.verify as any).mockReturnValue({
+        userId: 'user-1',
+        email: 'test@example.com',
+        userType: 'pet_owner',
+        jti: 'valid-jti-db-error',
+      });
+      (query as any)
+        .mockRejectedValueOnce(new Error('connection refused'))
+        .mockResolvedValueOnce({ rows: [userRow], rowCount: 1 });
+
+      const event = mockAuthEvent('token-with-jti-db-err');
+      const user = await getUserFromToken(event);
+
+      expect(user).not.toBeNull();
+      expect(user!.id).toBe('user-1');
+      expect(warnSpy).toHaveBeenCalled();
+      warnSpy.mockRestore();
+    });
+
+    it('still blocks auth when blacklist query succeeds AND token IS blacklisted', async () => {
+      (jwt.verify as any).mockReturnValue({
+        userId: 'user-1',
+        email: 'test@example.com',
+        userType: 'pet_owner',
+        jti: 'actually-blacklisted-jti',
+      });
+      // Blacklist check succeeds and finds the token
+      (query as any).mockResolvedValueOnce({ rows: [{ id: 'bl-1' }], rowCount: 1 });
+
+      const event = mockAuthEvent('blacklisted-token-even-with-resilience');
+      const user = await getUserFromToken(event);
+
+      expect(user).toBeNull();
+    });
+  });
+
+  // ─── ensureBlacklistTable ────────────────────────────────────────────────
+
+  describe('ensureBlacklistTable', () => {
+    it('calls query with CREATE TABLE IF NOT EXISTS on module load', async () => {
+      const { ensureBlacklistTable } = await import('../utils/auth');
+
+      (query as any).mockResolvedValueOnce({ rows: [], rowCount: 0 });
+
+      await ensureBlacklistTable();
+
+      expect(query).toHaveBeenCalledWith(
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS token_blacklist')
+      );
+    });
+
+    it('does not throw when CREATE TABLE fails', async () => {
+      const { ensureBlacklistTable } = await import('../utils/auth');
+
+      (query as any).mockRejectedValueOnce(new Error('permission denied'));
+
+      // Must NOT throw
+      await expect(ensureBlacklistTable()).resolves.toBeUndefined();
+    });
   });
 
   // ─── requireAuth ───────────────────────────────────────────────────────

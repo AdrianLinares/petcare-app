@@ -44,6 +44,31 @@ import { HandlerEvent } from '@netlify/functions';
 import { query } from './database';
 
 /**
+ * Ensure the token_blacklist table exists.
+ * Called at module load — non-blocking: failures are logged but never throw.
+ */
+export async function ensureBlacklistTable(): Promise<void> {
+  try {
+    await query(`
+      CREATE TABLE IF NOT EXISTS token_blacklist (
+        id SERIAL PRIMARY KEY,
+        token_jti VARCHAR(255) NOT NULL,
+        user_id UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        expires_at TIMESTAMP NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_token_blacklist_jti ON token_blacklist(token_jti);
+      CREATE INDEX IF NOT EXISTS idx_token_blacklist_expires ON token_blacklist(expires_at);
+    `);
+  } catch (err) {
+    console.warn('Failed to create token_blacklist table (non-blocking):', err);
+  }
+}
+
+// Attempt table creation on module load — fire-and-forget
+ensureBlacklistTable();
+
+/**
  * Token Payload Interface
  * 
  * BEGINNER NOTE: This defines what data is stored INSIDE the JWT token.
@@ -108,13 +133,17 @@ export const getUserFromToken = async (event: HandlerEvent): Promise<User | null
 
     // Check blacklist if token has a jti (JWT ID)
     if (decoded.jti) {
-      const blacklistResult = await query(
-        'SELECT id FROM token_blacklist WHERE token_jti = $1 AND expires_at > NOW()',
-        [decoded.jti]
-      );
-      if (blacklistResult.rows.length > 0) {
-        console.warn(`Blocked request - blacklisted token jti: ${decoded.jti}`);
-        return null;
+      try {
+        const blacklistResult = await query(
+          'SELECT id FROM token_blacklist WHERE token_jti = $1 AND expires_at > NOW()',
+          [decoded.jti]
+        );
+        if (blacklistResult.rows.length > 0) {
+          console.warn(`Blocked request - blacklisted token jti: ${decoded.jti}`);
+          return null;
+        }
+      } catch (err) {
+        console.warn('token_blacklist check failed (table may not exist):', err);
       }
     }
 
