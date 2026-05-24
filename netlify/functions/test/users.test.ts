@@ -28,7 +28,7 @@ vi.mock('jsonwebtoken', () => ({
   },
 }));
 
-vi.mock('bcrypt', () => ({
+vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('$2b$10$mockhash'),
     compare: vi.fn().mockResolvedValue(true),
@@ -39,7 +39,7 @@ vi.mock('bcrypt', () => ({
 
 import { query } from '../utils/database';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { handler } from '../users';
 
 // ─── Helpers ───────────────────────────────────────────────────────────

@@ -17,7 +17,7 @@
  */
 
 import { Handler, HandlerEvent } from '@netlify/functions';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { query } from './utils/database';
 import { requireAuth, requireAdmin } from './utils/auth';
 import { successResponse, errorResponse, corsResponse } from './utils/response';
