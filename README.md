@@ -3,7 +3,7 @@
 A comprehensive pet care management system built with modern web technologies, offering role-based dashboards for pet owners, veterinarians, and administrators. Deployed as a serverless application on Netlify with Neon PostgreSQL database.
 
 ![PetCare](https://img.shields.io/badge/PetCare-Management%20System-blue)
-![Version](https://img.shields.io/badge/Version-1.3.0-green)
+![Version](https://img.shields.io/badge/Version-1.3.1-green)
 ![React](https://img.shields.io/badge/React-18.3.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue)
 ![Vite](https://img.shields.io/badge/Vite-5.4.1-purple)
@@ -18,6 +18,7 @@ A comprehensive pet care management system built with modern web technologies, o
 
 | Versión | Fecha | Hito | Commits Clave |
 |---|---|---|---|
+| **v1.3.1** | May 2026 | **Deploy fixes** — vitest.config fuera de functions/, bcrypt → bcryptjs para compatibilidad Lambda | `077840a` → `d1b067b` |
 | **v1.3.0** | May 2026 | **React Query + Modern Stack** — pnpm, React Query, ErrorBoundary, env validation, backend test suite, schema fixes | `0f96300` → `3dd317a` |
 | **v1.2.0** | May 2026 | **Internationalization (i18n)** — framework i18next, LanguageSwitcher, dashboards traducidos, tests de traducción | `751fa98` → `eb31db4` |
 | **v1.1.0** | Feb–Apr 2026 | **Real-time & Performance** — Pusher notifications, Edge caching, testing framework con Vitest, super_admin access level | `ffa07ca` → `a521a06` |
