@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "test:run": "vitest run"
+    "test": "vitest --config ../vitest.config.ts",
+    "test:run": "vitest run --config ../vitest.config.ts"
   },
   "dependencies": {
     "@netlify/functions": "^2.4.0",
