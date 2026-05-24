@@ -1,6 +1,6 @@
 {
   "name": "petcare-netlify-functions",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "description": "Serverless functions for PetCare Application",
   "type": "module",
   "scripts": {

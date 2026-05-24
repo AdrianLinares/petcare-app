@@ -3,6 +3,7 @@
 A comprehensive pet care management system built with modern web technologies, offering role-based dashboards for pet owners, veterinarians, and administrators. Deployed as a serverless application on Netlify with Neon PostgreSQL database.
 
 ![PetCare](https://img.shields.io/badge/PetCare-Management%20System-blue)
+![Version](https://img.shields.io/badge/Version-1.3.0-green)
 ![React](https://img.shields.io/badge/React-18.3.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue)
 ![Vite](https://img.shields.io/badge/Vite-5.4.1-purple)
@@ -10,6 +11,23 @@ A comprehensive pet care management system built with modern web technologies, o
 ![Netlify](https://img.shields.io/badge/Netlify-Serverless-00C7B7)
 ![Neon](https://img.shields.io/badge/Neon-PostgreSQL-4F46E5)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/AdrianLinares/petcare-app)
+
+---
+
+## 📋 Version History
+
+| Versión | Fecha | Hito | Commits Clave |
+|---|---|---|---|
+| **v1.3.0** | May 2026 | **React Query + Modern Stack** — pnpm, React Query, ErrorBoundary, env validation, backend test suite, schema fixes | `0f96300` → `3dd317a` |
+| **v1.2.0** | May 2026 | **Internationalization (i18n)** — framework i18next, LanguageSwitcher, dashboards traducidos, tests de traducción | `751fa98` → `eb31db4` |
+| **v1.1.0** | Feb–Apr 2026 | **Real-time & Performance** — Pusher notifications, Edge caching, testing framework con Vitest, super_admin access level | `ffa07ca` → `a521a06` |
+| **v1.0.0** | Nov 2025 | **Serverless Launch** — Migración a Neon PostgreSQL + Netlify Functions, autenticación JWT, API REST completa, despliegue en producción | `8ae9540` → `86acfdb` |
+| **v0.2.0** | Nov 2025 | **RBAC + Services** — Sistema de roles (pet_owner, veterinarian, administrator), niveles de admin, capa de servicios API | `ac156e5` → `d32f1b2` |
+| **v0.1.0** | Sep–Oct 2025 | **Foundations** — Primer commit, CRUD de mascotas, turnos, records médicos, recuperación de contraseña, datos de prueba | `dc9b7fd` → `40434e9` |
+
+> **Convención:** Semver estricto — `MAJOR.minor.patch`. MAJOR = cambios disruptivos en API o BD. minor = features nuevas. patch = fixes y refactors. El versionamiento se inicia formalmente con este release.
+
+---
 
 ## ⚡ Key Highlights
 
@@ -250,6 +268,7 @@ All guides are in the [`docs/`](./docs/) folder, numbered in the recommended rea
 | --- | ----------------------------------------------------------------------- | --------------------------------------------- |
 | 06  | **[06-REALTIME-NOTIFICATIONS.md](./docs/06-REALTIME-NOTIFICATIONS.md)** | Pusher real-time notification setup and usage |
 | 07  | **[07-DEPENDENCY-FIX.md](./docs/07-DEPENDENCY-FIX.md)**                 | Fix npm installation issues                   |
+| 08  | **[08-PLAN-MANTENIMIENTO.md](./docs/08-PLAN-MANTENIMIENTO.md)**         | Plan de mantenimiento ISO/IEC 14764           |
 
 ### 🗄️ Database Files
 
