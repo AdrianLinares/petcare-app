@@ -182,9 +182,6 @@ describe("AppointmentScheduling — translated strings", () => {
     expect(
       screen.getByText("[en] appointment.reasonForVisit")
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("[en] appointment.additionalNotes")
-    ).toBeInTheDocument();
   });
 
   it("renders placeholders and date picker text via translation keys", async () => {
@@ -200,9 +197,6 @@ describe("AppointmentScheduling — translated strings", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("[en] appointment.reasonPlaceholder")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText("[en] appointment.notesPlaceholder")
     ).toBeInTheDocument();
   });
 

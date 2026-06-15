@@ -32,11 +32,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import Footer from '@/components/ui/footer';
-import { Users, Calendar, FileText, TrendingUp, Bell, Search, Shield, Edit, Trash2, Eye, Filter, AlertTriangle, X } from 'lucide-react';
+import { Users, Calendar, FileText, TrendingUp, Bell, Search, Shield, Edit, Trash2, Eye, Filter, AlertTriangle, X, Plus } from 'lucide-react';
 import NotificationBell from '../Notification/NotificationBell';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { Appointment, User, Pet } from '../../types';
@@ -46,7 +48,8 @@ import { useAppointments, useUpdateAppointment } from '@/hooks/use-appointments'
 import { usePets } from '@/hooks/use-pets';
 import { toast } from 'sonner';
 import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/appointment';
-import { translateSpecies } from '@/i18n/pets';
+import { translateSpecies, translateGender } from '@/i18n/pets';
+import { petAPI } from '@/lib/api';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
 
 interface AdminDashboardProps {
@@ -99,6 +102,60 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       }
     }
   }, [allPets]);
+
+  // Admin pet creation form state
+  const [isAddingPet, setIsAddingPet] = useState(false);
+  const [petFormData, setPetFormData] = useState({
+    name: '',
+    species: '',
+    breed: '',
+    age: '',
+    weight: '',
+    color: '',
+    gender: '',
+    microchipId: '',
+    ownerId: '',
+    notes: '',
+  });
+  const [petFormLoading, setPetFormLoading] = useState(false);
+
+  const ownerUsers = allUsers.filter(u => u.userType === 'pet_owner');
+
+  const resetPetForm = () => {
+    setPetFormData({
+      name: '', species: '', breed: '', age: '', weight: '',
+      color: '', gender: '', microchipId: '', ownerId: '', notes: '',
+    });
+  };
+
+  const handleCreatePet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!petFormData.ownerId || !petFormData.name || !petFormData.species) return;
+    setPetFormLoading(true);
+
+    try {
+      await petAPI.createPet({
+        name: petFormData.name,
+        species: petFormData.species,
+        breed: petFormData.breed || undefined,
+        age: petFormData.age ? parseInt(petFormData.age) : undefined,
+        weight: petFormData.weight ? parseFloat(petFormData.weight) : undefined,
+        color: petFormData.color || undefined,
+        gender: (petFormData.gender.charAt(0).toUpperCase() + petFormData.gender.slice(1)) as 'Male' | 'Female' | undefined,
+        microchipId: petFormData.microchipId || undefined,
+        ownerId: petFormData.ownerId,
+        notes: petFormData.notes || undefined,
+      });
+      toast.success(t('pets.petAdded') || 'Mascota agregada exitosamente');
+      setIsAddingPet(false);
+      resetPetForm();
+      refetchPets();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || t('pets.failedSavePet'));
+    } finally {
+      setPetFormLoading(false);
+    }
+  };
 
   // ============================================
   // DERIVED DATA & EVENT HANDLERS
@@ -250,10 +307,11 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">{t('dashboard.overview')}</TabsTrigger>
             <TabsTrigger value="users">{t('dashboard.userManagement')}</TabsTrigger>
             <TabsTrigger value="appointments">{t('dashboard.appointments')}</TabsTrigger>
+            <TabsTrigger value="pets">{t('dashboard.petsManagement')}</TabsTrigger>
             <TabsTrigger value="medical">{t('dashboard.medicalHistory')}</TabsTrigger>
             <TabsTrigger value="reports">{t('dashboard.reports')}</TabsTrigger>
           </TabsList>
@@ -571,6 +629,94 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             </Card>
           </TabsContent>
 
+          <TabsContent value="pets" className="space-y-6">
+            {selectedPet ? (
+              <div>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedPet(null)}
+                  className="mb-4"
+                >
+                  {t('dashboard.backToPetList')}
+                </Button>
+                <MedicalHistoryManagement
+                  pet={selectedPet}
+                  onUpdate={() => { refetchPets(); }}
+                  canEdit={true}
+                />
+              </div>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>{t('dashboard.petsManagement')}</CardTitle>
+                    <div className="flex items-center space-x-2">
+                      <Search className="h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder={t('dashboard.searchPetsBy')}
+                        value={petSearchTerm}
+                        onChange={(e) => setPetSearchTerm(e.target.value)}
+                        className="w-64"
+                      />
+                      <Button onClick={() => setIsAddingPet(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        {t('pets.addPet')}
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {(() => {
+                    const filteredPets = allPets.filter(pet =>
+                      pet.name.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
+                      pet.species.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
+                      pet.breed.toLowerCase().includes(petSearchTerm.toLowerCase()) ||
+                      pet.ownerId.toLowerCase().includes(petSearchTerm.toLowerCase())
+                    );
+
+                    return filteredPets.length > 0 ? (
+                      <div>
+                        <div className="mb-4 text-sm text-gray-600">
+                          {t('dashboard.showingPets', { filtered: filteredPets.length, total: allPets.length })}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {filteredPets.map((pet) => (
+                            <Card
+                              key={pet.id}
+                              className="cursor-pointer hover:shadow-lg transition-shadow"
+                              onClick={() => setSelectedPet(pet)}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h3 className="font-bold text-lg">{pet.name}</h3>
+                                  <Badge variant="secondary">{translateSpecies(t, pet.species)}</Badge>
+                                </div>
+                                <p className="text-sm text-gray-600">{t('dashboard.breed')}: {pet.breed}</p>
+                                <p className="text-sm text-gray-600">{t('dashboard.age')}: {pet.age} years</p>
+                                <p className="text-sm text-gray-600">{t('dashboard.weight')}: {pet.weight} kg</p>
+                                <p className="text-xs text-gray-500 mt-2">{t('dashboard.owner')}: {pet.ownerId}</p>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t('dashboard.noPetsFound')}</h3>
+                        <p className="text-gray-600">
+                          {petSearchTerm
+                            ? t('dashboard.tryAdjustingSearch')
+                            : t('dashboard.noPetsRegistered')}
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
           <TabsContent value="medical" className="space-y-6">
             {selectedPet ? (
               <div>
@@ -867,6 +1013,125 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Pet Dialog */}
+      <Dialog open={isAddingPet} onOpenChange={(open) => { setIsAddingPet(open); if (!open) resetPetForm(); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('pets.addNewPet')}</DialogTitle>
+            <DialogDescription>{t('pets.addNewPetDesc')}</DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreatePet} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="adminPetOwner">{t('dashboard.owner')}</Label>
+              <Select
+                value={petFormData.ownerId}
+                onValueChange={(value) => setPetFormData(prev => ({ ...prev, ownerId: value }))}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('appointment.selectPetPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {ownerUsers.map((owner) => (
+                    <SelectItem key={owner.id} value={owner.id}>
+                      {owner.fullName} ({owner.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="adminPetName">{t('pets.petName')}</Label>
+                <Input id="adminPetName" value={petFormData.name}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, name: e.target.value }))}
+                  required placeholder={t('pets.petNamePlaceholder')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="adminPetSpecies">{t('pets.species')}</Label>
+                <Select value={petFormData.species}
+                  onValueChange={(value) => setPetFormData(prev => ({ ...prev, species: value }))} required>
+                  <SelectTrigger><SelectValue placeholder={t('pets.selectSpecies')} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="dog">{t('pets.dog')}</SelectItem>
+                    <SelectItem value="cat">{t('pets.cat')}</SelectItem>
+                    <SelectItem value="bird">{t('pets.bird')}</SelectItem>
+                    <SelectItem value="rabbit">{t('pets.rabbit')}</SelectItem>
+                    <SelectItem value="other">{t('pets.other')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="adminPetBreed">{t('pets.breedLabel')}</Label>
+                <Input id="adminPetBreed" value={petFormData.breed}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, breed: e.target.value }))}
+                  placeholder={t('pets.breedPlaceholder')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="adminPetGender">{t('pets.gender')}</Label>
+                <Select value={petFormData.gender}
+                  onValueChange={(value) => setPetFormData(prev => ({ ...prev, gender: value }))}>
+                  <SelectTrigger><SelectValue placeholder={t('pets.selectGender')} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{t('pets.male')}</SelectItem>
+                    <SelectItem value="female">{t('pets.female')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="adminPetAge">{t('pets.ageYears')}</Label>
+                <Input id="adminPetAge" type="number" min="0" max="30" value={petFormData.age}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, age: e.target.value }))}
+                  placeholder={t('pets.agePlaceholder')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="adminPetWeight">{t('pets.weightKg')}</Label>
+                <Input id="adminPetWeight" type="number" min="0" step="0.1" value={petFormData.weight}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, weight: e.target.value }))}
+                  placeholder={t('pets.weightPlaceholder')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="adminPetColor">{t('pets.color')}</Label>
+                <Input id="adminPetColor" value={petFormData.color}
+                  onChange={(e) => setPetFormData(prev => ({ ...prev, color: e.target.value }))}
+                  placeholder={t('pets.colorPlaceholder')} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="adminPetMicrochip">{t('pets.microchipId')}</Label>
+              <Input id="adminPetMicrochip" value={petFormData.microchipId}
+                onChange={(e) => setPetFormData(prev => ({ ...prev, microchipId: e.target.value }))}
+                placeholder={t('pets.microchipIdPlaceholder')} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="adminPetNotes">{t('pets.notesLabel')}</Label>
+              <Textarea id="adminPetNotes" value={petFormData.notes}
+                onChange={(e) => setPetFormData(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder={t('pets.notesPlaceholder')} rows={2} />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={() => setIsAddingPet(false)} disabled={petFormLoading}>
+                {t('common.cancel')}
+              </Button>
+              <Button type="submit" disabled={petFormLoading}>
+                {petFormLoading ? t('pets.saving') : t('pets.addPetBtn')}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

@@ -91,6 +91,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
     weight: '',        // Weight in pounds/kg
     color: '',         // Fur/feather color
     gender: '',        // Male, Female, Unknown
+    microchipId: '',   // Optional microchip identification number
     conditions: '',    // Pre-existing health conditions
     notes: ''          // Additional notes
   });
@@ -117,6 +118,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
       weight: '',
       color: '',
       gender: '',
+      microchipId: '',
       conditions: '',
       notes: ''
     });
@@ -132,9 +134,10 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
         species: formData.species,
         breed: formData.breed,
         age: parseInt(formData.age),
-        weight: parseFloat(formData.weight),
+        weight: formData.weight ? parseFloat(formData.weight) : undefined,
         color: formData.color,
         gender: (formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1)) as 'Male' | 'Female',
+        microchipId: formData.microchipId || undefined,
         conditions: formData.conditions || null,
         notes: formData.notes || null
       };
@@ -172,6 +175,7 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
       weight: pet.weight.toString(),
       color: pet.color,
       gender: pet.gender.toLowerCase(),
+      microchipId: pet.microchipId || '',
       conditions: pet.conditions || '',
       notes: pet.notes || ''
     });
@@ -307,7 +311,6 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                     step="0.1"
                     value={formData.weight}
                     onChange={(e) => setFormData(prev => ({ ...prev, weight: e.target.value }))}
-                    required
                     placeholder={t('pets.weightPlaceholder')}
                   />
                 </div>
@@ -330,6 +333,16 @@ export default function PetManagement({ user, pets, setPets }: PetManagementProp
                   value={formData.conditions}
                   onChange={(e) => setFormData(prev => ({ ...prev, conditions: e.target.value }))}
                   placeholder={t('pets.conditionsPlaceholder')}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="microchipId">{t('pets.microchipId')}</Label>
+                <Input
+                  id="microchipId"
+                  value={formData.microchipId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, microchipId: e.target.value }))}
+                  placeholder={t('pets.microchipIdPlaceholder')}
                 />
               </div>
 

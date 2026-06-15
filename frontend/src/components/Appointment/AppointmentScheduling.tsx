@@ -70,6 +70,13 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
   // STATE: The date selected in calendar (undefined = not selected yet)
   const [selectedDate, setSelectedDate] = useState<Date>();
 
+  // STATE: Reschedule dialog control
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
+  const [rescheduleForm, setRescheduleForm] = useState({
+    date: new Date(),
+    time: ''
+  });
+
   // STATE: List of available veterinarians loaded from backend
   const [veterinarians, setVeterinarians] = useState<User[]>([]);
 
@@ -81,7 +88,6 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     type: '',            // Type of appointment (checkup, vaccination, etc.)
     time: '',            // Time slot (09:00, 09:30, etc.)
     reason: '',          // Why pet needs to see vet
-    notes: ''            // Additional information (optional)
   });
 
   /**
@@ -132,7 +138,6 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
       type: '',
       time: '',
       reason: '',
-      notes: ''
     });
     setSelectedDate(undefined);
   };
@@ -215,6 +220,42 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     }
   };
 
+  const handleReschedule = (appointment: Appointment) => {
+    setReschedulingAppointment(appointment);
+    setRescheduleForm({
+      date: new Date(appointment.date),
+      time: appointment.time
+    });
+  };
+
+  const handleSaveReschedule = async () => {
+    if (!reschedulingAppointment) return;
+
+    try {
+      await appointmentAPI.updateAppointment(reschedulingAppointment.id, {
+        date: format(rescheduleForm.date, 'yyyy-MM-dd'),
+        time: rescheduleForm.time
+      });
+
+      const updatedAppointments = appointments.map(apt =>
+        apt.id === reschedulingAppointment.id
+          ? { ...apt, date: format(rescheduleForm.date, 'yyyy-MM-dd'), time: rescheduleForm.time }
+          : apt
+      );
+      setAppointments(updatedAppointments);
+      setReschedulingAppointment(null);
+      toast.success(t('appointment.rescheduledSuccess') || 'Cita reagendada exitosamente');
+    } catch (error: any) {
+      const message = translateApiError(error, t, 'appointment.failedReschedule');
+      toast.error(message);
+    }
+  };
+
+  const handleCancelReschedule = () => {
+    setReschedulingAppointment(null);
+    setRescheduleForm({ date: new Date(), time: '' });
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'scheduled':
@@ -237,6 +278,7 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
+    <div>
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">{t('appointment.title')}</h2>
@@ -381,17 +423,6 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">{t('appointment.additionalNotes')}</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder={t('appointment.notesPlaceholder')}
-                  rows={2}
-                />
-              </div>
-
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsScheduling(false)} disabled={isLoading}>
                   {t('common.cancel')}
@@ -452,6 +483,13 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
                     <Button
                       size="sm"
                       variant="ghost"
+                      onClick={() => handleReschedule(appointment)}
+                    >
+                      <Clock className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
                       onClick={() => handleCancelAppointment(appointment.id)}
                     >
                       <X className="h-4 w-4" />
@@ -509,6 +547,79 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
           )}
         </CardContent>
       </Card>
+    </div>
+
+    {/* Reschedule Dialog */}
+    <Dialog open={!!reschedulingAppointment} onOpenChange={(open) => !open && handleCancelReschedule()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t('appointment.rescheduleTitle') || 'Reagendar Cita'}</DialogTitle>
+          <DialogDescription>
+            {reschedulingAppointment && (
+              <>
+                {t('appointment.pet') || 'Paciente'}: <strong>{reschedulingAppointment.petName}</strong>
+              </>
+            )}
+          </DialogDescription>
+        </DialogHeader>
+
+        {reschedulingAppointment && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t('appointment.date')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(rescheduleForm.date, 'PPP')}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={rescheduleForm.date}
+                    onSelect={(date) => date && setRescheduleForm(prev => ({ ...prev, date }))}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="reschedule-time">{t('appointment.time')}</Label>
+              <Select
+                value={rescheduleForm.time}
+                onValueChange={(value) => setRescheduleForm(prev => ({ ...prev, time: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('appointment.selectTime')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeSlots.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelReschedule}>
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleSaveReschedule}>
+                {t('common.save')}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
     </div>
   );
 }

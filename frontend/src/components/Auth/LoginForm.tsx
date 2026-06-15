@@ -75,6 +75,9 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
   // STATE: Phone number (register mode only)
   const [phone, setPhone] = useState('');
 
+  // STATE: Address (register mode only, optional)
+  const [address, setAddress] = useState('');
+
   // STATE: User type - pet_owner, veterinarian, or administrator (register mode only)
   const [userType, setUserType] = useState('');
 
@@ -146,6 +149,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
           fullName,
           phone,
           userType,
+          address: address || undefined,
         });
 
         toast.success(t('toast.welcomeToPetcare', { name: user.fullName }));
@@ -248,6 +252,23 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
 
               {!isLogin && (
                 <div className="space-y-2">
+                  <Label htmlFor="address">{t('auth.address')}</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="address"
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="pl-10"
+                      placeholder={t('auth.addressPlaceholder')}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isLogin && (
+                <div className="space-y-2">
                   <Label htmlFor="userType">{t('auth.userType')}</Label>
                   <Select value={userType} onValueChange={setUserType} required>
                     <SelectTrigger>
@@ -338,6 +359,7 @@ export default function LoginForm({ onLoginSuccess, onSwitchToRegister, onForgot
                     setConfirmPassword('');
                     setFullName('');
                     setPhone('');
+                    setAddress('');
                     setUserType('');
                   }}
                   className="text-petcare-primary hover:text-petcare-navy text-sm transition-colors"

@@ -23,6 +23,7 @@ import { translateAppointmentType, translateAppointmentStatus } from '@/i18n/app
 import { translateSpecies } from '@/i18n/pets';
 import { format } from 'date-fns';
 import MedicalHistoryManagement from '../Medical/MedicalHistoryManagement';
+import ClinicalRecordForm from '../Medical/ClinicalRecordForm';
 
 interface VeterinarianDashboardProps {
   user: User;
@@ -46,6 +47,9 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
   // Navigation and selection states
   const [activeTab, setActiveTab] = useState('today');
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+
+  // Clinical record form state
+  const [clinicalRecordPetId, setClinicalRecordPetId] = useState<string | null>(null);
 
   // Editing states
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
@@ -364,12 +368,22 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                             {translateAppointmentStatus(t, appointment.status)}
                           </Badge>
                           {appointment.status === 'scheduled' && (
-                            <Button
-                              size="sm"
-                              onClick={() => handleCompleteAppointment(appointment.id)}
-                            >
-                              {t('dashboard.markComplete')}
-                            </Button>
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setClinicalRecordPetId(appointment.petId)}
+                              >
+                                <FileText className="h-4 w-4 mr-1" />
+                                {t('medical.addClinicalRecord')}
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleCompleteAppointment(appointment.id)}
+                              >
+                                {t('dashboard.markComplete')}
+                              </Button>
+                            </>
                           )}
                         </div>
                       </div>
@@ -796,6 +810,18 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Clinical Record Form Dialog */}
+      {clinicalRecordPetId && (
+        <ClinicalRecordForm
+          petId={clinicalRecordPetId}
+          onClose={() => setClinicalRecordPetId(null)}
+          onSuccess={() => {
+            setClinicalRecordPetId(null);
+            refetchPets();
+          }}
+        />
+      )}
 
       <Footer />
     </div>
