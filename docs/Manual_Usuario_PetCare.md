@@ -524,7 +524,7 @@ El panel de control del propietario se compone de tres secciones principales: **
 
 ### 8.2. Funcionalidades para Veterinario
 
-El panel de control del veterinario se compone de: **Agenda del Día**, **Próximas Citas**, **Lista de Pacientes** y **Analítica de la Consulta**.
+El panel de control del veterinario se compone de cuatro pestañas: **Agenda de Hoy**, **Próximas**, **Gestionar Citas** e **Historial Médico**. En la parte superior de la pestaña Agenda de Hoy se muestran indicadores con las citas del día, pendientes, completadas y el total de pacientes.
 
 ---
 
@@ -542,72 +542,67 @@ El panel de control del veterinario se compone de: **Agenda del Día**, **Próxi
 
 ---
 
-#### 8.2.2. Atender una Cita y Crear Nota Clínica
+#### 8.2.2. Atender una Cita y Crear Registro Clínico
 
-**Acceso:** Panel de Veterinario → Agenda del Día → Clic en la cita a atender.
+**Acceso:** Panel de Veterinario → Pestaña "Agenda de Hoy".
 
 **Procedimiento:**
 
-1. Haga clic en la cita correspondiente. Se abrirá una vista con los datos del paciente y los botones de acción.
-2. Revise la historia clínica de la mascota: historial médico, vacunas, medicamentos y alergias.
-3. Para crear la nota clínica, haga clic en **"+ Agregar Nota Clínica"** o **"+ Add Clinical Record"**.
-4. Diligencie el formulario:
+1. En la lista de citas del día, cada cita muestra dos botones: **"Agregar Registro Clínico"** y **"Marcar Completada"**.
+2. Para crear el registro clínico de la consulta, haga clic en **"Agregar Registro Clínico"**. Se abrirá un formulario con los siguientes campos:
+   - **Fecha:** Fecha de la consulta (prellenada con la fecha actual).
    - **Síntomas:** Describa los síntomas observados (obligatorio).
    - **Diagnóstico:** Diagnóstico del veterinario (obligatorio).
    - **Tratamiento:** Tratamiento indicado (obligatorio).
-   - **Medicamentos recetados:** Agregue uno o más medicamentos con nombre y dosis.
-   - **Fecha de seguimiento:** Si se requiere, seleccione la fecha para una próxima revisión.
-   - **Notas clínicas:** Observaciones adicionales (opcional).
-5. Haga clic en **"Guardar Nota Clínica"**.
-6. La nota se almacena en la historia clínica del paciente.
-7. Para marcar la cita como completada, haga clic en **"Marcar como Completada"** o **"Mark Complete"**. El propietario recibirá una notificación.
+   - **Medicamentos:** Lista de medicamentos recetados, separados por coma (opcional).
+   - **Notas adicionales:** Observaciones complementarias (opcional).
+   - **Fecha de seguimiento:** Si se requiere una próxima revisión (opcional).
+3. Haga clic en **"Agregar Registro Clínico"**. El registro se almacena en la historia clínica del paciente.
+4. Para marcar la cita como finalizada, haga clic en **"Marcar Completada"**. La cita cambiará a estado "Completada".
 
-[Imagen: Formulario de nota clínica del veterinario]
+[Imagen: Formulario de registro clínico del veterinario]
 
 ---
 
-#### 8.2.3. Gestionar la Lista de Pacientes
+#### 8.2.3. Ver Próximas Citas
 
-**Acceso:** Panel de Veterinario → Sección "Lista de Pacientes" o "Patient List".
+**Acceso:** Panel de Veterinario → Pestaña "Próximas".
 
 **Procedimiento:**
 
-1. El sistema muestra todos los pacientes (mascotas) registrados en la clínica.
-2. Use el campo de búsqueda para filtrar por nombre de mascota, especie o raza.
-3. Haga clic en una mascota para acceder a su perfil completo e historia clínica.
-4. Desde el perfil puede:
-   - Ver y editar registros médicos.
-   - Agregar o editar vacunas.
-   - Agregar o editar medicamentos.
-   - Ver notas clínicas previas.
-   - Agregar una nueva nota clínica.
-
-[Imagen: Lista de pacientes con búsqueda]
+1. La pestaña muestra las citas futuras asignadas al veterinario, ordenadas por fecha.
+2. Cada cita muestra: fecha, hora, nombre de la mascota, tipo de cita, motivo de consulta y estado.
 
 ---
 
 #### 8.2.4. Buscar y Filtrar Citas
 
-**Acceso:** Panel de Veterinario → Sección "Próximas Citas" o "Upcoming Appointments".
+**Acceso:** Panel de Veterinario → Pestaña "Gestionar Citas".
 
 **Procedimiento:**
 
-1. Use el filtro de estado para ver: **Todas**, **Programadas**, **Completadas** o **Canceladas**.
-2. Use el campo de búsqueda para localizar citas por nombre de mascota, propietario o tipo de cita.
-3. Las citas se muestran en orden cronológico.
+1. Use el filtro de estado para ver: **Todas las Citas**, **Programadas**, **Completadas** o **Canceladas**.
+2. Use el campo de búsqueda para localizar citas por nombre de mascota, dueño o tipo de cita.
+3. Las citas se muestran en orden cronológico inverso (más recientes primero).
+4. Desde esta vista puede **reagendar** una cita programada, **marcarla como completada**, **cancelarla** o **editar el historial médico** de una cita ya completada.
 
 ---
 
-#### 8.2.5. Consultar Analítica de la Consulta
+#### 8.2.5. Consultar el Historial Médico de un Paciente
 
-**Acceso:** Panel de Veterinario → Sección "Analítica" o "Practice Analytics".
+**Acceso:** Panel de Veterinario → Pestaña "Historial Médico".
 
-**Información disponible:**
+**Procedimiento:**
 
-- **Citas programadas para hoy:** Total de citas en la agenda del día.
-- **Citas completadas hoy:** Cuántas se han atendido.
-- **Total de pacientes:** Pacientes únicos registrados en el sistema.
-- **Próximas citas:** Vista de los próximos días.
+1. El sistema muestra tarjetas con todos los pacientes (mascotas) registrados en la clínica, incluyendo especie, raza, edad, peso y dueño.
+2. Use el campo de búsqueda para filtrar por nombre de mascota, especie o raza.
+3. Haga clic en la tarjeta de una mascota para acceder a su historial médico completo, organizado en cuatro secciones:
+   - **Médico:** Registros médicos generales (ver, agregar, editar, eliminar).
+   - **Vacunas:** Registros de vacunación (ver, agregar, editar, eliminar).
+   - **Medicamentos:** Medicamentos activos e inactivos (ver, agregar, editar, desactivar).
+   - **Clínico:** Notas clínicas creadas por veterinarios (ver, agregar, eliminar).
+
+[Imagen: Historial médico de un paciente]
 
 ---
 
