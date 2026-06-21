@@ -33,6 +33,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ interface UserManagementDialogsProps {
 }
 
 export default function UserManagementDialogs({ users, onUsersChange, currentUser }: UserManagementDialogsProps) {
+  const { t } = useTranslation();
   // STATE: Controls visibility of create user dialog
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
@@ -103,7 +105,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
       });
 
       // Show success notification to admin
-      toast.success('User created successfully!');
+      toast.success(t('admin.userCreated'));
 
       // Close the dialog
       setCreateDialogOpen(false);
@@ -112,7 +114,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
       onUsersChange();
     } catch (error: any) {
       // Extract error message from API response or use default
-      toast.error(error?.response?.data?.message || 'Failed to create user');
+      toast.error(error?.response?.data?.message || t('admin.failedCreate'));
     }
     setIsLoading(false);
   };
@@ -143,12 +145,12 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
         ...(data.userType === 'administrator' && data.accessLevel ? { accessLevel: data.accessLevel } : {}),
       });
 
-      toast.success('User updated successfully!');
+      toast.success(t('admin.userUpdated'));
       setEditDialogOpen(false);
       setSelectedUser(null); // Clear selection
       onUsersChange(); // Refresh list
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to update user');
+      toast.error(error?.response?.data?.message || t('admin.failedUpdate'));
     }
     setIsLoading(false);
   };
@@ -173,12 +175,12 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
       // Permanently delete user and all their data
       await userAPI.deleteUser(selectedUser.id);
 
-      toast.success('User deleted successfully!');
+      toast.success(t('admin.userDeleted'));
       setDeleteDialogOpen(false);
       setSelectedUser(null);
       onUsersChange();
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to delete user');
+      toast.error(error?.response?.data?.message || t('admin.failedDelete'));
     }
     setIsLoading(false);
   };
@@ -200,7 +202,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
   const openEditDialog = (user: User) => {
     // Check if current admin has permission to manage this user
     if (!RoleManager.canManageUser(currentUser, user)) {
-      toast.error('You do not have permission to edit this user');
+      toast.error(t('admin.noPermissionEdit'));
       return;
     }
 
@@ -223,7 +225,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
   const openDeleteDialog = (user: User) => {
     // Permission check
     if (!RoleManager.canManageUser(currentUser, user)) {
-      toast.error('You do not have permission to delete this user');
+      toast.error(t('admin.noPermissionDelete'));
       return;
     }
 
@@ -266,7 +268,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
       {RoleManager.hasPermission(currentUser, 'canCreateUsers') && (
         <Button onClick={() => setCreateDialogOpen(true)} className="mb-4">
           <UserPlus className="h-4 w-4 mr-2" />
-          Add New User
+          {t('admin.addNewUser')}
         </Button>
       )}
 
@@ -309,7 +311,7 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
                       variant="outline"
                       size="sm"
                       onClick={() => openEditDialog(user)}
-                      title="Edit user"
+                       title={t('admin.editTooltip')}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -320,14 +322,14 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
                       size="sm"
                       onClick={() => openDeleteDialog(user)}
                       className="text-red-600 hover:text-red-700"
-                      title="Delete user"
+                       title={t('admin.deleteTooltip')}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   )}
                   {user.id === currentUser.id && (
                     <Badge variant="outline" className="text-xs">
-                      You
+                      {t('admin.you')}
                     </Badge>
                   )}
                 </div>
@@ -341,9 +343,9 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New User</DialogTitle>
+            <DialogTitle>{t('admin.createNewUser')}</DialogTitle>
             <DialogDescription>
-              Add a new user to the system. Fill in all required fields.
+              {t('admin.createUserDesc')}
             </DialogDescription>
           </DialogHeader>
           <UserForm
@@ -359,9 +361,9 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>{t('admin.editUser')}</DialogTitle>
             <DialogDescription>
-              Update the user information. Make sure all required fields are filled.
+              {t('admin.editUserDesc')}
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
@@ -385,38 +387,38 @@ export default function UserManagementDialogs({ users, onUsersChange, currentUse
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center space-x-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              <span>Delete User</span>
+              <span>{t('admin.deleteUser')}</span>
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this user? This action will permanently remove:
+              {t('admin.deleteUserConfirm')}
               {selectedUser && (
                 <div className="mt-3 p-3 bg-gray-50 rounded-md">
                   <p className="font-medium">{selectedUser.fullName}</p>
                   <p className="text-sm text-gray-600">{selectedUser.email}</p>
                   <p className="text-sm text-gray-500">
-                    User Type: {selectedUser.userType.replace('_', ' ')}
+                    {t('admin.userType')} {RoleManager.getUserTypeDisplayName(selectedUser.userType)}
                   </p>
                 </div>
               )}
               <div className="mt-3 text-sm text-red-600">
-                <strong>Warning:</strong> This will also delete all associated data including:
+                <strong>{t('admin.deleteWarningTitle')}:</strong> {t('admin.deleteWarningText')}
                 <ul className="list-disc list-inside mt-1">
-                  <li>Pet records (if pet owner)</li>
-                  <li>Appointment history</li>
-                  <li>Clinical records</li>
+                  <li>{t('admin.deleteWarningPets')}</li>
+                  <li>{t('admin.deleteWarningAppointments')}</li>
+                  <li>{t('admin.deleteWarningClinical')}</li>
                 </ul>
-                This action cannot be undone.
+                {t('admin.deleteWarningUndo')}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteUser}
               disabled={isLoading}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isLoading ? 'Deleting...' : 'Delete User'}
+              {isLoading ? t('admin.deleting') : t('admin.deleteBtn')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

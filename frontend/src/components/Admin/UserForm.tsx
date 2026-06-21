@@ -35,6 +35,7 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,7 @@ interface UserFormProps {
 }
 
 export default function UserForm({ user, onSubmit, onCancel, isLoading = false, currentUser }: UserFormProps) {
+  const { t } = useTranslation();
   /**
    * REACT HOOK FORM SETUP
    * 
@@ -119,11 +121,11 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
       {/* Basic Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name *</Label>
+          <Label htmlFor="fullName">{t('auth.fullName')} *</Label>
           <Input
             id="fullName"
             {...register('fullName')}
-            placeholder="Enter full name"
+            placeholder={t('auth.fullNamePlaceholder')}
             className={errors.fullName ? 'border-red-500' : ''}
           />
           {errors.fullName && (
@@ -132,12 +134,12 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email *</Label>
+          <Label htmlFor="email">{t('auth.email')} *</Label>
           <Input
             id="email"
             type="email"
             {...register('email')}
-            placeholder="Enter email address"
+            placeholder={t('auth.emailPlaceholder')}
             className={errors.email ? 'border-red-500' : ''}
           />
           {errors.email && (
@@ -148,11 +150,11 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number *</Label>
+          <Label htmlFor="phone">{t('auth.phoneNumber')} *</Label>
           <Input
             id="phone"
             {...register('phone')}
-            placeholder="Enter phone number"
+            placeholder={t('auth.phoneNumberPlaceholder')}
             className={errors.phone ? 'border-red-500' : ''}
           />
           {errors.phone && (
@@ -161,12 +163,12 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password *</Label>
+          <Label htmlFor="password">{t('auth.password')} *</Label>
           <Input
             id="password"
             type="password"
             {...register('password')}
-            placeholder="Enter password"
+            placeholder={t('auth.passwordPlaceholder')}
             className={errors.password ? 'border-red-500' : ''}
           />
           {errors.password && (
@@ -176,23 +178,23 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="userType">User Type *</Label>
+        <Label htmlFor="userType">{t('admin.userTypeLabel')} *</Label>
         <Select
           onValueChange={(value) => setValue('userType', value as 'pet_owner' | 'veterinarian' | 'administrator', { shouldValidate: true })}
           value={watchUserType}
         >
           <SelectTrigger className={errors.userType ? 'border-red-500' : ''}>
-            <SelectValue placeholder="Select user type" />
+            <SelectValue placeholder={t('admin.userTypePlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             {creatableUserTypes.includes('pet_owner') && (
-              <SelectItem value="pet_owner">Pet Owner</SelectItem>
+              <SelectItem value="pet_owner">{t('admin.petOwner')}</SelectItem>
             )}
             {creatableUserTypes.includes('veterinarian') && (
-              <SelectItem value="veterinarian">Veterinarian</SelectItem>
+              <SelectItem value="veterinarian">{t('admin.veterinarian')}</SelectItem>
             )}
             {creatableUserTypes.includes('administrator') && (
-              <SelectItem value="administrator">Administrator</SelectItem>
+              <SelectItem value="administrator">{t('admin.administrator')}</SelectItem>
             )}
           </SelectContent>
         </Select>
@@ -202,11 +204,11 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
+        <Label htmlFor="address">{t('admin.addressLabel')}</Label>
         <Textarea
           id="address"
           {...register('address')}
-          placeholder="Enter address"
+          placeholder={t('admin.addressPlaceholder')}
           className={errors.address ? 'border-red-500' : ''}
           rows={3}
         />
@@ -219,11 +221,11 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
       {watchUserType === 'veterinarian' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="specialization">Specialization</Label>
+            <Label htmlFor="specialization">{t('admin.specialization')}</Label>
             <Input
               id="specialization"
               {...register('specialization')}
-              placeholder="Enter specialization"
+              placeholder={t('admin.specializationPlaceholder')}
               className={errors.specialization ? 'border-red-500' : ''}
             />
             {errors.specialization && (
@@ -232,11 +234,11 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="licenseNumber">License Number</Label>
+            <Label htmlFor="licenseNumber">{t('admin.licenseNumber')}</Label>
             <Input
               id="licenseNumber"
               {...register('licenseNumber')}
-              placeholder="Enter license number"
+              placeholder={t('admin.licenseNumberPlaceholder')}
               className={errors.licenseNumber ? 'border-red-500' : ''}
             />
             {errors.licenseNumber && (
@@ -249,13 +251,13 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
       {/* Administrator-specific fields */}
       {watchUserType === 'administrator' && availableAccessLevels.length > 0 && (
         <div className="space-y-2">
-          <Label htmlFor="accessLevel">Access Level</Label>
+          <Label htmlFor="accessLevel">{t('admin.accessLevel')}</Label>
           <Select
             onValueChange={(value) => setValue('accessLevel', value, { shouldValidate: true })}
             value={watchAccessLevel || 'standard'}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select access level" />
+              <SelectValue placeholder={t('admin.accessLevelPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
               {availableAccessLevels.includes('standard') && (
@@ -273,7 +275,7 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
             <p className="text-sm text-red-500">{errors.accessLevel.message}</p>
           )}
           <p className="text-sm text-gray-500">
-            Access level determines the administrative permissions for this user.
+            {t('admin.accessLevelDesc')}
           </p>
         </div>
       )}
@@ -286,13 +288,13 @@ export default function UserForm({ user, onSubmit, onCancel, isLoading = false, 
           onClick={onCancel}
           disabled={isLoading}
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           type="submit"
           disabled={isLoading || !isValid}
         >
-          {isLoading ? 'Saving...' : user ? 'Update User' : 'Create User'}
+          {isLoading ? t('admin.saving') : user ? t('admin.updateUser') : t('admin.createUser')}
         </Button>
       </div>
     </form>
