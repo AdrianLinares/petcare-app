@@ -1,7 +1,7 @@
 # MANUAL DE USUARIO DEL SISTEMA DE INFORMACIÓN PETCARE
 
 **CÓDIGO:** PETCARE-MU-001  
-**VERSIÓN:** 1.0  
+**VERSIÓN:** 1.1  
 **FECHA:** Junio 2026  
 
 ---
@@ -11,6 +11,7 @@
 | Versión | Fecha | Descripción | Autores |
 |---------|-------|-------------|---------|
 | 1.0 | Junio 14 de 2026 | Versión inicial del Manual de Usuario | Equipo PetCare |
+| 1.1 | Junio 21 de 2026 | Correcciones de flujo, i18n en formularios admin, horarios de citas 7:00-19:00, reagendamiento para propietarios | Equipo PetCare |
 
 ---
 
