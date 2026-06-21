@@ -696,7 +696,7 @@ export default function VeterinarianDashboard({ user, onLogout }: VeterinarianDa
                       mode="single"
                       selected={rescheduleForm.date}
                       onSelect={(date) => date && setRescheduleForm(prev => ({ ...prev, date }))}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       initialFocus
                     />
                   </PopoverContent>
