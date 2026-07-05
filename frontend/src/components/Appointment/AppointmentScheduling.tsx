@@ -35,6 +35,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -89,6 +90,9 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     time: '',            // Time slot (09:00, 09:30, etc.)
     reason: '',          // Why pet needs to see vet
   });
+
+  // STATE: Active status filter for past appointments
+  const [pastStatusFilter, setPastStatusFilter] = useState<'all' | 'completed' | 'cancelled'>('all');
 
   /**
    * EFFECT: Load Available Veterinarians
@@ -275,7 +279,12 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const pastAppointments = appointments
-    .filter(apt => new Date(apt.date) <= new Date() || apt.status === 'cancelled')
+    .filter(apt => {
+      const isPast = new Date(apt.date) <= new Date() || apt.status === 'cancelled';
+      if (!isPast) return false;
+      if (pastStatusFilter === 'all') return true;
+      return apt.status === pastStatusFilter;
+    })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
@@ -514,35 +523,53 @@ export default function AppointmentScheduling({ user, pets, appointments, setApp
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {pastAppointments.length > 0 ? (
-            <div className="space-y-4">
-              {pastAppointments.map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
-                      <Clock className="h-5 w-5 text-gray-400" />
+          {appointments.filter(apt => new Date(apt.date) <= new Date() || apt.status === 'cancelled').length > 0 ? (
+            <>
+              <Tabs
+                value={pastStatusFilter}
+                onValueChange={(value) => setPastStatusFilter(value as 'all' | 'completed' | 'cancelled')}
+                className="mb-4"
+              >
+                <TabsList>
+                  <TabsTrigger value="all">{t('appointment.status.all')}</TabsTrigger>
+                  <TabsTrigger value="completed">{t('appointment.status.completed')}</TabsTrigger>
+                  <TabsTrigger value="cancelled">{t('appointment.status.cancelled')}</TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              {pastAppointments.length > 0 ? (
+                <div className="space-y-4">
+                  {pastAppointments.map((appointment) => (
+                    <div
+                      key={appointment.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-shrink-0">
+                          <Clock className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{appointment.petName}</p>
+                          <p className="text-sm text-gray-600">
+                            {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
+                          </p>
+                          <p className="text-sm text-gray-600">{t('appointment.doctorPrefix', { name: appointment.veterinarian })}</p>
+                          <p className="text-sm text-gray-500">{appointment.reason}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline">{translateAppointmentType(t, appointment.type)}</Badge>
+                        <Badge className={getStatusColor(appointment.status)}>
+                          {translateAppointmentStatus(t, appointment.status)}
+                        </Badge>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">{appointment.petName}</p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
-                      </p>
-                      <p className="text-sm text-gray-600">{t('appointment.doctorPrefix', { name: appointment.veterinarian })}</p>
-                      <p className="text-sm text-gray-500">{appointment.reason}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{translateAppointmentType(t, appointment.type)}</Badge>
-                    <Badge className={getStatusColor(appointment.status)}>
-                      {translateAppointmentStatus(t, appointment.status)}
-                    </Badge>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8">{t('appointment.noPastAppointmentsMatch')}</p>
+              )}
+            </>
           ) : (
             <p className="text-gray-500 text-center py-8">{t('appointment.noPastAppointments')}</p>
           )}

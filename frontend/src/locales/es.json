@@ -310,10 +310,12 @@
             "consultation": "Consulta"
         },
         "status": {
+            "all": "Todas",
             "scheduled": "Programada",
             "completed": "Completada",
             "cancelled": "Cancelada"
-        }
+        },
+        "noPastAppointmentsMatch": "No hay citas anteriores que coincidan con el filtro seleccionado"
     },
     "api": {
         "invalidCredentials": "Correo o contraseña inválidos",

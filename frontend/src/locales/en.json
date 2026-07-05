@@ -310,10 +310,12 @@
             "consultation": "Consultation"
         },
         "status": {
+            "all": "All",
             "scheduled": "Scheduled",
             "completed": "Completed",
             "cancelled": "Cancelled"
-        }
+        },
+        "noPastAppointmentsMatch": "No past appointments match the selected filter"
     },
     "api": {
         "invalidCredentials": "Invalid email or password",

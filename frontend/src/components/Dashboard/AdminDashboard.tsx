@@ -165,7 +165,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const filteredAppointments = allAppointments.filter(appointment => {
     const matchesSearch = appointmentSearchTerm === '' ||
       appointment.petName.toLowerCase().includes(appointmentSearchTerm.toLowerCase()) ||
-      appointment.veterinarian.toLowerCase().includes(appointmentSearchTerm.toLowerCase()) ||
+      (appointment.veterinarian?.toLowerCase().includes(appointmentSearchTerm.toLowerCase()) ?? false) ||
       appointment.type.toLowerCase().includes(appointmentSearchTerm.toLowerCase()) ||
       appointment.ownerId.toLowerCase().includes(appointmentSearchTerm.toLowerCase());
 
