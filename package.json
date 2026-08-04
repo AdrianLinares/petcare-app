@@ -14,8 +14,10 @@
         "build": "pnpm --filter ./frontend build",
         "prebuild": "pnpm --filter ./frontend test:run || true",
         "test": "pnpm --filter ./frontend test",
-        "test:run": "pnpm --filter ./frontend test:run",
+        "test:run": "pnpm --filter ./frontend test:run && pnpm --filter ./netlify/functions test:run",
         "test:coverage": "pnpm --filter ./frontend test:coverage",
+        "lint": "pnpm --filter ./frontend lint",
+        "typecheck": "pnpm --filter ./frontend typecheck && pnpm --filter ./netlify/functions typecheck",
         "install:all": "pnpm install",
         "install:functions": "pnpm install --filter ./netlify/functions",
         "reinstall:clean": "./fix-dependencies.sh"

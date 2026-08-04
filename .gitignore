@@ -26,6 +26,12 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Entornos de producción reales (contienen claves/URLs efectivas).
+# Solo versionar los archivos *.example. Mover secretos a vars de entorno.
+.env.production
+.env.*.production
+.env.*.production.local
+
 # Lock files
 deno.lock
 yarn.lock
@@ -36,3 +42,6 @@ frontend/coverage/
 
 # Skill registry artifacts
 .atl/
+
+# CodeGraph index (generado localmente, por máquina)
+.codegraph/

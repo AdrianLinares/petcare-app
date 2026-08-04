@@ -64,7 +64,9 @@ const handler: Handler = async (event: HandlerEvent) => {
 
   try {
     const path = event.path.replace('/.netlify/functions/pets', '').replace('/api/pets', '');
-    let body = {};
+    // Tipado explícito: evita que `body` se infiera como `{}`, lo que rompía
+    // `tsc` al desestructurar los campos del body (fix typecheck, sin cambio de comportamiento).
+    let body: Record<string, any> = {};
 
     try {
       body = event.body ? JSON.parse(event.body) : {};

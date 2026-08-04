@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Política de calidad (metodología híbrida Scrum+DevOps conforme a docs/ajustes):
+# - Node 20 + pnpm 10 (versiones que el proyecto declara en engines/.nvmrc/Netlify).
+#   IMPORTANTE: ejecutar en Node 26 rompe los tests (el global localStorage de Node
+#   sombrea el de jsdom); CI fija Node 20 para garantizar una suite verde reproducible.
+# - Son gates de cada push/PR: lint, typecheck, unit tests y build.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  quality-gates:
+    name: Lint + Typecheck + Tests + Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: pnpm lint
+
+      - name: TypeScript typecheck — frontend
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+      - name: TypeScript typecheck + build — functions
+        working-directory: netlify/functions
+        run: pnpm typecheck && pnpm build
+
+      - name: Tests — frontend
+        working-directory: frontend
+        run: pnpm test:run
+
+      - name: Tests — functions
+        working-directory: netlify/functions
+        run: pnpm test:run
+
+      - name: Coverage — frontend
+        working-directory: frontend
+        run: pnpm test:coverage
+
+      - name: Build — frontend
+        working-directory: frontend
+        run: pnpm build
