@@ -145,7 +145,7 @@ const handler: Handler = async (event: HandlerEvent) => {
     }
 
     // Handle /:id routes
-    const idMatch = path.match(/^\/([^\/]+)(\/.*)?$/);
+    const idMatch = path.match(/^\/([^/]+)(\/.*)?$/);
     if (idMatch) {
       const notificationId = idMatch[1];
       const subPath = idMatch[2] || '';

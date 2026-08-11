@@ -38,7 +38,8 @@ yarn.lock
 WARP.md
 # Local Netlify folder
 .netlify
-frontend/coverage/
+# Reportes de cobertura generados (los que se versionan son los resúmenes en docs/)
+coverage/
 
 # Skill registry artifacts
 .atl/

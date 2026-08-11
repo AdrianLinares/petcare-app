@@ -16,14 +16,14 @@ producto PetCare. Se clasifican por función dentro del proceso de evaluación.
 | **Vitest** | 3.2.4 | Runner de pruebas unitarias (frontend y functions); genera resultados por archivo y test | 28+7 archivos, 526 pruebas |
 | **React Testing Library** | 16.x | Pruebas de componentes React (render, eventos, accesibilidad) | `src/components/**/*.test.*` |
 | **MSW** (Mock Service Worker) | — | Intercepta peticiones HTTP en pruebas para aislar el frontend de la API | suites de hooks/componentes |
-| **@vitest/coverage-v8** | 3.2.4 | Proveedor de cobertura (frontend): líneas, ramas, funciones | Reporte text/html/lcov |
+| **@vitest/coverage-v8** | 3.2.4 | Proveedor de cobertura (frontend **y functions** desde 2026-08-04): líneas, ramas, funciones | Reporte text/html/lcov |
 | **jsdom** | 24.x | Entorno DOM para pruebas de componentes | `environment: "jsdom"` |
 
 ## 2. Herramientas de análisis estático y tipado
 
 | Herramienta | Versión | Función en la evaluación | Resultado |
 |---|---|---|---|
-| **ESLint** | 9.x | Aplicación de criterios de calidad de código (mantenibilidad) | 0 errores tras ajuste (59 preexistentes registrados) |
+| **ESLint** | 9.x | Aplicación de criterios de calidad de código (mantenibilidad) en frontend **y netlify/functions** | 0 errores en ambos (7 corregidos en functions) |
 | **typescript-eslint** | 8.x | Reglas TS (incluye `no-explicit-any`, hoy desactivado por deuda D4) | Gate de CI |
 | **TypeScript / tsc** | 5.x | Verificación estática de tipos (`--noEmit`) en frontend y functions | 0 errores tras fix de `pets.ts` |
 | **Vite** | 5.4 | Bundler de build; emite warning de tamaño de chunk (> 600 kB) | Build OK |
@@ -32,7 +32,8 @@ producto PetCare. Se clasifican por función dentro del proceso de evaluación.
 
 | Herramienta | Función | Criterio que automatiza |
 |---|---|---|
-| **GitHub Actions** (nuevo) | Pipeline `ci.yml` en push/PR | Ejecuta lint, typecheck, tests, cobertura y build de forma bloqueante (cambios.md O2) |
+| **GitHub Actions** (nuevo) | Pipeline `ci.yml` en push/PR | Ejecuta lint (frontend+functions), typecheck, tests, cobertura (frontend+functions) y build de forma bloqueante (cambios.md O2) |
+| **actions/upload-artifact** (nuevo) | Publica `coverage-reports` por ejecución | Hace auditable la cobertura en cada CI (deuda D6) |
 | **pnpm** | 10.14.0 | Gestor de paquetes del monorepo; scripts `test`, `test:run`, `test:coverage`, `lint`, `typecheck` |
 | **Netlify** | Build/deploy | Despliegue automático desde `main` (`netlify.toml`, Functions, Edge caching) |
 
@@ -67,8 +68,14 @@ producto PetCare. Se clasifican por función dentro del proceso de evaluación.
 | Mantenibilidad | ESLint + `tsc` + cobertura v8 |
 | Usabilidad | i18n tests + UAT + manual DNP |
 
-## 7. Herramientas propuestas (siguiente ciclo)
+## 7. Herramientas añadidas en el segundo batch (2026-08-04)
 
-- `@vitest/coverage-v8` en `netlify/functions` (medir cobertura del backend — deuda D2).
-- ESLint config para `netlify/functions` (deuda D3).
-- Reportes de cobertura versionados como artefacto de CI (evidencia auditable — deuda D6).
+- `@vitest/coverage-v8` en `netlify/functions` (cobertura del backend medible y gateada — deuda D2 resuelta).
+- `eslint.config.js` + script `lint` para `netlify/functions` — deuda D3 resuelta.
+- Reporte versionado `docs/evidencia-calidad/reportes/2026-08-04-cobertura.md` + artefacto `coverage-reports` en CI — deuda D6 resuelta.
+
+## 8. Herramientas propuestas (siguiente ciclo)
+
+- Cobertura frontend → 80 % (módulos al 0 %: `components/Admin`, hooks): ampliar pruebas por dominio (deuda D1).
+- Re-activar `@typescript-eslint/no-explicit-any` (como `warn`) en frontend y functions (deuda D4).
+- Telemetría de p95 del dashboard (NFR-01 auditable, deuda D5/D6).

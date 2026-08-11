@@ -120,3 +120,19 @@ proyecto podía sostener de inmediato:
 - Características, propiedades y métricas en `caracteristicas.md`.
 - Actividades y tareas de evaluación en `actividades.md`.
 - Herramientas de medición/evaluación/visualización en `herramientas.md`.
+
+---
+
+## 8. Actualización de estado (2026-08-04)
+
+Segundo batch de mejoras (automatización + evidencia auditable):
+
+| Deuda | Estado | Detalle |
+|---|---|---|
+| **D2** | ✅ **Resuelta** | `@vitest/coverage-v8` instalado en `netlify/functions`; cobertura medida (52.59 % líneas / 91.66 % ramas / 74.07 % funciones) y umbrales alineados a la línea base (50/60/80); ejecución en CI y en `pnpm test:coverage` raíz. |
+| **D3** | ✅ **Resuelta** | `eslint.config.js` para `netlify/functions` (TS, node globals) + script `lint` + regla en CI. Se corrigieron 7 errores triviales (`prefer-const`, escapes `\/` innecesarios en regex). `no-explicit-any` desactivado por deuda, como en frontend. |
+| **D6** | ✅ **Resuelta (parcial)** | Reporte versionado `docs/evidencia-calidad/reportes/2026-08-04-cobertura.md` con valores reales reproducibles; CI publica el artefacto `coverage-reports` (30 días) en cada ejecución. |
+| **D1** | 🔲 Pendiente | Cobertura frontend ≈52 % → objetivo 80 % (empezar por módulos al 0 %: `components/Admin`, 5 handlers de functions, 2 utils). |
+| **D4** | 🔲 Pendiente | Eliminar `any` progresivamente en frontend y functions; re-activar `no-explicit-any` (primero como `warn`). |
+| **D5** | 🔲 Pendiente | Carpetas `uat/`, `acr/`, `auditorias/` y matriz de trazabilidad/NFR-01 sin completar. |
+

@@ -29,6 +29,13 @@ la verificación final.
 | 15 | 2026-08-03 20:35 | **Creación de la carpeta de documentación** | `docs/ajustes/` con `cambios.md`, `bitacora.md`, `caracteristicas.md`, `actividades.md`, `herramientas.md` | carpeta de ajustes |
 | 16 | 2026-08-03 20:36 | **Versionado de documentación** | Creación de `CHANGELOG.md` (v0.1.0 → v1.4.0) | cambios.md O5 |
 | 17 | 2026-08-03 — | **Cierre y memoria** | Guardado de hallazgos y decisiones en Engram; resumen de sesión | memoria persistente |
+| 18 | 2026-08-04 | **Inicio del segundo batch (automatización + evidencia)** | Confirmación del CI verde en GitHub (1m22s); plan de las deudas D2, D3 y D6 | — |
+| 19 | 2026-08-04 | **D2 — instalación y medición** | `@vitest/coverage-v8` instalado en functions; cobertura medida: 52.59 % líneas / 91.66 % ramas / 74.07 % funciones (5 handlers y 2 utils al 0 %) | línea base en `reportes/` |
+| 20 | 2026-08-04 | **D2 — umbrales y CI** | Umbrales realineados (50/60/80) en `netlify/vitest.config.ts`; paso de cobertura de functions agregado al CI | gate verde |
+| 21 | 2026-08-04 | **D3 — lint de functions** | `eslint.config.js` (TS, node globals) + script `lint`; 7 errores triviales corregidos (`prefer-const`, escapes `\/`); regla en CI | 0 errores |
+| 22 | 2026-08-04 | **D6 — evidencia auditable** | Reporte `docs/evidencia-calidad/reportes/2026-08-04-cobertura.md` versionado; CI publica artefacto `coverage-reports` (30 días) | evidencia reproducible |
+| 23 | 2026-08-04 | **Actualización documental** | `cambios.md §8` (estado D1–D6), `herramientas.md` (nuevas herramientas) y esta bitácora actualizadas | docs actualizadas |
+| 24 | 2026-08-04 | **Verificación final del batch** | lint (frontend+functions) 0 errores · typecheck OK · 526 pruebas OK · cobertura ambos paquetes cumple umbrales | — |
 
 ## Decisiones clave tomadas durante el proceso
 

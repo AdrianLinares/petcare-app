@@ -61,7 +61,7 @@ const handler: Handler = async (event) => {
     }
 
     // GET /medications/pet/:petId
-    const petMatch = path.match(/^\/pet\/([^\/]+)$/);
+    const petMatch = path.match(/^\/pet\/([^/]+)$/);
     if (petMatch && event.httpMethod === 'GET') {
       const petId = petMatch[1];
       let queryText = `SELECT m.*, u.full_name AS prescribed_by_name FROM medications m
@@ -89,7 +89,7 @@ const handler: Handler = async (event) => {
     }
 
     // Handle /:id/deactivate
-    const deactivateMatch = path.match(/^\/([^\/]+)\/deactivate$/);
+    const deactivateMatch = path.match(/^\/([^/]+)\/deactivate$/);
     if (deactivateMatch && event.httpMethod === 'PATCH') {
       const medId = deactivateMatch[1];
       const result = await query(

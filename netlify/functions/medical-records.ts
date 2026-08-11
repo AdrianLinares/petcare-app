@@ -53,7 +53,7 @@ const handler: Handler = async (event: HandlerEvent) => {
     }
 
     // GET /medical-records/pet/:petId (frontend expectation)
-    const petMatch = path.match(/^\/pet\/([^\/]+)$/);
+    const petMatch = path.match(/^\/pet\/([^/]+)$/);
     if (petMatch && event.httpMethod === 'GET') {
       const petId = petMatch[1];
       let queryText = `SELECT mr.*, p.name as pet_name FROM medical_records mr

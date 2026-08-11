@@ -17,7 +17,7 @@ export const errorResponse = (error: any, statusCode = 500): HandlerResponse => 
   console.error('Function error:', error);
   
   // Handle common error messages
-  let message = error.message || 'Internal server error';
+  const message = error.message || 'Internal server error';
   let code = statusCode;
   
   if (message === 'Authentication required' || message === 'Invalid or expired token') {

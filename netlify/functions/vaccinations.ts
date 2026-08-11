@@ -77,7 +77,7 @@ const handler: Handler = async (event) => {
     }
 
     // GET /vaccinations/pet/:petId
-    const petMatch = path.match(/^\/pet\/([^\/]+)$/);
+    const petMatch = path.match(/^\/pet\/([^/]+)$/);
     if (petMatch && event.httpMethod === 'GET') {
       const petId = petMatch[1];
       let queryText = `SELECT v.*, u.full_name AS administered_by_name FROM vaccinations v
